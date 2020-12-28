@@ -155,7 +155,7 @@ export class Renderer {
     threadingAbsenceTexture.bind(6);
     this.weaveShader.setSampler2D('threadingAbsence', 6);
 
-    this.weaveShader.setFloat('squareSize', ui.squareSize);
+    this.weaveShader.setFloat('squareSize', ui.cellSize + ui.borderSize / 2.0);
     this.weaveShader.setFloat('borderSize', ui.borderSize);
 
     this.weaveShader.setFloat('warpCount', draft.warpCount);

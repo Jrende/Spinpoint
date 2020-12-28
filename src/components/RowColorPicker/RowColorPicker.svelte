@@ -31,11 +31,11 @@
 
   function syncCanvasDimensions() {
     if(vertical) {
-      canvas.width = $ui.squareSize;
-      canvas.height = $ui.squareSize * length;
+      canvas.width = $ui.cellSize;
+      canvas.height = $ui.cellSize * length;
     } else {
-      canvas.width = $ui.squareSize * length;
-      canvas.height = $ui.squareSize;
+      canvas.width = $ui.cellSize * length;
+      canvas.height = $ui.cellSize;
     }
     draw();
   }
@@ -50,8 +50,9 @@
     ctx.fillStyle = 'black';
 
     if(vertical) {
-      let squareSize = ($ui.squareSize - borderSize / 2.25);
+      let squareSize = ($ui.cellSize - borderSize / 4.0);
       let insideSquareSize = squareSize / 1.5;
+
       ctx.fillRect(0.0, 0, squareSize, borderSize);
       ctx.fillRect(0, 0, borderSize, squareSize * length);
       ctx.fillRect(squareSize - borderSize, 0, borderSize, squareSize * length);
@@ -65,13 +66,14 @@
         ctx.fillStyle = colorsStr[i];
         ctx.fillRect(
           insideSquareSize / 4.0,
-          i * squareSize + insideSquareSize / 3.5,
+          i * squareSize + insideSquareSize / 4.0,
           insideSquareSize,
           insideSquareSize
         );
       }
+
     } else {
-      let squareSize = ($ui.squareSize - borderSize / 4.0);
+      let squareSize = ($ui.cellSize - borderSize / 4.0);
       let insideSquareSize = squareSize / 1.5;
       ctx.fillRect(0.1, 0, borderSize, squareSize);
       ctx.fillRect(squareSize * length, 0, borderSize, squareSize);

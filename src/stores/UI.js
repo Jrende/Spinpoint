@@ -3,7 +3,7 @@ import { writable } from 'svelte/store'
 
 const store = writable({
   canvasSize: 100,
-  squareSize: 25,
-  borderSize: 1.5
+  cellSize: 25,
+  borderSize: 2
 });
 export default store;

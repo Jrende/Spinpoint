@@ -1,49 +1,43 @@
 <script>
-  import {Grid, ThreadingForm, TreadlingForm, TieupForm, WeaveDisplay, RowColorPicker } from './components';
+  import { Router, Link, Route } from "svelte-navigator";
+  import {
+    Sidebar
+  } from './components';
+  import Editor from './pages/Editor.svelte';
+  import Help from './pages/Help.svelte';
   import ui from './stores/UI';
   import draft from './stores/Draft';
+
+  export let url;
+  $: {
+    console.log("url: ", url);
+  }
 </script>
 
-<main style="
-             grid-template-rows: {`auto ${$ui.canvasSize}px 1fr`};
-             grid-template-columns: {`auto ${$ui.canvasSize}px 1fr`};
-             ">
-  <div class="tieup-container">
-    <TieupForm />
+<Router url="{url}">
+  <div class="application">
+    <Sidebar />
+    <Route path="about" component="{Help}" />
+    <Route path="/" component="{Editor}" />
   </div>
-  <div class="warp-colors">
-    <RowColorPicker length={$draft.warpCount} colors={$draft.warpColors} />
-  </div>
-  <div class="threading-container">
-    <ThreadingForm />
-  </div>
-  <div class="weft-colors">
-    <RowColorPicker length={$draft.pickCount} colors={$draft.weftColors} vertical={true} />
-  </div>
-  <div class="treadling-container">
-    <TreadlingForm />
-  </div>
-  <div class="weave-display-container">
-    <WeaveDisplay />
-  </div>
-</main>
+</Router>
 
 <style>
-  :global(body) {
-    margin: 0;
-    padding: 0;
-  }
-
-  main {
-    grid-gap: 16px;
-    padding: 16px;
-    display: grid;
+  .application {
+    display: flex;
+    flex-direction: row;
 
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+  }
+
+  main {
+    grid-gap: 16px;
+    padding: 16px;
+    display: grid;
   }
 
   .tieup-container {
@@ -76,6 +70,4 @@
     grid-column: 1;
   }
 
-  main > div {
-  }
 </style>

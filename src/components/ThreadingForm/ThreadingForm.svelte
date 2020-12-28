@@ -28,6 +28,7 @@
   xCellCount={$draft.shaftCount}
   yCellCount={$draft.warpCount}
   borderSize={$ui.borderSize}
+  cellSize={$ui.cellSize}
   vertical={false}
   toggleCell={(x, y) => {
     return $draft.threading[x] === y;

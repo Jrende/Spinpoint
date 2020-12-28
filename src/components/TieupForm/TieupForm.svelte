@@ -25,6 +25,7 @@
   xCellCount={$draft.shaftCount}
   yCellCount={$draft.treadleCount}
   borderSize={$ui.borderSize}
+  cellSize={$ui.cellSize}
   vertical={false}
   toggleCell={(x, y) => {
     return $draft.tieup[x][y] === 1;

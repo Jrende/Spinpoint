@@ -5,6 +5,8 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 import { string } from "rollup-plugin-string";
+import svg from 'rollup-plugin-svg-import';
+import includePaths from 'rollup-plugin-includepaths';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -18,7 +20,7 @@ function serve() {
   return {
     writeBundle() {
       if (server) return;
-      server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
+      server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev', '--single'], {
         stdio: ['ignore', 'inherit', 'inherit'],
         shell: true
       });
@@ -48,6 +50,14 @@ export default {
     string({
       include: ["**/*.frag", "**/*.vert"],
       exclude: ["**/index.html"]
+    }),
+    svg({
+      // process SVG to DOM Node or String. Default: false
+      stringify: true
+    }),
+    includePaths({
+      paths: ['src', 'assets'],
+      extensions: ['.js', '.json', '.html', 'svg']
     }),
     // we'll extract any component CSS out into
     // a separate file - better for performance

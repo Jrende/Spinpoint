@@ -26,9 +26,10 @@
 
 <Grid
   bind:this={grid}
-  xCellCount={$draft.shaftCount}
+  xCellCount={$draft.treadleCount}
   yCellCount={$draft.pickCount}
   borderSize={$ui.borderSize}
+  cellSize={$ui.cellSize}
   vertical={true}
   toggleCell={(x, y) => {
     return $draft.treadling[x] === y;
