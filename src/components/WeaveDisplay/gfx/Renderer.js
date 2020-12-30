@@ -58,20 +58,9 @@ export class Renderer {
   }
 
   render() {
-    //Tieup diagram
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.renderers.forEach(r => {
       r.render();
     });
-    //this.tieupRenderer.render([3.0, 3.0], draft.treadleCount, draft.shaftCount, ui);
-    /*
-    this.tieupRenderer.render([5.0, 3.0], draft, ui);
-    this.tieupRenderer.render([3.0, 5.0], draft, ui);
-
-    this.tieupRenderer.render([5.0, 1.0], draft, ui);
-    this.tieupRenderer.render([1.0, 5.0], draft, ui);
-
-    this.tieupRenderer.render([5.0, 5.0], draft, ui);
-*/
-
   }
 }

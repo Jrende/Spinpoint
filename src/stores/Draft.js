@@ -32,19 +32,21 @@ if(window.localStorage.getItem('draft')) {
   }
 }
 
-if(draft.tieup.length < draft.treadleCount) {
-  for(let i = 0; i < draft.treadleCount - draft.tieup.length; i++) {
-    draft.tieup.push(0);
-  }
+let tieup = new Array(draft.treadleCount);
+for(let i = 0; i < draft.treadleCount; i++) {
+  tieup[i] = new Array(draft.shaftCount);
 }
 
-if(draft.tieup[0].length < draft.shaftCount) {
-  for(let i = 0; i < draft.tieup.length; i++) {
-    for(let j = 0; j < draft.shaftCount - draft.tieup[i].length; j++) {
-      draft.tieup[i].push(0);
+for(let i = 0; i < draft.treadleCount; i++) {
+  for(let j = 0; j < draft.shaftCount; j++) {
+    if(draft.tieup[i] !== undefined && draft.tieup[i][j] !== undefined) {
+      tieup[i][j] = draft.tieup[i][j];
+    } else {
+      tieup[i][j] = 0;
     }
   }
 }
+draft.tieup = tieup;
 
 const store = writable(draft);
 export default store;

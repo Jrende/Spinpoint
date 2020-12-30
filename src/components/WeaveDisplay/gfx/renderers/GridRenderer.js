@@ -1,7 +1,7 @@
 import VertexArray from '../VertexArray';
 import { mat4, quat } from 'gl-matrix';
 export class GridRenderer {
-  constructor(gl, shaders, pos, toggleFunction = () => false) {
+  constructor(gl, shaders, pos, toggleFunction = () => false, onClick = () => {}) {
     this.gl = gl;
     this.solidShader = shaders.getShader('solid')
     this.quad = new VertexArray(this.gl, [
@@ -17,19 +17,31 @@ export class GridRenderer {
 
     this.pos = pos;
     this.toggleFunction = toggleFunction;
+    this.onClick = onClick;
   }
 
   handleClickEvent(event) {
     let { ui, xCount, yCount } = this.values;
-    let { cellSize, borderSize } = ui;
+    let cellSize = ui.cellSize;
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
-    let x = event.offsetX / w;
-    let y = event.offsetY / h;
-    console.log("Click at ", x, y);
-    let p1 = this.pos[0] * (cellSize / w);
-    let p2 = this.pos[1] * (cellSize / h);
-    console.log("pos: ", p1, p2);
+    let x = event.offsetX / w * 2.0;
+    let y = event.offsetY / h * 2.0;
+
+    let gridX = (this.pos[0]) * (cellSize / w);
+    let gridY = (this.pos[1]) * (cellSize / h);
+    let gridW = (xCount * cellSize) / w;
+    let gridH = (yCount * cellSize) / h;
+    if(
+      x > gridX &&
+      y > gridY &&
+      x < (gridX + gridW) &&
+      y < (gridY + gridH)
+    ) {
+      let i = Math.floor(((x - gridX) / gridW) * xCount);
+      let j = Math.floor(((y - gridY) / gridH) * yCount);
+      this.onClick(i, j);
+    }
   }
 
   updateValues(values) {
@@ -39,8 +51,12 @@ export class GridRenderer {
   render() {
     let { ui, xCount, yCount } = this.values;
     let { cellSize, borderSize } = ui;
+
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
+    window.w = w;
+    window.h = h;
+    window.cellSize = cellSize;
     this.solidShader.bind();
     this.quad.bind();
     this.solidShader.setVec4('color', [0.0, 0.0, 0.0, 1.0]);

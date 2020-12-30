@@ -11,7 +11,6 @@
 
   $: {
     if(renderer) {
-      console.log("update plix", $draft);
       renderer.updateValues(tieup, {
         xCount: $draft.treadleCount,
         yCount: $draft.shaftCount,
@@ -28,7 +27,17 @@
       'grid',
       [3, 3],
       (i, j) => $draft.tieup[i][j] === 1,
-      (i, j) => console.log("Clicked ", i, j)
+      (i, j) => {
+        draft.update(v => {
+          let tieup = v.tieup;
+          let tv = tieup[i][j];
+          tieup[i][j] = tv === 1 ? 0 : 1;
+          return {
+            ...v,
+            tieup
+          };
+        });
+      }
     );
     renderer.resizeCanvas();
   });
