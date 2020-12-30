@@ -31,9 +31,29 @@ if(window.localStorage.getItem('draft')) {
     draft.weftColors[i] = {r: 1.0, g: 1.0, b: 1.0};
   }
 }
+
+if(draft.tieup.length < draft.treadleCount) {
+  for(let i = 0; i < draft.treadleCount - draft.tieup.length; i++) {
+    draft.tieup.push(0);
+  }
+}
+
+if(draft.tieup[0].length < draft.shaftCount) {
+  for(let i = 0; i < draft.tieup.length; i++) {
+    for(let j = 0; j < draft.shaftCount - draft.tieup[i].length; j++) {
+      draft.tieup[i].push(0);
+    }
+  }
+}
+
 const store = writable(draft);
 export default store;
 
 store.subscribe(value => {
   localStorage.setItem("draft", JSON.stringify(value));
 });
+
+window.draft = draft;
+window.saveDraft = function(value) {
+  localStorage.setItem("draft", JSON.stringify(value));
+}

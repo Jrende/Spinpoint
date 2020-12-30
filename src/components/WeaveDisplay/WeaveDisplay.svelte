@@ -7,40 +7,41 @@
 
   let renderer;
   let canvas;
-  let parent;
+  let tieup;
 
   $: {
     if(renderer) {
-      renderer.render($draft, $ui);
+      console.log("update plix", $draft);
+      renderer.updateValues(tieup, {
+        xCount: $draft.treadleCount,
+        yCount: $draft.shaftCount,
+        ui: $ui
+      });
+      renderer.render();
     }
   }
 
   onMount(() => {
     syncCanvasDimensions();
-    renderer = new Renderer(canvas, $draft);
+    renderer = new Renderer(canvas);
+    tieup = renderer.addRenderer(
+      'grid',
+      [3, 3],
+      (i, j) => $draft.tieup[i][j] === 1,
+      (i, j) => console.log("Clicked ", i, j)
+    );
     renderer.resizeCanvas();
-    renderer.render($draft, $ui);
   });
 
   function syncCanvasDimensions() {
-    canvas.width = parent.offsetWidth;
-    canvas.height = parent.offsetHeight;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
   }
 
 </script>
-<div bind:this={parent} class="weave-display">
-  <canvas
-    bind:this={canvas}
-  />
-</div>
+<canvas class="weave-display" bind:this={canvas} />
 <style>
   .weave-display {
-    display: flex;
-    height: 100%;
-    width: 100%;
-  }
-
-  .weave-display canvas {
     image-rendering: crisp-edges;
   }
 </style>

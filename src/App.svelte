@@ -9,9 +9,6 @@
   import draft from './stores/Draft';
 
   export let url;
-  $: {
-    console.log("url: ", url);
-  }
 </script>
 
 <Router url="{url}">
