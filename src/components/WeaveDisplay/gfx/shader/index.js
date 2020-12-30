@@ -9,7 +9,7 @@ function buildShader(name) {
   switch(name) {
     case 'texture': return new Shader({ frag: textureFrag, vert: genUV2D });
     case 'solid': return new Shader({ frag: solidFrag, vert: genUV2D });
-    case 'weave': return new Shader({ frag: weaveFrag, vert: weaveVert });
+    case 'weave': return new Shader({ frag: weaveFrag, vert: genUV2D });
     default: return undefined;
   }
 }

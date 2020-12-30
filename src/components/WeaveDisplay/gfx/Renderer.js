@@ -15,6 +15,7 @@ export class Renderer {
     });
     this.gl.clearColor(1, 1, 1, 1);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.gl.disable(this.gl.CULL_FACE);
     this.shaders = new ShaderBuilder(this.gl);
     this.renderers = [];
 
@@ -32,19 +33,24 @@ export class Renderer {
     });
   }
 
+  addGrid(toggleFunction, onClickFunction) {
+    let renderer = new GridRenderer(
+      this.gl,
+      this.shaders, 
+      toggleFunction,
+      onClickFunction
+    )
+    this.renderers.push(renderer);
+    return this.renderers.length - 1;
+  }
 
-  addRenderer(name, pos, toggleFunction, onClickFunction, values) {
-    if(name === 'grid') {
-      let renderer = new GridRenderer(
-        this.gl,
-        this.shaders, 
-        pos,
-        toggleFunction,
-        onClickFunction
-      )
-      this.renderers.push(renderer);
-      return this.renderers.length - 1;
-    }
+  addWeave() {
+    let renderer = new WeaveRenderer(
+      this.gl,
+      this.shaders 
+    )
+    this.renderers.push(renderer);
+    return this.renderers.length - 1;
   }
 
   updateValues(id, values) {
