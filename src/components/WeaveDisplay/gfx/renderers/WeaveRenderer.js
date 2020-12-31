@@ -20,22 +20,12 @@ export class WeaveRenderer {
     this.colorShader = shaders.getShader('solid');
     this.weaveShader = shaders.getShader('weave');
 
+    this.view = mat4.create();
+    mat4.scale(this.view, this.view, [1.0, -1.0, 1.0]);
+    mat4.translate(this.view, this.view, [-1.0, -1.0, 0.0]);
     this.mvp = mat4.create();
     this.quat = quat.create();
 
-    this.warpTexture = new Texture(
-      this.gl,
-      draft.warpColors.length,
-      1,
-      draft.warpColors.map(c => [c.r, c.g, c.b])
-    );
-    
-    this.weftTexture = new Texture(
-      this.gl,
-      draft.weftColors.length,
-      1,
-      draft.weftColors.map(c => [c.r, c.g, c.b])
-    );
 
   }
 
@@ -49,8 +39,12 @@ export class WeaveRenderer {
     for(let i = 0; i < data.length; i++) {
       let n = i * 4;
       let value = (data[i] / shafts) * 255;
+      let absence = 255;
+      if(data[i] === null || data[i] === undefined) {
+        absence = 0;
+      }
       gridTexture[n + 0] = value;
-      gridTexture[n + 1] = value;
+      gridTexture[n + 1] = absence;
       gridTexture[n + 2] = value;
       gridTexture[n + 3] = value;
     }
@@ -74,38 +68,37 @@ export class WeaveRenderer {
     return new Texture(this.gl, width, height, gridTexture);
   }
 
-  createAbsenceTexture(array, length) {
-    let buffer = new Uint8Array(length * 4);
-    for(let i = 0; i < length; i++) {
-      let n = i * 4;
-      let c = 255;
-      if(array[i] === null || array[i] === undefined) {
-        c = 0;
-      }
-      buffer[n + 0] = c;
-      buffer[n + 1] = c;
-      buffer[n + 2] = c;
-      buffer[n + 3] = c;
-    }
-    return new Texture(this.gl, length, 1, buffer);
+  updateTextures(draft) {
+    this.threading = this.create1DGridTexture(draft.threading, draft.shaftCount, draft.warpCount);
+    this.treadling = this.create1DGridTexture(draft.treadling, draft.shaftCount, draft.pickCount);
+    this.tieup = this.createGridTexture(draft.tieup, draft.shaftCount, draft.shaftCount);
+    this.warpTexture = new Texture(
+      this.gl,
+      draft.warpColors.length,
+      1,
+      draft.warpColors.map(i => {
+        let c = draft.yarn[i].color;
+        return [c.r, c.g, c.b];
+      })
+    );
+    this.weftTexture = new Texture(
+      this.gl,
+      draft.weftColors.length,
+      1,
+      draft.weftColors.map(c => [c.r, c.g, c.b])
+    );
   }
 
   render() {
-    let { ui, xCount, yCount, pos } = this.values;
+    let { ui, xCount, yCount, pos, draft } = this.values;
     let { cellSize, borderSize } = ui;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
 
-    let treadlingAbsenceTexture = this.createAbsenceTexture(draft.treadling, draft.pickCount);
-    let threadingAbsenceTexture = this.createAbsenceTexture(draft.threading, draft.warpCount);
-    this.heddlePerWarp = this.create1DGridTexture(draft.threading, draft.shaftCount, draft.warpCount);
-    this.pedalPerPick = this.create1DGridTexture(draft.treadling, draft.shaftCount, draft.pickCount);
-    this.tieup = this.createGridTexture(draft.tieup, draft.shaftCount, draft.shaftCount);
-    this.mvp = mat4.create();
-    mat4.scale(this.mvp, this.mvp, [1.0, -1.0, 1.0]);
-    mat4.translate(this.mvp, this.mvp, [-1.0, -1.0, 0.0]);
-    mat4.translate(this.mvp, this.mvp, [
+    this.updateTextures(draft);
+
+    mat4.translate(this.mvp, this.view, [
       (cellSize * pos[0]) / w,
       (cellSize * pos[1]) / h,
       0.0
@@ -117,39 +110,6 @@ export class WeaveRenderer {
         1.0
       ]
     );
-    /*
-    mat4.translate(this.mvp, this.mvp, [
-      (pos[0] * cellSize) / w,
-      (pos[1] * cellSize) / h,
-      0.0
-    ]);
-    */
-    /*
-    mat4.translate(this.mvp, this.mvp, [
-      (pos[0] * cellSize) / w - 1.0,
-      0.0,
-      0.0
-    ]);
-    */
-    //mat4.scale(this.mvp, this.mvp, [1.0 / w, 1.0 / h, 1.0]);
-    /*
-    mat4.fromRotationTranslationScaleOrigin(
-      this.mvp,
-      this.quat,
-      [
-        (pos[0] * cellSize) / w - 1.0,
-        -(pos[1] * cellSize) / h,
-        0.0,
-        0.0
-      ],
-      [
-        (cellSize * xCount) / w,
-        (cellSize * yCount) / h,
-        1.0
-      ],
-      [0.0, -1.0, 0.0]
-    );
-*/
 
     this.weaveShader.bind();
     this.quad.bind();
@@ -161,36 +121,22 @@ export class WeaveRenderer {
     this.weftTexture.bind(1);
     this.weaveShader.setSampler2D('weftSampler', 1);
 
-    this.heddlePerWarp.bind(2);
-    this.weaveShader.setSampler2D('heddlePerWarp', 2);
+    this.threading.bind(2);
+    this.weaveShader.setSampler2D('threading', 2);
 
-    this.pedalPerPick.bind(3);
-    this.weaveShader.setSampler2D('pedalPerPick', 3);
+    this.treadling.bind(3);
+    this.weaveShader.setSampler2D('treadling', 3);
 
     this.tieup.bind(4);
     this.weaveShader.setSampler2D('tieup', 4);
 
-    treadlingAbsenceTexture.bind(5);
-    this.weaveShader.setSampler2D('treadlingAbsence', 5);
 
-    threadingAbsenceTexture.bind(6);
-    this.weaveShader.setSampler2D('threadingAbsence', 6);
-
-    this.weaveShader.setFloat('squareSize', ui.cellSize);
-    this.weaveShader.setFloat('borderSize', ui.borderSize);
-
-    this.weaveShader.setFloat('warpCount', draft.warpCount);
-    this.weaveShader.setFloat('weftCount', draft.pickCount);
-
-    this.weaveShader.setFloat('width', (cellSize * xCount));
-    this.weaveShader.setFloat('height', (cellSize * yCount));
     this.quad.draw();
     this.quad.unbind();
     this.weaveShader.unbind();
   }
 
   handleClickEvent(event) {
-    console.log("Click event maybe?");
   }
 
   /*

@@ -1,3 +1,4 @@
+import tinycolor from 'tinycolor2';
 import App from './App.svelte';
 
 const app = new App({
@@ -7,4 +8,5 @@ const app = new App({
   }
 });
 
+window.tinycolor = tinycolor;
 export default app;

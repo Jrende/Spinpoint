@@ -1,9 +1,25 @@
 import tinycolor from 'tinycolor2';
 import { writable } from 'svelte/store'
 
-const store = writable({
-  canvasSize: 100,
-  cellSize: 75,
-  borderSize: 2
+let ui = {
+  borderSize: 2,
+  selectedMenu: 1,
+  cellSize: resize()
+};
+
+const store = writable(ui);
+window.addEventListener('resize', () => {
+  store.update((value) => {
+    return {
+      ...value,
+      cellSize: resize()
+    };
+  });
 });
+
+function resize() {
+    let w = document.body.clientWidth;
+    //return Math.max(70, w / 50) * window.devicePixelRatio;
+  return (w / 40) * window.devicePixelRatio;
+}
 export default store;

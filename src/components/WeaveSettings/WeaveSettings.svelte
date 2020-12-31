@@ -1,5 +1,7 @@
 <script>
   import draft from '../../stores/Draft';
+  import ui from '../../stores/UI';
+  import DraftUtil from '../../util/DraftUtil';
 
   let shaftCount = $draft.shaftCount;
   let treadleCount = $draft.treadleCount;
@@ -7,17 +9,36 @@
   let pickCount = $draft.pickCount;
   function submit(event) {
     event.preventDefault();
-    draft.update((value) => ({
-      ...value,
-      shaftCount,
-      treadleCount,
-      warpCount,
-      pickCount
-    }));
+    let newDraft = $draft;
+    let changed = false;
+    if(
+      $draft.shaftCount !== shaftCount ||
+      $draft.treadleCount !== treadleCount) {
+      changed = true;
+      console.log("Updated shaft or tredle");
+      newDraft = DraftUtil.updateShaftOrTreadleCounts(newDraft, shaftCount, treadleCount);
+    }
+    if($draft.warpCount !== warpCount) {
+      changed = true;
+      newDraft = DraftUtil.updateWarpCount(newDraft, warpCount);
+    }
+    if($draft.pickCount !== pickCount) {
+      changed = true;
+      newDraft = DraftUtil.updatePickCount(newDraft, pickCount);
+    }
+    if(changed) {
+      draft.update((value) => {
+        let ret =  {
+          ...value,
+          ...newDraft
+        };
+        return ret;
+      });
+    }
+    $ui.selectedMenu = -1;
   }
 </script>
 <form on:submit={submit}>
-  <h1>Weave settings</h1>
   <div>
     <label for="shaft-count">Number of shafts</label>
     <input type="number" id="shaft-count" bind:value={shaftCount}>

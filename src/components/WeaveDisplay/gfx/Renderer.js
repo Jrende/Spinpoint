@@ -4,7 +4,6 @@ import Framebuffer from './Framebuffer';
 import Texture from './Texture';
 import { mat4 } from 'gl-matrix';
 import { GridRenderer} from './renderers/GridRenderer';
-import { RowColorPickerRenderer} from './renderers/RowColorPickerRenderer';
 import { WeaveRenderer} from './renderers/WeaveRenderer';
 
 export class Renderer {
@@ -33,12 +32,13 @@ export class Renderer {
     });
   }
 
-  addGrid(toggleFunction, onClickFunction) {
+  addGrid(toggleFunction, onClickFunction, cellColorFunction) {
     let renderer = new GridRenderer(
       this.gl,
       this.shaders, 
       toggleFunction,
-      onClickFunction
+      onClickFunction,
+      cellColorFunction
     )
     this.renderers.push(renderer);
     return this.renderers.length - 1;

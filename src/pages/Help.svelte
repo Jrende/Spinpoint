@@ -13,6 +13,7 @@
     <li>back by David from the Noun Project</li>
     <li>Scarf by Sergey Demushkin from the Noun Project</li>
     <li>Yarn by Sergey Demushkin from the Noun Project</li>
+    <li>add by Johan Ronsse from the Noun Project</li>
   </ul>
 </div>
 

@@ -5,6 +5,8 @@
   import BackIcon from 'icons/back.svg';
   import ScarfIcon from 'icons/scarf.svg'
   import YarnIcon from 'icons/yarn.svg'
+
+  import ui from '../../stores/UI';
   import WeaveSettings from '../WeaveSettings/WeaveSettings.svelte';
   import YarnSettings from '../YarnSettings/YarnSettings.svelte';
 
@@ -16,21 +18,19 @@
     },
     {
       icon: YarnIcon,
-      title: 'Weave settings',
+      title: 'Yarns',
       component: YarnSettings
     }
   ];
   let sidebarWidth;
   let sidebar;
-  let selectedMenu = -1;
   onMount(() => {
     sidebarWidth = sidebar.getBoundingClientRect().width;
   });
 
   function selectMenu(index) {
-    selectedMenu = selectedMenu === index ?  -1 : index;
+    $ui.selectedMenu = $ui.selectedMenu === index ?  -1 : index;
   }
-
 </script>
 
 <Router primary={false}>
@@ -63,10 +63,11 @@
 
     </div>
 
-    {#if selectedMenu !== -1}
+    {#if $ui.selectedMenu !== -1}
       <div class="settings-sidebar" style={`left: ${sidebarWidth}px`}>
         <div class="settings">
-          <svelte:component this={items[selectedMenu].component} />
+          <h2>{items[$ui.selectedMenu].title}</h2>
+          <svelte:component this={items[$ui.selectedMenu].component} />
         </div>
         <div class="overlay" on:click={() => selectMenu(-1)}>
         </div>

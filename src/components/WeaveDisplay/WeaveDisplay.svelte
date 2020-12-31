@@ -11,6 +11,8 @@
   let treadling;
   let threading;
   let weave;
+  let warpColor;
+  let weftColor;
 
   $: {
     if(renderer) {
@@ -33,12 +35,32 @@
         ui: $ui
       });
       renderer.updateValues(weave, {
-        pos: [$draft.treadleCount + 4, $draft.shaftCount + 4],
+        pos: [
+          $draft.treadleCount + 4,
+          $draft.shaftCount + 4
+        ],
         xCount: $draft.warpCount,
+        yCount: $draft.pickCount,
+        draft: $draft,
+        ui: $ui
+      });
+      renderer.updateValues(warpColor, {
+        pos: [$draft.treadleCount + 4, 1],
+        xCount: $draft.warpCount,
+        yCount: 1,
+        ui: $ui
+      });
+      renderer.updateValues(weftColor, {
+        pos: [1, $draft.shaftCount + 4],
+        xCount: 1,
         yCount: $draft.pickCount,
         ui: $ui
       });
-      renderer.render();
+      try {
+        renderer.render();
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
@@ -46,12 +68,12 @@
     syncCanvasDimensions();
     renderer = new Renderer(canvas);
     tieup = renderer.addGrid(
-      (i, j) => $draft.tieup[i][j] === 1,
-      (i, j) => {
+      (x, y) => $draft.tieup[x][y] === 1,
+      (x, y) => {
         draft.update(v => {
           let tieup = v.tieup;
-          let tv = tieup[i][j];
-          tieup[i][j] = tv === 1 ? 0 : 1;
+          let tv = tieup[x][y];
+          tieup[x][y] = tv === 1 ? 0 : 1;
           return {
             ...v,
             tieup
@@ -60,7 +82,7 @@
       }
     );
     threading = renderer.addGrid(
-      (i, j) => $draft.threading[i] === j,
+      (x, y) => $draft.threading[x] === y,
       (x, y) => {
         let t = $draft.threading;
         if(t[x] === y) {
@@ -75,7 +97,7 @@
       }
     );
     treadling = renderer.addGrid(
-      (i, j) => $draft.treadling[j] === i,
+      (x, y) => $draft.treadling[y] === x,
       (x, y) => {
         let t = $draft.treadling;
         if(t[y] === x) {
@@ -89,7 +111,20 @@
         }));
       }
     );
-
+    warpColor = renderer.addGrid(
+      (x, y) => true,
+      (x, y) => {console.log("Change warp color", x)},
+      (x, y) => {
+        return $draft.yarn[$draft.warpColors[x]].color;
+      }
+    );
+    weftColor = renderer.addGrid(
+      (x, y) => true,
+      (x, y) => {console.log("Change weft color", x)},
+      (x, y) => {
+        return $draft.yarn[$draft.weftColors[x]].color;
+      }
+    );
     weave = renderer.addWeave();
     renderer.resizeCanvas();
   });

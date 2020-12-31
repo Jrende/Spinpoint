@@ -1,14 +1,14 @@
 import VertexArray from '../VertexArray';
 import { mat4, quat } from 'gl-matrix';
 export class GridRenderer {
-  constructor(gl, shaders, toggleFunction = () => false, onClick = () => {}) {
+  constructor(gl, shaders, toggleFunction = () => false, onClick = () => {}, cellColorFunction = () => ({r: 0.0, g: 0.0, b: 0.0})) {
     this.gl = gl;
     this.solidShader = shaders.getShader('solid')
     this.quad = new VertexArray(this.gl, [
-      0.0, 1.0,
+       0.0, 1.0,
       -1.0, 1.0,
       -1.0, 0.0,
-      0.0, 0.0
+       0.0, 0.0
     ], [
       1, 0, 2,
       2, 0, 3
@@ -16,6 +16,7 @@ export class GridRenderer {
     this.mvp = mat4.create();
 
     this.toggleFunction = toggleFunction;
+    this.cellColorFunction = cellColorFunction;
     this.onClick = onClick;
     this.quat = quat.create();
   }
@@ -64,11 +65,11 @@ export class GridRenderer {
         this.quat,
         [
           (pos[0]) * (cellSize / w) - borderSize / w,
-          -(pos[1] + i) * (cellSize / h) - (borderSize) / h,
+          -(pos[1] + i) * (cellSize / h) - borderSize / h,
           0.0
         ],
         [
-          (cellSize * xCount + borderSize) / w,
+          (cellSize * xCount) / w,
           (2.0 * borderSize) / h,
           1.0
         ],
@@ -101,6 +102,13 @@ export class GridRenderer {
     for(let i = 0; i < xCount; i++) {
       for(let j = 0; j < yCount; j++) {
         if(this.toggleFunction(i, j)) {
+          let color = this.cellColorFunction(i, j);
+          this.solidShader.setVec4('color', [
+            color.r,
+            color.g,
+            color.b,
+            1.0
+          ]);
           mat4.fromRotationTranslationScaleOrigin(
             this.mvp,
             this.quat,
