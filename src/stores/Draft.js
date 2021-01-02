@@ -58,7 +58,7 @@ store.subscribe(value => {
 });
 
 //window.draft = draft;
-window.saveDraft = function() {
+window.update = function() {
   localStorage.setItem('draft', JSON.stringify(d));
 }
 

@@ -68,25 +68,24 @@ export class WeaveRenderer {
     return new Texture(this.gl, width, height, gridTexture);
   }
 
+  createColorTexture(colors, yarns) {
+    return new Texture(
+      this.gl,
+      colors.length,
+      1,
+      colors.map(i => {
+        let c = yarns[i].color;
+        return [c.r, c.g, c.b];
+      })
+    );
+  }
+
   updateTextures(draft) {
     this.threading = this.create1DGridTexture(draft.threading, draft.shaftCount, draft.warpCount);
     this.treadling = this.create1DGridTexture(draft.treadling, draft.shaftCount, draft.pickCount);
     this.tieup = this.createGridTexture(draft.tieup, draft.shaftCount, draft.shaftCount);
-    this.warpTexture = new Texture(
-      this.gl,
-      draft.warpColors.length,
-      1,
-      draft.warpColors.map(i => {
-        let c = draft.yarn[i].color;
-        return [c.r, c.g, c.b];
-      })
-    );
-    this.weftTexture = new Texture(
-      this.gl,
-      draft.weftColors.length,
-      1,
-      draft.weftColors.map(c => [c.r, c.g, c.b])
-    );
+    this.warpTexture = this.createColorTexture(draft.warpColors, draft.yarn);
+    this.weftTexture = this.createColorTexture(draft.weftColors, draft.yarn);
   }
 
   render() {
