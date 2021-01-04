@@ -26,19 +26,15 @@ export class Renderer {
         extension.loseContext();
       }
     });
-
-    canvas.addEventListener('click', (evemt) => {
-      this.renderers.forEach(r => r.handleClickEvent(event));
-    });
   }
 
-  addGrid(toggleFunction, onClickFunction, cellColorFunction) {
+  addGrid(cellColorFunction, eventListeners, settings) {
     let renderer = new GridRenderer(
       this.gl,
       this.shaders, 
-      toggleFunction,
-      onClickFunction,
-      cellColorFunction
+      cellColorFunction,
+      eventListeners,
+      settings
     )
     this.renderers.push(renderer);
     return this.renderers.length - 1;

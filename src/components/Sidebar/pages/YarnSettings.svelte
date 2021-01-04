@@ -1,8 +1,8 @@
 <script>
   import tinycolor from 'tinycolor2';
-  import draft from '../../stores/Draft';
-  import ui from '../../stores/UI';
-  import ColorPicker from '../ColorPicker/ColorPicker.svelte';
+  import draft from '../../../stores/Draft';
+  import ui from '../../../stores/UI';
+  import ColorPicker from '../../ColorPicker/ColorPicker.svelte';
 
   import add from 'icons/add.svg';
 

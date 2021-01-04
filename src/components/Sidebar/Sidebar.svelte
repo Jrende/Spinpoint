@@ -5,10 +5,12 @@
   import BackIcon from 'icons/back.svg';
   import ScarfIcon from 'icons/scarf.svg'
   import YarnIcon from 'icons/yarn.svg'
+  import PatternBucket from 'icons/pattern-bucket.svg'
 
   import ui from '../../stores/UI';
-  import WeaveSettings from '../WeaveSettings/WeaveSettings.svelte';
-  import YarnSettings from '../YarnSettings/YarnSettings.svelte';
+  import WeaveSettings from './pages/WeaveSettings.svelte';
+  import YarnSettings from './pages/YarnSettings.svelte';
+  import PatternFill from './pages/PatternFill.svelte';
 
   let items = [
     {
@@ -20,7 +22,12 @@
       icon: YarnIcon,
       title: 'Yarns',
       component: YarnSettings
-    }
+    },
+    {
+      icon: PatternBucket,
+      title: 'Fill with pattern',
+      component: PatternFill,
+    },
   ];
   let sidebarWidth;
   let sidebar;
@@ -38,7 +45,7 @@
     <div class="sidebar" bind:this={sidebar} >
       {#each items as item, i}
         <button class="icon-button" on:click={() => selectMenu(i)}>
-          <div class="icon">
+      <div class={"icon"}>
             {@html item.icon}
           </div>
         </button>
@@ -79,6 +86,7 @@
 <style>
   .icon {
     fill: var(--color-1);
+    stroke: var(--color-1);
     width: 50px;
     height: 50px;
   }
@@ -91,6 +99,7 @@
 
   .sidebar-container {
     display: flex;
+    z-index: 10;
   }
 
   .sidebar {
@@ -128,5 +137,8 @@
   .overlay {
     background-color: rgba(0.0, 0.0, 0.0, 0.4);
     flex-grow: 1;
+  }
+
+  .pattern-bucket {
   }
 </style>

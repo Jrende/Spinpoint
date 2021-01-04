@@ -8,7 +8,6 @@
   let isToggled = false;
   let color;
   $: {
-    console.log("ASD");
     color = tinycolor.fromRatio($draft.yarn[$ui.selectedColor].color);
   }
 

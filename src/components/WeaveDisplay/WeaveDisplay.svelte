@@ -69,65 +69,95 @@
     renderer = new Renderer(canvas);
     tieup = renderer.addGrid(
       (x, y) => $draft.tieup[x][y] === 1,
-      (x, y) => {
-        draft.update(v => {
-          let tieup = v.tieup;
-          let tv = tieup[x][y];
-          tieup[x][y] = tv === 1 ? 0 : 1;
-          return {
-            ...v,
-            tieup
-          };
-        });
+      {
+        click: (x, y) => {
+          draft.update(v => {
+            let tieup = v.tieup;
+            let tv = tieup[x][y];
+            tieup[x][y] = tv === 1 ? 0 : 1;
+            return {
+              ...v,
+              tieup
+            };
+          });
+        }
       }
     );
+
     threading = renderer.addGrid(
       (x, y) => $draft.threading[x] === y,
-      (x, y) => {
-        let t = $draft.threading;
-        if(t[x] === y) {
-          t[x] = undefined;
-        } else {
-          t[x] = y;
+      {
+        click: (x, y) => {
+          let t = $draft.threading;
+          if(t[x] === y) {
+            t[x] = undefined;
+          } else {
+            t[x] = y;
+          }
+          draft.update((value) => ({
+            ...value,
+            threading: t
+          }));
         }
-        draft.update((value) => ({
-          ...value,
-          threading: t
-        }));
       }
     );
+
     treadling = renderer.addGrid(
       (x, y) => $draft.treadling[y] === x,
-      (x, y) => {
-        let t = $draft.treadling;
-        if(t[y] === x) {
-          t[y] = undefined;
-        } else {
-          t[y] = x;
+      {
+        click: (x, y) => {
+          let t = $draft.treadling;
+          if(t[y] === x) {
+            t[y] = undefined;
+          } else {
+            t[y] = x;
+          }
+          draft.update((value) => ({
+            ...value,
+            treadling: t
+          }));
         }
-        draft.update((value) => ({
-          ...value,
-          treadling: t
-        }));
       }
     );
     warpColor = renderer.addGrid(
-      (x, y) => true,
-      (x, y) => {console.log("Change warp color", x)},
       (x, y) => {
         return $draft.yarn[$draft.warpColors[x]].color;
+      },
+      {
+        click: (x, y) => {setWarpColor(x)},
+      },
+      {
+        innerCellMargin: 10
       }
     );
     weftColor = renderer.addGrid(
-      (x, y) => true,
-      (x, y) => {console.log("Change weft color", x)},
       (x, y) => {
-        return $draft.yarn[$draft.weftColors[x]].color;
+        return $draft.yarn[$draft.weftColors[y]].color;
+      },
+      {
+        click: (x, y) => {setWeftColor(y)},
+      },
+      {
+        innerCellMargin: 10
       }
     );
     weave = renderer.addWeave();
     renderer.resizeCanvas();
   });
+
+  function setWeftColor(x) {
+    draft.update(value => ({
+      ...value,
+      weftColors: value.weftColors.map((c, i) => i === x ? $ui.selectedColor : c)
+    }));
+  }
+
+  function setWarpColor(x) {
+    draft.update(value => ({
+      ...value,
+      warpColors: value.warpColors.map((c, i) => i === x ? $ui.selectedColor : c)
+    }));
+  }
 
   function syncCanvasDimensions() {
     canvas.width = canvas.offsetWidth;

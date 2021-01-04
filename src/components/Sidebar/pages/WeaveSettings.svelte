@@ -1,7 +1,7 @@
 <script>
-  import draft from '../../stores/Draft';
-  import ui from '../../stores/UI';
-  import DraftUtil from '../../util/DraftUtil';
+  import draft from '../../../stores/Draft';
+  import ui from '../../../stores/UI';
+  import DraftUtil from '../../../util/DraftUtil';
 
   let shaftCount = $draft.shaftCount;
   let treadleCount = $draft.treadleCount;

@@ -52,7 +52,6 @@ export default {
       exclude: ["**/index.html"]
     }),
     svg({
-      // process SVG to DOM Node or String. Default: false
       stringify: true
     }),
     includePaths({

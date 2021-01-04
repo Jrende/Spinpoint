@@ -20,13 +20,20 @@ export class WeaveRenderer {
     this.colorShader = shaders.getShader('solid');
     this.weaveShader = shaders.getShader('weave');
 
+    this.initialView = mat4.create();
+    mat4.scale(this.initialView, this.initialView, [
+        -1.0,
+        1.0,
+        1.0
+      ]);
+    mat4.translate(this.initialView, this.initialView, [
+      -1.0,
+      -1.0,
+      0.0
+      ]);
     this.view = mat4.create();
-    mat4.scale(this.view, this.view, [1.0, -1.0, 1.0]);
-    mat4.translate(this.view, this.view, [-1.0, -1.0, 0.0]);
     this.mvp = mat4.create();
     this.quat = quat.create();
-
-
   }
 
   updateValues(values) {
@@ -97,12 +104,15 @@ export class WeaveRenderer {
 
     this.updateTextures(draft);
 
-    mat4.translate(this.mvp, this.view, [
-      (cellSize * pos[0]) / w,
-      (cellSize * pos[1]) / h,
-      0.0
+    let cw = cellSize / w;
+    let ch = cellSize / h;
+    let mvp = mat4.identity(this.mvp);
+    let view = mat4.translate(mat4.identity(this.view), this.initialView, [
+        pos[0] * cw,
+        pos[1] * ch,
+        0.0
     ]);
-    mat4.scale(this.mvp, this.mvp, 
+    mat4.scale(mvp, view, 
       [
         (cellSize * xCount) / w,
         (cellSize * yCount) / h,
@@ -112,7 +122,7 @@ export class WeaveRenderer {
 
     this.weaveShader.bind();
     this.quad.bind();
-    this.weaveShader.setMat4('mvp', this.mvp);
+    this.weaveShader.setMat4('mvp', mvp);
 
     this.warpTexture.bind(0);
     this.weaveShader.setSampler2D('warpSampler', 0);
@@ -129,26 +139,14 @@ export class WeaveRenderer {
     this.tieup.bind(4);
     this.weaveShader.setSampler2D('tieup', 4);
 
+    this.weaveShader.setVec2('cellSize', [
+      cw / (cw * xCount),
+      ch / (ch * yCount),
+    ]);
+
 
     this.quad.draw();
     this.quad.unbind();
     this.weaveShader.unbind();
   }
-
-  handleClickEvent(event) {
-  }
-
-  /*
-  present(texture) {
-    this.shader.bind();
-    this.gl.activeTexture(this.gl.TEXTURE0);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-    this.shader.setSampler2D('sampler', 0);
-    this.shader.setFloat('opacity', 1.0);
-    this.uvLessQuad.bind();
-    this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
-    this.uvLessQuad.unbind();
-    this.shader.unbind();
-  }
-  */
 }
