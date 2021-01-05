@@ -2,40 +2,47 @@
   import { onMount } from 'svelte';
   import ui from '../../stores/UI';
 
-  export let xCellCount;
-  export let yCellCount;
+  export let xCount;
+  export let yCount;
   export let toggleCell = (x, y) => false;
   export let onClick = (x, y) => { };
+  export let disabled = false;
+  export let data;
 
   let canvas;
-  let parent;
   let ctx;
   let borderSize = $ui.borderSize;
   let cellSize = $ui.cellSize / 2.0;
   $: {
     if(ctx) {
-      drawForm(xCellCount, yCellCount);
+      syncCanvasDimensions(xCount, yCount);
+    }
+  }
+
+  $: {
+    if(ctx) {
+      drawForm(xCount, yCount, disabled);
     }
   }
 
   onMount(() => {
     ctx = canvas.getContext('2d');
-    syncCanvasDimensions();
   });
 
-
-  function syncCanvasDimensions() {
-      canvas.width = cellSize * xCellCount + 2.0 * borderSize;
-      canvas.height = cellSize * yCellCount + 2.0 * borderSize;
+  function syncCanvasDimensions(xCount, yCount) {
+      canvas.width = cellSize * xCount + 2.0 * borderSize;
+      canvas.height = cellSize * yCount + 2.0 * borderSize;
   }
 
   function onCanvasClick() {
-    let rect = canvas.getBoundingClientRect();
-    let canvasSize = rect.width;
-    let size = (canvasSize - borderSize) / xCellCount;
-    let i = Math.floor(event.offsetX / size);
-    let j = Math.floor(event.offsetY / size);
-    onClick(j, i);
+    if(!disabled) {
+      let rect = canvas.getBoundingClientRect();
+      let canvasSize = rect.width;
+      let size = (canvasSize - borderSize) / xCount;
+      let i = Math.floor(event.offsetX / size);
+      let j = Math.floor(event.offsetY / size);
+      onClick(j, i);
+    }
   }
 
   function fillBorders(width, height) {
@@ -60,35 +67,39 @@
     ctx.fillRect(
       0,
       height,
-      width,
+      width + borderSize,
       borderSize
     );
   }
 
-  export function drawForm(xCellCount, yCellCount) {
+  export function drawForm(xCount, yCount, disabled) {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.fillStyle = 'black';
+    if(disabled) {
+      ctx.fillStyle = 'gray';
+    } else {
+      ctx.fillStyle = 'black';
+    }
 
     let cw = ctx.canvas.width;
     let ch = ctx.canvas.height;
     let size = (cellSize - borderSize / 4.0);
     let bluppSize = size / 2.0;
 
-    let width = cellSize * xCellCount + borderSize;
-    let height = cellSize * yCellCount + borderSize;
+    let width = cellSize * xCount + borderSize;
+    let height = cellSize * yCount + borderSize;
     fillBorders(width, height);
 
-    for(let i = 1; i < xCellCount; i++) {
+    for(let i = 1; i < xCount; i++) {
       ctx.fillRect(i * cellSize + borderSize / 2.0, 0, borderSize, height);
     }
-    for(let i = 1; i < yCellCount; i++) {
+    for(let i = 1; i < yCount; i++) {
       ctx.fillRect(0, i * cellSize + borderSize / 2.0, width, borderSize);
     }
 
     let innerCellMargin = 10;
-    for(let i = 0; i < xCellCount; i++) {
-      for(let j = 0; j < yCellCount; j++) {
+    for(let i = 0; i < xCount; i++) {
+      for(let j = 0; j < yCount; j++) {
         if(toggleCell(j, i)) {
           ctx.fillRect(
             i * cellSize + innerCellMargin / 2.0 + borderSize,
@@ -101,10 +112,7 @@
     }
   }
 </script>
-
-<div bind:this={parent} class="grid">
-  <canvas on:click={onCanvasClick} bind:this={canvas} width="1" height="1" />
-</div>
+<canvas on:click={onCanvasClick} bind:this={canvas} width="1" height="1" class:disabled={disabled} />
 
 <style>
   .grid {
@@ -112,7 +120,13 @@
     width: 100%;
   }
 
-  .grid canvas {
+  canvas {
     image-rendering: crisp-edges;
   }
+
+  canvas:not(.disabled) {
+    cursor: pointer;
+  }
+
+
 </style>

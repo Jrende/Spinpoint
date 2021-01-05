@@ -57,6 +57,35 @@ class DraftUtil {
     }
   }
 
+  applyPattern(draft, pattern, warpOrWeft, mirroredRepeat) {
+    let newDraft = {...draft}
+    let length = warpOrWeft === 'warp' ? draft.warpCount : draft.pickCount;
+
+    if(warpOrWeft === 'warp') {
+      pattern.reverse();
+    }
+    let array = new Array(length);
+    let offset = 0;
+    for(let i = 0; i < length; i++) {
+      if(mirroredRepeat && (i !== 0 && (i % (pattern.length - 1)) === 0)) {
+        offset += 1;
+      }
+      let j = i + offset;
+      let v = j % (pattern.length);
+      if(mirroredRepeat && (Math.floor(j / pattern.length) % 2) === 1) {
+        v = pattern.length - (j % pattern.length) - 1;
+      }
+      array[i] = pattern[v];
+    }
+
+    if(warpOrWeft === 'warp') {
+      newDraft.threading = array;
+    } else {
+      newDraft.treadling = array;
+    }
+
+    return newDraft;
+  }
 }
 
 export default new DraftUtil();

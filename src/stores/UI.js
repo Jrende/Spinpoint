@@ -3,8 +3,7 @@ import { writable } from 'svelte/store'
 
 let ui = {
   borderSize: 2,
-  //selectedMenu: 2,
-  selectedMenu: -1,
+  selectedMenu: 2,
   selectedColor: 0,
   cellSize: 70
 };
