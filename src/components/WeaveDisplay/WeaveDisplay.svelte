@@ -4,6 +4,7 @@
   import draft from '../../stores/Draft';
   import ui from '../../stores/UI';
   import { Renderer } from './gfx/Renderer';
+  import ScrollPane from '../ScrollPane/ScrollPane.svelte';
 
   let renderer;
   let canvas;
@@ -165,9 +166,20 @@
   }
 
 </script>
-<canvas class="weave-display" bind:this={canvas} />
+<div class="container">
+  <canvas class="weave-display" bind:this={canvas} />
+</div>
 <style>
+  .container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    right: 0;
+  }
+
   .weave-display {
     image-rendering: crisp-edges;
+    width: 100%;
+    height: 100%;
   }
 </style>

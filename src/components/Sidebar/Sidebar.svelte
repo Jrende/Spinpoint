@@ -103,7 +103,9 @@
   }
 
   .sidebar {
+    position: fixed;
     width: 50px;
+    height: 100%;
     background-color: #40362A;
     padding: 10px 20px;
     display: flex;

@@ -58,14 +58,15 @@
     min-height: 2em;
     min-width: 2em;
     position: absolute;
-    left: 8em;
-    top: 2em;
+    right: 2em;
+    bottom: 2em;
     display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
     background-color: white;
 
+    z-index: 10;
     border: 1px solid black;
   }
 
