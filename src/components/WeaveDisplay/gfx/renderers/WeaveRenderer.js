@@ -38,6 +38,7 @@ export class WeaveRenderer {
 
   updateValues(values) {
     this.values = values;
+    this.updateTextures(values.draft);
   }
 
   create1DGridTexture(data, shafts, length) {
@@ -76,14 +77,16 @@ export class WeaveRenderer {
   }
 
   createColorTexture(colors, yarns) {
+    let array = colors.map(i => {
+      let c = yarns[i].color;
+      return [c.r, c.g, c.b];
+    });
+    array.push([0, 0, 0]);
     return new Texture(
       this.gl,
       colors.length,
       1,
-      colors.map(i => {
-        let c = yarns[i].color;
-        return [c.r, c.g, c.b];
-      })
+      array
     );
   }
 
@@ -98,11 +101,11 @@ export class WeaveRenderer {
   render() {
     let { ui, xCount, yCount, pos, draft } = this.values;
     let { cellSize, borderSize } = ui;
+    let wp = ui.pos;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
 
-    this.updateTextures(draft);
 
     let cw = cellSize / w;
     let ch = cellSize / h;
@@ -144,6 +147,10 @@ export class WeaveRenderer {
       ch / (ch * yCount),
     ]);
 
+    this.weaveShader.setVec2('pos', [
+      wp[0] / (draft.warpCount * ui.cellSize),
+      wp[1] / (draft.pickCount * ui.cellSize)
+    ]);
 
     this.quad.draw();
     this.quad.unbind();

@@ -5,7 +5,8 @@ let ui = {
   borderSize: 2,
   selectedMenu: -1,
   selectedColor: 0,
-  cellSize: 70
+  cellSize: 60,
+  pos: [0, 0]
 };
 
 const store = writable(ui);

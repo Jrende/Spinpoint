@@ -21,14 +21,9 @@
 
 <style>
   .application {
-    display: flex;
-    flex-direction: row;
-
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: auto 1fr;
   }
 
   main {

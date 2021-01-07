@@ -171,10 +171,7 @@
 </div>
 <style>
   .container {
-    width: 100%;
     height: 100%;
-    position: absolute;
-    right: 0;
   }
 
   .weave-display {

@@ -104,8 +104,10 @@
 
   .sidebar {
     position: fixed;
+    top: 0;
+    bottom: 0;
+
     width: 50px;
-    height: 100%;
     background-color: #40362A;
     padding: 10px 20px;
     display: flex;
