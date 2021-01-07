@@ -103,6 +103,8 @@
   }
 
   .sidebar {
+    opacity: 0.0;
+
     position: fixed;
     top: 0;
     bottom: 0;

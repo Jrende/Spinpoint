@@ -38,69 +38,24 @@ export class WeaveRenderer {
 
   updateValues(values) {
     this.values = values;
-    this.updateTextures(values.draft);
   }
 
-  create1DGridTexture(data, shafts, length) {
-    let gridTexture = new Uint8Array(length * 4);
-    gridTexture.fill(0);
-    for(let i = 0; i < data.length; i++) {
-      let n = i * 4;
-      let value = (data[i] / shafts) * 255;
-      let absence = 255;
-      if(data[i] === null || data[i] === undefined) {
-        absence = 0;
-      }
-      gridTexture[n + 0] = value;
-      gridTexture[n + 1] = absence;
-      gridTexture[n + 2] = value;
-      gridTexture[n + 3] = value;
-    }
-    return new Texture(this.gl, length, 1, gridTexture);
+  setTextures(threading, treadling, tieup, warpTexture, weftTexture) {
+    this.threading = threading;
+    this.treadling = treadling;
+    this.tieup = tieup;
+    this.warpTexture = warpTexture;
+    this.weftTexture = weftTexture;
   }
 
-  createGridTexture(data, width, height) {
-    let gridTexture = new Uint8Array(width * height * 4);
-    gridTexture.fill(0);
-    for(let i = 0; i < data.length; i++) {
-      for(let j = 0; j < data[0].length; j++) {
-        if(data[i][j] === 1) {
-          let n = (i + j*width) * 4;
-          gridTexture[n + 0] = 255;
-          gridTexture[n + 1] = 255;
-          gridTexture[n + 2] = 255;
-          gridTexture[n + 3] = 255;
-        }
-      }
-    }
-    return new Texture(this.gl, width, height, gridTexture);
-  }
-
-  createColorTexture(colors, yarns) {
-    let array = colors.map(i => {
-      let c = yarns[i].color;
-      return [c.r, c.g, c.b];
-    });
-    array.push([0, 0, 0]);
-    return new Texture(
-      this.gl,
-      colors.length,
-      1,
-      array
-    );
-  }
-
-  updateTextures(draft) {
-    this.threading = this.create1DGridTexture(draft.threading, draft.shaftCount, draft.warpCount);
-    this.treadling = this.create1DGridTexture(draft.treadling, draft.shaftCount, draft.pickCount);
-    this.tieup = this.createGridTexture(draft.tieup, draft.shaftCount, draft.shaftCount);
-    this.warpTexture = this.createColorTexture(draft.warpColors, draft.yarn);
-    this.weftTexture = this.createColorTexture(draft.weftColors, draft.yarn);
+  setRendererPosition(pos) {
+    this.rendererPos = pos;
   }
 
   render() {
-    let { ui, xCount, yCount, pos, draft } = this.values;
+    let { ui, xCount, yCount, draft } = this.values;
     let { cellSize, borderSize } = ui;
+    let pos = this.rendererPos;
     let wp = ui.pos;
 
     let w = this.gl.canvas.width;

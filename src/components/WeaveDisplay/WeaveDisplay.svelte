@@ -17,22 +17,43 @@
 
   $: {
     if(renderer) {
+      renderer.update($draft, $ui);
+      renderer.setRendererPosition($draft);
+      /*
       renderer.updateValues(tieup, {
         pos: [3, 3],
         xCount: $draft.treadleCount,
         yCount: $draft.shaftCount,
+        cellToggle: $draft.tieup
+        draft: $draft,
         ui: $ui
       });
       renderer.updateValues(threading, {
         pos: [$draft.treadleCount + 4, 3],
         xCount: $draft.warpCount,
         yCount: $draft.shaftCount,
+        draft: $draft,
         ui: $ui
       });
       renderer.updateValues(treadling, {
         pos: [3, $draft.shaftCount + 4],
         xCount: $draft.treadleCount,
         yCount: $draft.pickCount,
+        draft: $draft,
+        ui: $ui
+      });
+      renderer.updateValues(warpColor, {
+        pos: [$draft.treadleCount + 4, 1],
+        xCount: $draft.warpCount,
+        yCount: 1,
+        draft: $draft,
+        ui: $ui
+      });
+      renderer.updateValues(weftColor, {
+        pos: [1, $draft.shaftCount + 4],
+        xCount: 1,
+        yCount: $draft.pickCount,
+        draft: $draft,
         ui: $ui
       });
       renderer.updateValues(weave, {
@@ -45,18 +66,7 @@
         draft: $draft,
         ui: $ui
       });
-      renderer.updateValues(warpColor, {
-        pos: [$draft.treadleCount + 4, 1],
-        xCount: $draft.warpCount,
-        yCount: 1,
-        ui: $ui
-      });
-      renderer.updateValues(weftColor, {
-        pos: [1, $draft.shaftCount + 4],
-        xCount: 1,
-        yCount: $draft.pickCount,
-        ui: $ui
-      });
+      */
       try {
         renderer.render();
       } catch (e) {
@@ -68,6 +78,7 @@
   onMount(() => {
     syncCanvasDimensions();
     renderer = new Renderer(canvas);
+    /*
     tieup = renderer.addGrid(
       (x, y) => $draft.tieup[x][y] === 1,
       {
@@ -85,6 +96,7 @@
       }
     );
 
+    /*
     threading = renderer.addGrid(
       (x, y) => $draft.threading[x] === y,
       {
@@ -143,6 +155,7 @@
       }
     );
     weave = renderer.addWeave();
+    */
     renderer.resizeCanvas();
   });
 

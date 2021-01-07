@@ -2,12 +2,10 @@ import VertexArray from '../VertexArray';
 import { mat4, quat } from 'gl-matrix';
 import Texture from '../Texture';
 
-export class GridRenderer {
-  constructor(gl, shaders, vertical = false, name) {
+export class TieupRenderer {
+  constructor(gl, shaders, toggleFunction = () => false, eventListeners = {}, settings = {innerCellMargin: 15}) {
     this.gl = gl;
-    this.shader = shaders.getShader('grid')
-    this.vertical = vertical;
-    this.name = name;
+    this.shader = shaders.getShader('tieup')
 
     this.quad = new VertexArray(this.gl, [
       0.0, 1.0,
@@ -19,6 +17,8 @@ export class GridRenderer {
       2, 0, 3
     ], [2]);
     this.mvp = mat4.create();
+
+    this.settings = settings;
 
     this.initialView = mat4.create();
     mat4.scale(this.initialView, this.initialView, [
@@ -112,7 +112,6 @@ export class GridRenderer {
     this.shader.setSampler2D('cellToggleSampler', 0);
 
     this.shader.setVec2('pos', [ 0,0 ]);
-    this.shader.setFloat('vert', this.vertical === true ? 1.0 : 0.0);
 
     this.shader.setVec2('cellSize', [
       cw / (cw * xCount),

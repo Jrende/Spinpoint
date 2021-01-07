@@ -1,5 +1,5 @@
 precision highp float;
-uniform vec4 color;
+
 uniform sampler2D warpSampler;
 uniform sampler2D weftSampler;
 uniform sampler2D threading;
