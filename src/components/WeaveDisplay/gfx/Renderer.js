@@ -21,6 +21,8 @@ export class Renderer {
     this.gl.disable(this.gl.CULL_FACE);
     this.shaders = new ShaderBuilder(this.gl);
 
+    this.tieupListeners = [];
+
     this.resizeCanvas();
     window.addEventListener('beforeunload', () => {
       let extension = this.gl.getExtension('WEBGL_lose_context');
@@ -36,12 +38,12 @@ export class Renderer {
     this.weftColorRenderer = new ColorRowRenderer(this.gl, this.shaders, true, false);
     this.weaveRenderer = new WeaveRenderer(this.gl, this.shaders);
 
-    this.blackTexture = new Texture(
-      this.gl,
-      1,
-      1,
-      [[0.0, 0.0, 0.0, 1.0]]
-    );
+    canvas.addEventListener('click', (e) => {
+      let event = this.tieupRenderer.handleEvent(e);
+      if(event !== undefined) {
+        this.tieupListeners.forEach(l => l(...event));
+      }
+    });
 
     this.renderers = [
       this.tieupRenderer,
@@ -146,6 +148,10 @@ export class Renderer {
     this.width = this.gl.canvas.width;
     this.height = this.gl.canvas.height;
     this.gl.viewport(0, 0, this.width, this.height);
+  }
+
+  onTieupClick(listener) {
+    this.tieupListeners.push(listener);
   }
 
   render() {

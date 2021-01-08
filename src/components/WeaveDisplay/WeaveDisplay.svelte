@@ -31,6 +31,17 @@
     syncCanvasDimensions();
     renderer = new Renderer(canvas);
     renderer.resizeCanvas();
+    renderer.onTieupClick((x, y) => {
+      draft.update(v => {
+        let tieup = v.tieup;
+        let tv = tieup[x][y];
+        tieup[x][y] = tv === 1 ? 0 : 1;
+        return {
+          ...v,
+          tieup
+        };
+      });
+    });
   });
 
   function setWeftColor(x) {
