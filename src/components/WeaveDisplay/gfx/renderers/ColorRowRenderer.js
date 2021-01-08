@@ -3,9 +3,11 @@ import { mat4, quat } from 'gl-matrix';
 import Texture from '../Texture';
 
 export class ColorRowRenderer {
-  constructor(gl, shaders, toggleFunction = () => false, eventListeners = {}, settings = {innerCellMargin: 15}) {
+  constructor(gl, shaders, scrollX, scrollY) {
     this.gl = gl;
     this.shader = shaders.getShader('colorRow')
+    this.scrollX = scrollX;
+    this.scrollY = scrollY;
 
     this.quad = new VertexArray(this.gl, [
       0.0, 1.0,
@@ -16,10 +18,6 @@ export class ColorRowRenderer {
       1, 0, 2,
       2, 0, 3
     ], [2]);
-    this.mvp = mat4.create();
-
-    this.settings = settings;
-
     this.initialView = mat4.create();
     mat4.scale(this.initialView, this.initialView, [
         -1.0,
@@ -36,7 +34,6 @@ export class ColorRowRenderer {
     this.quat = quat.create();
   }
 
-
   handleEvent(event) {
     let { cellSize, xCount, yCount } = this.values;
     let w = this.gl.canvas.width;
@@ -44,7 +41,6 @@ export class ColorRowRenderer {
     let x = (w - event.offsetX) / w * 2.0;
     let y = (h - event.offsetY) / h * 2.0;
 
-    console.log(x, y);
     let gridX = (this.rendererPos[0]) * (cellSize / w);
     let gridY = (this.rendererPos[1]) * (cellSize / h);
     let gridW = (xCount * cellSize) / w;
@@ -75,7 +71,17 @@ export class ColorRowRenderer {
   }
 
   render() {
-    let { ui, xCount, yCount, cellSize, borderSize } = this.values;
+    let {
+      pos,
+      xCount,
+      yCount,
+      cellSize,
+      borderSize,
+      warpCount,
+      pickCount
+    } = this.values;
+    let scrollX = this.scrollX ? 1.0 : 0.0;
+    let scrollY = this.scrollY ? 1.0 : 0.0;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
@@ -91,9 +97,6 @@ export class ColorRowRenderer {
         (this.rendererPos[1]) * ch,
         0.0
     ]);
-    let width = Math.min(
-    (cellSize * xCount) / w, 
-    w);
     mat4.scale(mvp, view, 
       [
         (cellSize * xCount) / w,
@@ -105,7 +108,10 @@ export class ColorRowRenderer {
     this.colorTexture.bind(0);
     this.shader.setSampler2D('colorSampler', 0);
 
-    this.shader.setVec2('pos', [0, 0]);
+    this.shader.setVec2('pos', [
+      pos[0] / (warpCount * cellSize) * scrollX,
+      pos[1] / (pickCount * cellSize) * scrollY
+    ]);
 
     this.shader.setVec2('cellSize', [
       cw / (cw * xCount),

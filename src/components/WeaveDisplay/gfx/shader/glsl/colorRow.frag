@@ -28,11 +28,16 @@ float getBorder(float x, float y, float margin) {
 void main(void) {
   float x = uv.s + pos.x;
   float y = uv.t + pos.y;
-  vec3 cellColor = texture2D(colorSampler, vec2(x, y)).rgb;
-  float border = getBorder(x, y, gap);
-  vec3 fill = mix(
-      cellColor,
-      vec3(1.0, 1.0, 1.0),
-      1.0 - getBorder(x, y, cellMargin));
-  gl_FragColor = vec4(fill * border, 1.0);
+
+  if(x > 1.0 || y > 1.0) {
+    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+  } else {
+    vec3 cellColor = texture2D(colorSampler, vec2(x, y)).rgb;
+    float border = getBorder(x, y, gap);
+    vec3 fill = mix(
+        cellColor,
+        vec3(1.0, 1.0, 1.0),
+        1.0 - getBorder(x, y, cellMargin));
+    gl_FragColor = vec4(fill * border, 1.0);
+  }
 }

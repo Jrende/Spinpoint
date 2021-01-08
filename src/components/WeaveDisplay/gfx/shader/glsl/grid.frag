@@ -30,16 +30,20 @@ void main(void) {
   float x = uv.s + pos.x;
   float y = uv.t + pos.y;
 
-  float border = getBorder(x, y, gap);
-  float squareBorder = 1.0 - getBorder(x, y, cellMargin);
-  float horiz = 1.0 - vert;
+  if(x > 1.0 || y > 1.0) {
+    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+  } else {
+    float border = getBorder(x, y, gap);
+    float squareBorder = 1.0 - getBorder(x, y, cellMargin);
+    float horiz = 1.0 - vert;
 
-  float toggleValue = texture2D(cellToggleSampler, vec2(x * horiz + y * vert, 0)).r;
+    float toggleValue = texture2D(cellToggleSampler, vec2(x * horiz + y * vert, 0)).r;
 
-  float nx = x * vert + y * horiz;
-  float cellSizeF = cellSize.x * vert + cellSize.y * horiz;
-  float square = 1.0 - step(toggleValue, nx) * (1.0 - step(toggleValue, nx - cellSizeF));
+    float nx = x * vert + y * horiz;
+    float cellSizeF = cellSize.x * vert + cellSize.y * horiz;
+    float square = 1.0 - step(toggleValue, nx) * (1.0 - step(toggleValue, nx - cellSizeF));
 
-  float v = (square + squareBorder) * border;
-  gl_FragColor = vec4(vec3(v), 1.0);
+    float v = (square + squareBorder) * border;
+    gl_FragColor = vec4(vec3(v), 1.0);
+  }
 }

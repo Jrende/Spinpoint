@@ -3,11 +3,13 @@ import { mat4, quat } from 'gl-matrix';
 import Texture from '../Texture';
 
 export class GridRenderer {
-  constructor(gl, shaders, vertical = false, name) {
+  constructor(gl, shaders, vertical, scrollX, scrollY) {
     this.gl = gl;
     this.shader = shaders.getShader('grid')
     this.vertical = vertical;
     this.name = name;
+    this.scrollX = scrollX;
+    this.scrollY = scrollY;
 
     this.quad = new VertexArray(this.gl, [
       0.0, 1.0,
@@ -81,7 +83,17 @@ export class GridRenderer {
   }
 
   render() {
-    let { ui, xCount, yCount, cellSize, borderSize } = this.values;
+    let {
+      xCount,
+      yCount,
+      cellSize,
+      borderSize,
+      warpCount,
+      pickCount,
+      pos
+    } = this.values;
+    let scrollX = this.scrollX ? 1.0 : 0.0;
+    let scrollY = this.scrollY ? 1.0 : 0.0;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
@@ -97,9 +109,6 @@ export class GridRenderer {
         (this.rendererPos[1]) * ch,
         0.0
     ]);
-    let width = Math.min(
-    (cellSize * xCount) / w, 
-    w);
     mat4.scale(mvp, view, 
       [
         (cellSize * xCount) / w,
@@ -111,7 +120,11 @@ export class GridRenderer {
     this.cellToggleTexture.bind(0);
     this.shader.setSampler2D('cellToggleSampler', 0);
 
-    this.shader.setVec2('pos', [ 0,0 ]);
+    this.shader.setVec2('pos', [
+      pos[0] / (warpCount * cellSize) * scrollX,
+      pos[1] / (pickCount * cellSize) * scrollY
+    ]);
+
     this.shader.setFloat('vert', this.vertical === true ? 1.0 : 0.0);
 
     this.shader.setVec2('cellSize', [

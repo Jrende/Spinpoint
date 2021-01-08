@@ -54,9 +54,7 @@ export class WeaveRenderer {
 
   render() {
     let { ui, xCount, yCount, draft } = this.values;
-    let { cellSize, borderSize } = ui;
-    let pos = this.rendererPos;
-    let wp = ui.pos;
+    let { cellSize, borderSize, pos } = ui;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
@@ -66,8 +64,8 @@ export class WeaveRenderer {
     let ch = cellSize / h;
     let mvp = mat4.identity(this.mvp);
     let view = mat4.translate(mat4.identity(this.view), this.initialView, [
-        pos[0] * cw,
-        pos[1] * ch,
+        this.rendererPos[0] * cw,
+        this.rendererPos[1] * ch,
         0.0
     ]);
     mat4.scale(mvp, view, 
@@ -103,8 +101,8 @@ export class WeaveRenderer {
     ]);
 
     this.weaveShader.setVec2('pos', [
-      wp[0] / (draft.warpCount * ui.cellSize),
-      wp[1] / (draft.pickCount * ui.cellSize)
+      pos[0] / (draft.warpCount * ui.cellSize),
+      pos[1] / (draft.pickCount * ui.cellSize)
     ]);
 
     this.quad.draw();

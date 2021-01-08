@@ -30,10 +30,10 @@ export class Renderer {
       }
     });
     this.tieupRenderer = new TieupRenderer(this.gl, this.shaders);
-    this.threadingRenderer = new GridRenderer(this.gl, this.shaders, false, 'threading');
-    this.treadlingRenderer = new GridRenderer(this.gl, this.shaders, true, 'treadling');
-    this.warpColorRenderer = new ColorRowRenderer(this.gl, this.shaders);
-    this.weftColorRenderer = new ColorRowRenderer(this.gl, this.shaders);
+    this.threadingRenderer = new GridRenderer(this.gl, this.shaders, false, true, false);
+    this.treadlingRenderer = new GridRenderer(this.gl, this.shaders, true, false, true);
+    this.warpColorRenderer = new ColorRowRenderer(this.gl, this.shaders, false, true);
+    this.weftColorRenderer = new ColorRowRenderer(this.gl, this.shaders, true, false);
     this.weaveRenderer = new WeaveRenderer(this.gl, this.shaders);
 
     this.blackTexture = new Texture(
@@ -85,39 +85,51 @@ export class Renderer {
       xCount: draft.treadleCount,
       yCount: draft.shaftCount,
       cellSize: ui.cellSize,
-      borderSize: ui.borderSize
+      borderSize: ui.borderSize,
     });
     this.tieupRenderer.setCellToggleTexture(this.tieup);
 
     this.threadingRenderer.updateValues({
       xCount: draft.warpCount,
       yCount: draft.shaftCount,
+      pickCount: draft.pickCount,
+      warpCount: draft.warpCount,
       cellSize: ui.cellSize,
-      borderSize: ui.borderSize
+      borderSize: ui.borderSize,
+      pos: ui.pos
     });
     this.threadingRenderer.setCellToggleTexture(this.threading);
 
     this.treadlingRenderer.updateValues({
       xCount: draft.treadleCount,
       yCount: draft.pickCount,
+      pickCount: draft.pickCount,
+      warpCount: draft.warpCount,
       cellSize: ui.cellSize,
-      borderSize: ui.borderSize
+      borderSize: ui.borderSize,
+      pos: ui.pos,
     });
     this.treadlingRenderer.setCellToggleTexture(this.treadling);
 
     this.warpColorRenderer.updateValues({
       xCount: 1,
       yCount: draft.pickCount,
+      pickCount: draft.pickCount,
+      warpCount: draft.warpCount,
       cellSize: ui.cellSize,
-      borderSize: ui.borderSize
+      borderSize: ui.borderSize,
+      pos: ui.pos
     });
     this.warpColorRenderer.setColorTexture(this.warpTexture);
 
     this.weftColorRenderer.updateValues({
       xCount: draft.warpCount,
       yCount: 1,
+      pickCount: draft.pickCount,
+      warpCount: draft.warpCount,
       cellSize: ui.cellSize,
-      borderSize: ui.borderSize
+      borderSize: ui.borderSize,
+      pos: ui.pos
     });
     this.weftColorRenderer.setColorTexture(this.weftTexture);
   }
