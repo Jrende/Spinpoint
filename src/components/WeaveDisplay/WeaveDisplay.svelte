@@ -42,6 +42,32 @@
         };
       });
     });
+
+    renderer.onThreadingClick((x, y) => {
+      let t = $draft.threading;
+      if(t[x] === y) {
+        t[x] = undefined;
+      } else {
+        t[x] = y;
+      }
+      draft.update((value) => ({
+        ...value,
+        threading: t
+      }));
+    });
+
+    renderer.onTreadlingClick((x, y) => {
+      let t = $draft.treadling;
+      if(t[y] === x) {
+        t[y] = undefined;
+      } else {
+        t[y] = x;
+      }
+      draft.update((value) => ({
+        ...value,
+        treadling: t
+      }));
+    });
   });
 
   function setWeftColor(x) {

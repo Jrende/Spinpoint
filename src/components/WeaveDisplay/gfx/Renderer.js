@@ -21,7 +21,9 @@ export class Renderer {
     this.gl.disable(this.gl.CULL_FACE);
     this.shaders = new ShaderBuilder(this.gl);
 
-    this.tieupListeners = [];
+    this.tieupClickListeners = [];
+    this.threadingClickListeners = [];
+    this.treadlingClickListeners = [];
 
     this.resizeCanvas();
     window.addEventListener('beforeunload', () => {
@@ -41,7 +43,18 @@ export class Renderer {
     canvas.addEventListener('click', (e) => {
       let event = this.tieupRenderer.handleEvent(e);
       if(event !== undefined) {
-        this.tieupListeners.forEach(l => l(...event));
+        this.tieupClickListeners.forEach(l => l(...event));
+        return;
+      }
+      event = this.threadingRenderer.handleEvent(e);
+      if(event !== undefined) {
+        this.threadingClickListeners.forEach(l => l(...event));
+        return;
+      }
+      event = this.treadlingRenderer.handleEvent(e);
+      if(event !== undefined) {
+        this.treadlingClickListeners.forEach(l => l(...event));
+        return;
       }
     });
 
@@ -150,8 +163,17 @@ export class Renderer {
     this.gl.viewport(0, 0, this.width, this.height);
   }
 
+  onTreadlingClick(listener) {
+    this.treadlingClickListeners.push(listener);
+  }
+
+
+  onThreadingClick(listener) {
+    this.threadingClickListeners.push(listener);
+  }
+
   onTieupClick(listener) {
-    this.tieupListeners.push(listener);
+    this.tieupClickListeners.push(listener);
   }
 
   render() {

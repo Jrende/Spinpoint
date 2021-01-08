@@ -50,7 +50,6 @@ export class TieupRenderer {
     let x = (w - event.offsetX) / w * 2.0;
     let y = (h - event.offsetY) / h * 2.0;
 
-    console.log(x, y);
     let gridX = (this.rendererPos[0]) * (cellSize / w);
     let gridY = (this.rendererPos[1]) * (cellSize / h);
     let gridW = (xCount * cellSize) / w;

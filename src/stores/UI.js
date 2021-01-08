@@ -11,4 +11,5 @@ let ui = {
 
 const store = writable(ui);
 
+window.ui = ui;
 export default store;
