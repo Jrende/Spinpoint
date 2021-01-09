@@ -35,12 +35,13 @@ export class ColorRowRenderer {
   }
 
   handleEvent(event) {
-    let { cellSize, xCount, yCount } = this.values;
+    let { cellSize, xCount, yCount, pos, warpCount, pickCount } = this.values;
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
+    let cw = cellSize / w;
+    let ch = cellSize / h;
     let x = (w - event.offsetX) / w * 2.0;
     let y = (h - event.offsetY) / h * 2.0;
-
     let gridX = (this.rendererPos[0]) * (cellSize / w);
     let gridY = (this.rendererPos[1]) * (cellSize / h);
     let gridW = (xCount * cellSize) / w;
@@ -51,9 +52,9 @@ export class ColorRowRenderer {
       x < (gridX + gridW) &&
       y < (gridY + gridH)
     ) {
-      let i = Math.floor(((x - gridX) / gridW) * xCount);
-      let j = Math.floor(((y - gridY) / gridH) * yCount);
-      return [i, j, event]
+      let i = Math.floor(((x - gridX) / gridW) * xCount + pos[0] / cellSize);
+      let j = Math.floor(((y - gridY) / gridH) * yCount + pos[1] / cellSize);
+      return [i, j, event];
     }
     return undefined;
   }
@@ -107,11 +108,12 @@ export class ColorRowRenderer {
 
     this.colorTexture.bind(0);
     this.shader.setSampler2D('colorSampler', 0);
-
     this.shader.setVec2('pos', [
       pos[0] / (warpCount * cellSize) * scrollX,
       pos[1] / (pickCount * cellSize) * scrollY
     ]);
+
+    this.shader.setFloat('vert', yCount > xCount ? 1.0 : 0.0);
 
     this.shader.setVec2('cellSize', [
       cw / (cw * xCount),

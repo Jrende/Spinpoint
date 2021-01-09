@@ -35,17 +35,20 @@ export function createGridTexture(gl, data, width, height) {
   return new Texture(gl, width, height, gridTexture);
 }
 
-export function createColorTexture(gl, colors, yarns) {
-  let array = colors.map(i => {
-    let c = yarns[i].color;
-    // not rgba??
-    return [c.r, c.g, c.b];
-  });
-  array.push([0, 0, 0]);
+export function createColorTexture(gl, colors, w, h, yarns) {
+  let data = new Uint8Array(colors.length * 4);
+  for(let i = 0; i < colors.length; i++) {
+    let n = i * 4;
+    let c = yarns[colors[i]].color;
+    data[n + 0] = c.r * 255;
+    data[n + 1] = c.g * 255;
+    data[n + 2] = c.b * 255;
+    data[n + 3] = 255;
+  }
   return new Texture(
     gl,
-    colors.length,
-    1,
-    array
+    w,
+    h,
+    data
   );
 }

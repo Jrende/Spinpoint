@@ -68,21 +68,23 @@
         treadling: t
       }));
     });
+
+    renderer.onWarpColorClick((x, y) => {
+      console.log(x, y);
+      draft.update(value => ({
+        ...value,
+        warpColors: value.warpColors.map((c, i) => i === x ? $ui.selectedColor : c)
+      }));
+    });
+
+    renderer.onWeftColorClick((x, y) => {
+      console.log(x, y);
+      draft.update(value => ({
+        ...value,
+        weftColors: value.weftColors.map((c, i) => i === y ? $ui.selectedColor : c)
+      }));
+    });
   });
-
-  function setWeftColor(x) {
-    draft.update(value => ({
-      ...value,
-      weftColors: value.weftColors.map((c, i) => i === x ? $ui.selectedColor : c)
-    }));
-  }
-
-  function setWarpColor(x) {
-    draft.update(value => ({
-      ...value,
-      warpColors: value.warpColors.map((c, i) => i === x ? $ui.selectedColor : c)
-    }));
-  }
 
   function syncCanvasDimensions() {
     canvas.width = canvas.offsetWidth;

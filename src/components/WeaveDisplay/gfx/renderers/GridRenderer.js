@@ -118,13 +118,12 @@ export class GridRenderer {
 
     this.cellToggleTexture.bind(0);
     this.shader.setSampler2D('cellToggleSampler', 0);
-
     this.shader.setVec2('pos', [
       pos[0] / (warpCount * cellSize) * scrollX,
       pos[1] / (pickCount * cellSize) * scrollY
     ]);
 
-    this.shader.setFloat('vert', this.vertical === true ? 1.0 : 0.0);
+    this.shader.setFloat('vert', yCount > xCount ? 1.0 : 0.0);
 
     this.shader.setVec2('cellSize', [
       cw / (cw * xCount),

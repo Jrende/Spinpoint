@@ -4,6 +4,7 @@ uniform sampler2D colorSampler;
 
 uniform vec2 cellSize;
 uniform vec2 pos;
+uniform float vert;
 
 varying vec2 uv;
 
@@ -29,15 +30,18 @@ void main(void) {
   float x = uv.s + pos.x;
   float y = uv.t + pos.y;
 
-  if(x > 1.0 || y > 1.0) {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-  } else {
-    vec3 cellColor = texture2D(colorSampler, vec2(x, y)).rgb;
-    float border = getBorder(x, y, gap);
-    vec3 fill = mix(
-        cellColor,
-        vec3(1.0, 1.0, 1.0),
-        1.0 - getBorder(x, y, cellMargin));
-    gl_FragColor = vec4(fill * border, 1.0);
-  }
+  float horiz = 1.0 - vert;
+  vec3 cellColor = texture2D(
+      colorSampler,
+      vec2(
+        x * horiz,
+        y * vert
+        )
+      ).rgb;
+  float border = getBorder(x, y, gap);
+  vec3 fill = mix(
+      cellColor,
+      vec3(1.0, 1.0, 1.0),
+      1.0 - getBorder(x, y, cellMargin));
+  gl_FragColor = vec4(fill * border, 1.0);
 }
