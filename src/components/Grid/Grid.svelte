@@ -11,8 +11,8 @@
 
   let canvas;
   let ctx;
-  let borderSize = $ui.borderSize;
-  let cellSize = $ui.cellSize / 2.0;
+  let borderSize = $ui.get('borderSize');
+  let cellSize = $ui.get('cellSize') / 2.0;
   $: {
     if(ctx) {
       syncCanvasDimensions(xCount, yCount);

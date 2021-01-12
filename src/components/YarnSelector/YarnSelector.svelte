@@ -6,17 +6,20 @@
   import upArrow from 'icons/up-arrow.svg';
 
   let isToggled = false;
-  let color;
+  let color = tinycolor('black');
   $: {
-    color = tinycolor.fromRatio($draft.yarn[$ui.selectedColor].color);
+    let selectedColor = $ui.get('selectedColor');
+    let c = $draft.getIn([
+      'yarn',
+      selectedColor,
+      'color'
+    ]).toJS();
+    color = tinycolor.fromRatio(c);
   }
 
 
   function setColor(index) {
-    ui.update((value) => ({
-      ...value,
-      selectedColor: index
-    }));
+    ui.update(u => u.set('selectedColor', index));
     isToggled = false;
   }
 
@@ -46,7 +49,7 @@
   </button>
   {#if isToggled === true}
     <ul>
-      {#each $draft.yarn as yarn, i}
+      {#each $draft.get('yarn').toJS() as yarn, i}
         <li style={`background-color: ${tinycolor.fromRatio(yarn.color).toHexString()}`} on:click={() => setColor(i)}></li>
       {/each}
     </ul>

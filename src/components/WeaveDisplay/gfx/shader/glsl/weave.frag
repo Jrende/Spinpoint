@@ -33,22 +33,20 @@ float getBorder(float x, float y, float tieupValue) {
 void main(void) {
   float x = uv.s + pos.x;
   float y = uv.t + pos.y;
-  if(x > 1.0 || y > 1.0) {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-  } else {
-    vec2 heddle = texture2D(threading, vec2(x, 0.0)).rg;
-    vec2 pedal = texture2D(treadling, vec2(y, 0.0)).rg;
+  vec2 heddle = texture2D(threading, vec2(x, 0.0)).rg;
+  vec2 pedal = texture2D(treadling, vec2(y, 0.0)).rg;
 
-    vec4 warpColor = texture2D(warpSampler, vec2(x, 0.0));
-    vec4 weftColor = texture2D(weftSampler, vec2(0.0, y));
+  vec4 warpColor = texture2D(warpSampler, vec2(x, 0.0));
+  vec4 weftColor = texture2D(weftSampler, vec2(0.0, y));
 
-    float tieupValue = texture2D(tieup, vec2(heddle.r + 0.1, pedal.r + 0.1)).r;
+  float tieupValue = texture2D(tieup, vec2(heddle.r + 0.1, pedal.r + 0.1)).r;
 
-    vec3 color = mix(weftColor, warpColor, 1.0 - tieupValue).rgb;
-    float absence = heddle.g * pedal.g;
-    color = mix(color, vec3(1.0, 1.0, 1.0), 1.0 - absence);
+  vec3 color = mix(weftColor, warpColor, 1.0 - tieupValue).rgb;
+  float absence = heddle.g * pedal.g;
+  color = mix(color, vec3(1.0, 1.0, 1.0), 1.0 - absence);
 
-    color *= getBorder(x, y, tieupValue) * absence;
-    gl_FragColor = vec4(color, 1.0);
-  }
+  color *= getBorder(x, y, tieupValue) * absence;
+  float overflow = step(x, 1.0) * step(y, 1.0);
+  color = mix(vec3(1.0, 1.0, 1.0), color, overflow);
+  gl_FragColor = vec4(color, 1.0);
 }

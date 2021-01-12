@@ -1,5 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { writable } from 'svelte/store'
+import { fromJS } from 'immutable';
 
 let ui = {
   borderSize: 2,
@@ -9,7 +10,7 @@ let ui = {
   pos: [0, 0]
 };
 
-const store = writable(ui);
+const store = writable(fromJS(ui));
 
-window.ui = ui;
+window.dataUI = ui;
 export default store;

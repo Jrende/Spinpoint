@@ -1,6 +1,9 @@
 export default class Texture {
   constructor(gl, width, height, data) {
     this.gl = gl;
+    if(width === undefined || height === undefined) {
+      throw new Error("Undefined width/height of texture")
+    }
     this.width = width;
     this.height = height;
 

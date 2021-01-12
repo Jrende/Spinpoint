@@ -36,7 +36,7 @@
   });
 
   function selectMenu(index) {
-    $ui.selectedMenu = $ui.selectedMenu === index ?  -1 : index;
+    ui.update(u => u.update('selectedMenu', s => s === index ? -1 : index));
   }
 </script>
 
@@ -70,11 +70,11 @@
 
     </div>
 
-    {#if $ui.selectedMenu !== -1}
+    {#if $ui.get('selectedMenu') !== -1}
       <div class="settings-sidebar" style={`left: ${sidebarWidth}px`}>
         <div class="settings">
-          <h2>{items[$ui.selectedMenu].title}</h2>
-          <svelte:component this={items[$ui.selectedMenu].component} />
+          <h2>{items[$ui.get('selectedMenu')].title}</h2>
+          <svelte:component this={items[$ui.get('selectedMenu')].component} />
         </div>
         <div class="overlay" on:click={() => selectMenu(-1)}>
         </div>
@@ -126,10 +126,11 @@
   }
 
   .settings-sidebar {
-    position: absolute;
+    position: fixed;
     right: 0;
     height: 100vh;
     display: flex;
+    z-index: 100;
   }
 
   .settings {

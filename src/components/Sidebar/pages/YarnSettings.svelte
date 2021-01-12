@@ -1,5 +1,6 @@
 <script>
   import tinycolor from 'tinycolor2';
+  import { fromJS } from 'immutable';
   import draft from '../../../stores/Draft';
   import ui from '../../../stores/UI';
   import ColorPicker from '../../ColorPicker/ColorPicker.svelte';
@@ -8,7 +9,7 @@
 
   let colors;
   $: {
-    colors = $draft.yarn.map(y => tinycolor.fromRatio(y.color));
+    colors = $draft.get('yarn').map(y => y.get('color')).toJS().map(c => tinycolor.fromRatio(c));
   }
   let color = {r: 1.0, g: 0.0, b: 0.0};
 
@@ -25,24 +26,17 @@
 
   function createNewYarn(event) {
     event.preventDefault();
-    draft.update((value) => ({
-      ...value,
-      yarn: [
-        ...value.yarn,
-        {
-          name: newYarnName,
-          color: newYarnColor
-        }
-      ]
-    }));
+    draft.update((value) =>
+      value.update('yarn', y =>
+      y.push(fromJS({ name: newYarnName, color: newYarnColor }))));
     newYarnName = "";
     newYarnColor = color;
   }
 
   function selectYarnForModification(event, i) {
     yarnUnderModification = i;
-    if(i !== $draft.yarn.length) {
-      newYarnColor = $draft.yarn[i].color;
+    if(i !== $draft.get('yarn').size) {
+      newYarnColor = $draft.getIn(['yarn', i, 'color']).toJS();
     }
   }
 
@@ -55,14 +49,10 @@
 
   function updateYarn(event, index, yarn) {
     event.preventDefault();
-    let newYarn = {
-      ...yarn,
-      color: newYarnColor
-    };
-    draft.update((value) => {
-      value.yarn.splice(index, 1, newYarn);
-      return value;
-    });
+    draft.update(d => d.updateIn(['yarn', index], y => fromJS({
+      name: yarn.name,
+      color: fromJS(newYarnColor)
+    })));
     yarnUnderModification = -1;
   }
 
@@ -77,7 +67,7 @@
 </script>
 <div class="settings" on:click={maybeCancel} bind:this={settingsElm}>
   <div class="yarns" bind:this={yarnsElm}>
-    {#each $draft.yarn as yarn, i}
+    {#each $draft.get('yarn').toJS() as yarn, i}
       {#if yarnUnderModification === i}
         <form class="yarn" on:submit={() => updateYarn(event, i, yarn)}>
           <div class="top-row">
@@ -106,7 +96,7 @@
         </div>
       {/if}
     {/each}
-    {#if yarnUnderModification === $draft.yarn.length}
+    {#if yarnUnderModification === $draft.get('yarn').size}
       <form class="yarn" on:submit={createNewYarn}>
         <label for="newYarnName">Name</label>
         <input type="text" id="newYarnName" bind:value={newYarnName} use:focus />
@@ -114,7 +104,7 @@
         <button class="primary">Save</button>
       </form>
     {:else}
-      <button on:click={(e) => selectYarnForModification(e, $draft.yarn.length)}>
+      <button on:click={(e) => selectYarnForModification(e, $draft.get('yarn').size)}>
         <div class="icon">{@html add}</div>
         <span>Add new yarn</span>
       </button>

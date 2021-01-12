@@ -99,9 +99,9 @@
     mouseDown = true;
     let rect = canvas.getBoundingClientRect();
     let coords = [
-      (event.pageX - rect.x) / rect.width - 0.5,
-      -(event.pageY - rect.y) / rect.height + 0.5
-    ].map(c => c * 2.0);
+      2.0 * ((event.clientX - rect.x) / rect.width - 0.5),
+      2.0 * (-(event.clientY - rect.y) / rect.height + 0.5)
+    ];
     let { hue, saturation, value } = handleInput(coords);
     updateColor(hue, saturation, value);
   }
@@ -119,9 +119,9 @@
     if(mouseDown) {
       let rect = canvas.getBoundingClientRect();
       let coords = [
-        (event.pageX - rect.x) / rect.width - 0.5,
-        -(event.pageY - rect.y) / rect.height + 0.5
-      ].map(c => c * 2.0);
+        2.0 * ((event.clientX - rect.x) / rect.width - 0.5),
+        2.0 * (-(event.clientY - rect.y) / rect.height + 0.5)
+      ];
       let { hue, saturation, value } = handleInput(coords);
       updateColor(hue, saturation, value);
     }

@@ -9,8 +9,12 @@ import { WeaveRenderer} from './renderers/WeaveRenderer';
 import { ColorRowRenderer} from './renderers/ColorRowRenderer';
 
 import { create1DGridTexture, createGridTexture, createColorTexture } from './TextureUtil';
+import { fromJS } from 'immutable';
 
 export class Renderer {
+  prevDraft = fromJS({});
+  prevUI = fromJS({});
+
   constructor(canvas) {
     this.gl = canvas.getContext('webgl', {
       premultipliedAlpha: true,
@@ -20,6 +24,11 @@ export class Renderer {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.gl.disable(this.gl.CULL_FACE);
     this.shaders = new ShaderBuilder(this.gl);
+
+
+
+    let maxTextureSize = this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE);
+    console.log("Max texture size", maxTextureSize);
 
     this.tieupClickListeners = [];
     this.threadingClickListeners = [];
@@ -71,28 +80,50 @@ export class Renderer {
     });
 
     this.renderers = [
-      this.tieupRenderer,
-      this.threadingRenderer,
-      this.treadlingRenderer,
-      this.warpColorRenderer,
-      this.weftColorRenderer,
-      this.weaveRenderer
+      {
+        renderer: this.tieupRenderer,
+        dirty: true
+      },
+      {
+        renderer: this.threadingRenderer,
+        dirty: true
+      },
+      {
+        renderer: this.treadlingRenderer,
+        dirty: true
+      },
+      {
+        renderer: this.warpColorRenderer,
+        dirty: true
+      },
+      {
+        renderer: this.weftColorRenderer,
+        dirty: true
+      },
+      {
+        renderer: this.weaveRenderer,
+        dirty: true
+      },
     ];
   }
 
   setRendererPosition(draft) {
+    let treadleCount = draft.get('treadleCount');
+    let shaftCount = draft.get('shaftCount');
     this.tieupRenderer.setRendererPosition([3, 3]);
-    this.threadingRenderer.setRendererPosition([draft.treadleCount + 4, 3]);
-    this.treadlingRenderer.setRendererPosition([3, draft.shaftCount + 4]);
-    this.weftColorRenderer.setRendererPosition([1, draft.shaftCount + 4]);
-    this.warpColorRenderer.setRendererPosition([draft.treadleCount + 4, 1]);
+    this.threadingRenderer.setRendererPosition([treadleCount + 4, 3]);
+    this.treadlingRenderer.setRendererPosition([3, shaftCount + 4]);
+    this.weftColorRenderer.setRendererPosition([1, shaftCount + 4]);
+    this.warpColorRenderer.setRendererPosition([treadleCount + 4, 1]);
     this.weaveRenderer.setRendererPosition([
-      draft.treadleCount + 4,
-      draft.shaftCount + 4
+      treadleCount + 4,
+      shaftCount + 4
     ]);
   }
 
   update(draft, ui) {
+    let prevDraft = this.prevDraft;
+    let prevUI = this.prevUI;
     this.updateTextures(draft);
     this.weaveRenderer.setTextures(
       this.threading,
@@ -101,89 +132,174 @@ export class Renderer {
       this.warpTexture,
       this.weftTexture
     );
-    this.weaveRenderer.updateValues({
-      xCount: draft.warpCount,
-      yCount: draft.pickCount,
-      draft: draft,
-      ui: ui
-    });
+    if(
+      draft.get('treadleCount') !== prevDraft.get('treadleCount') || 
+      draft.get('shaftCount') !== prevDraft.get('shaftCount') ||
+      draft.get('tieup') !== prevDraft.get('tieup') ||
+      ui !== prevUI
+    ) {
+      this.tieupRenderer.updateValues({
+        xCount: draft.get('treadleCount'),
+        yCount: draft.get('shaftCount'),
+        cellSize: ui.get('cellSize'),
+        borderSize: ui.get('borderSize')
+      });
+      this.renderers[0].dirty = true;
+      this.tieupRenderer.setCellToggleTexture(this.tieup);
+    }
 
-    this.tieupRenderer.updateValues({
-      xCount: draft.treadleCount,
-      yCount: draft.shaftCount,
-      cellSize: ui.cellSize,
-      borderSize: ui.borderSize,
-    });
-    this.tieupRenderer.setCellToggleTexture(this.tieup);
+    if(
+      draft.get('warpCount') !== prevDraft.get('warpCount') || 
+      draft.get('shaftCount') !== prevDraft.get('shaftCount') ||
+      draft.get('pickCount') !== prevDraft.get('pickCount') ||
+      draft.get('threading') !== prevDraft.get('threading') ||
+      ui !== prevUI
+    ) {
+      this.threadingRenderer.updateValues({
+        xCount: draft.get('warpCount'),
+        yCount: draft.get('shaftCount'),
+        pickCount: draft.get('pickCount'),
+        warpCount: draft.get('warpCount'),
+        cellSize: ui.get('cellSize'),
+        borderSize: ui.get('borderSize'),
+        pos: ui.get('pos')
+      });
+      this.renderers[1].dirty = true;
+      this.threadingRenderer.setCellToggleTexture(this.threading);
+    }
 
-    this.threadingRenderer.updateValues({
-      xCount: draft.warpCount,
-      yCount: draft.shaftCount,
-      pickCount: draft.pickCount,
-      warpCount: draft.warpCount,
-      cellSize: ui.cellSize,
-      borderSize: ui.borderSize,
-      pos: ui.pos
-    });
-    this.threadingRenderer.setCellToggleTexture(this.threading);
+    if(
+      draft.get('treadleCount') !== prevDraft.get('treadleCount') || 
+      draft.get('pickCount') !== prevDraft.get('pickCount') ||
+      draft.get('warpCount') !== prevDraft.get('warpCount') ||
+      draft.get('treadling') !== prevDraft.get('treadling') ||
+      ui !== prevUI
+    ) {
+      this.treadlingRenderer.updateValues({
+        xCount: draft.get('treadleCount'),
+        yCount: draft.get('pickCount'),
+        pickCount: draft.get('pickCount'),
+        warpCount: draft.get('warpCount'),
+        cellSize: ui.get('cellSize'),
+        borderSize: ui.get('borderSize'),
+        pos: ui.get('pos'),
+      });
+      this.renderers[2].dirty = true;
+      this.treadlingRenderer.setCellToggleTexture(this.treadling);
+    }
 
-    this.treadlingRenderer.updateValues({
-      xCount: draft.treadleCount,
-      yCount: draft.pickCount,
-      pickCount: draft.pickCount,
-      warpCount: draft.warpCount,
-      cellSize: ui.cellSize,
-      borderSize: ui.borderSize,
-      pos: ui.pos,
-    });
-    this.treadlingRenderer.setCellToggleTexture(this.treadling);
+    if(
+      draft.get('warpCount') !== prevDraft.get('warpCount') || 
+      draft.get('pickCount') !== prevDraft.get('pickCount') ||
+      draft.get('warpColors') !== prevDraft.get('warpColors') ||
+      ui !== prevUI
+    ) {
+      this.warpColorRenderer.updateValues({
+        xCount: draft.get('pickCount'),
+        yCount: 1,
+        pickCount: draft.get('pickCount'),
+        warpCount: draft.get('warpCount'),
+        cellSize: ui.get('cellSize'),
+        borderSize: ui.get('borderSize'),
+        pos: ui.get('pos')
+      });
+      this.renderers[3].dirty = true;
+      this.warpColorRenderer.setColorTexture(this.warpTexture);
+    }
 
-    this.warpColorRenderer.updateValues({
-      xCount: draft.pickCount,
-      yCount: 1,
-      pickCount: draft.pickCount,
-      warpCount: draft.warpCount,
-      cellSize: ui.cellSize,
-      borderSize: ui.borderSize,
-      pos: ui.pos
-    });
-    this.warpColorRenderer.setColorTexture(this.warpTexture);
+    if(
+      draft.get('warpCount') !== prevDraft.get('warpCount') || 
+      draft.get('pickCount') !== prevDraft.get('pickCount') ||
+      draft.get('weftColors') !== prevDraft.get('weftColors') ||
+      ui !== prevUI
+    ) {
+      this.weftColorRenderer.updateValues({
+        xCount: 1,
+        yCount: draft.get('pickCount'),
+        pickCount: draft.get('pickCount'),
+        warpCount: draft.get('warpCount'),
+        cellSize: ui.get('cellSize'),
+        borderSize: ui.get('borderSize'),
+        pos: ui.get('pos')
+      });
+      this.renderers[4].dirty = true;
+      this.weftColorRenderer.setColorTexture(this.weftTexture);
+    }
 
-    this.weftColorRenderer.updateValues({
-      xCount: 1,
-      yCount: draft.warpCount,
-      pickCount: draft.pickCount,
-      warpCount: draft.warpCount,
-      cellSize: ui.cellSize,
-      borderSize: ui.borderSize,
-      pos: ui.pos
-    });
-    this.weftColorRenderer.setColorTexture(this.weftTexture);
+    if(
+      draft !== prevDraft ||
+      prevUI !== ui
+    ) {
+      this.weaveRenderer.updateValues({
+        xCount: draft.get('warpCount'),
+        yCount: draft.get('pickCount'),
+        draft: draft.toJS(),
+        ui: ui.toJS()
+      });
+      this.renderers[5].dirty = true;
+    }
+
+
+    this.prevDraft = draft;
+    this.prevUI = draft;
   }
 
   updateTextures(draft) {
-    this.threading = create1DGridTexture(this.gl,
-      draft.threading,
-      draft.shaftCount,
-      draft.warpCount);
-    this.treadling = create1DGridTexture(this.gl,
-      draft.treadling,
-      draft.shaftCount,
-      draft.pickCount);
-    this.tieup = createGridTexture(this.gl,
-      draft.tieup,
-      draft.shaftCount,
-      draft.shaftCount);
-    this.warpTexture = createColorTexture(this.gl,
-      draft.warpColors,
-      draft.warpColors.length,
-      1,
-      draft.yarn);
-    this.weftTexture = createColorTexture(this.gl,
-      draft.weftColors,
-      1,
-      draft.weftColors.length,
-      draft.yarn);
+    let prevDraft = this.prevDraft;
+    if(
+      draft.get('threading') !== prevDraft.get('threading') ||
+      draft.get('shaftCount') !== prevDraft.get('shaftCount') ||
+      draft.get('warpCount') !== prevDraft.get('warpCount')
+    ) {
+      this.threading = create1DGridTexture(this.gl,
+        draft.get('threading'),
+        draft.get('shaftCount'),
+        draft.get('warpCount'));
+    }
+
+    if(
+      draft.get('treadling') !== prevDraft.get('treadling') ||
+      draft.get('shaftCount') !== prevDraft.get('shaftCount') ||
+      draft.get('pickCount') !== prevDraft.get('pickCount')
+    ) {
+      this.treadling = create1DGridTexture(this.gl,
+        draft.get('treadling'),
+        draft.get('shaftCount'),
+        draft.get('pickCount'));
+    }
+
+    if(
+      draft.get('tieup') !== prevDraft.get('tieup') ||
+      draft.get('shaftCount') !== prevDraft.get('shaftCount') ||
+      draft.get('shaftCount') !== prevDraft.get('shaftCount')
+    ) {
+      this.tieup = createGridTexture(this.gl,
+        draft.get('tieup'),
+        draft.get('shaftCount'),
+        draft.get('shaftCount'));
+    }
+
+    if(
+      draft.get('warpColors') !== prevDraft.get('warpColors') ||
+      draft.get('yarn') !== prevDraft.get('yarn')
+    ) {
+      this.warpTexture = createColorTexture(this.gl,
+        draft.get('warpColors'),
+        draft.get('warpColors').size,
+        1,
+        draft.get('yarn'));
+    }
+
+    if(
+      draft.get('weftColors') !== prevDraft.get('weftColors') ||
+      draft.get('yarn') !== prevDraft.get('yarn')
+    ) {
+      this.weftTexture = createColorTexture(this.gl,
+        draft.get('weftColors'),
+        1,
+        draft.get('weftColors').size,
+        draft.get('yarn'));
+    }
   }
 
   resizeCanvas() {
@@ -214,8 +330,8 @@ export class Renderer {
 
   render() {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-    this.renderers.forEach(r => {
-      r.render();
-    });
+    this.renderers
+      .filter(r => r.dirty)
+      .forEach(r => r.renderer.render());
   }
 }

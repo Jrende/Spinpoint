@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { Map, List } from 'immutable';
   import ui from '../stores/UI';
   import draft from '../stores/Draft';
   import { useFocus } from "svelte-navigator";
@@ -11,6 +12,7 @@
 
   let containerElm;
   let canvasContainer;
+  let newCellSize = $ui.get('cellSize');
 
   onMount(() => {
     window.scrollTo(
@@ -26,19 +28,21 @@
 
   function updatePosition(event) {
     let xOffset = 0;
-    //let x = ($draft.warpCount * $ui.cellSize + xOffset) - window.scrollX;
     let yOffset = 0;
-    //let y = ($draft.pickCount * $ui.cellSize + yOffset) - window.scrollY;
     let canvasRect = canvasContainer.getBoundingClientRect();
     let rect = containerElm.getBoundingClientRect();
     let x = rect.width - window.scrollX - canvasRect.width;
     let y = rect.height - window.scrollY - canvasRect.height;
     
-    ui.update((value) => ({
-      ...value,
-      pos: [x, y]
-    }));
+    ui.update(u => {
+      return u.set('pos', List([x, y]))
+    });
   }
+
+  function changeCellSize() {
+    ui.update(u => u.set('cellSize', newCellSize));
+  }
+
 </script>
 
 <div class="container-container" bind:this={containerElm} >
@@ -49,6 +53,9 @@
     </div>
   </div>
   <ScrollPane />
+  <div class="ok-zoomer">
+    <input type="range" min="10" max="70" on:input={changeCellSize} bind:value={newCellSize} />
+  </div>
 </div>
 
 <style>
@@ -70,4 +77,11 @@
     position: fixed;
     height: 100%;
   }
+
+  .ok-zoomer {
+    position: fixed;
+    bottom: -15px;
+    right: 10px;
+  }
+
 </style>

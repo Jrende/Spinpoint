@@ -1,3 +1,4 @@
+import { fromJS } from 'immutable';
 class DraftUtil {
   constructor() {
   }
@@ -10,56 +11,52 @@ class DraftUtil {
 
     for(let i = 0; i < treadleCount; i++) {
       for(let j = 0; j < shaftCount; j++) {
-        if(draft.tieup[i] !== undefined && draft.tieup[i][j] !== undefined) {
-          tieup[i][j] = draft.tieup[i][j];
+        if(draft.getIn(['tieup', i]) !== undefined && draft.getIn(['tieup', i, j]) !== undefined) {
+          tieup[i][j] = draft.get(['tieup', i, j]);
         } else {
           tieup[i][j] = 0;
         }
       }
     }
-    return {
-      ...draft,
-      shaftCount,
-      treadleCount,
-      tieup
-    }
+
+    return draft.withMutations((d) => {
+      d.set('shaftCount', shaftCount);
+      d.set('treadleCount', treadleCount);
+      d.set('tieup', fromJS(tieup));
+      return d;
+    });
   }
 
   updateWarpCount(draft, warpCount) {
-    let warpColors = new Array(warpCount);
-    for(let i = 0; i < warpCount; i++) {
-      let v = 0;
-      if(draft.warpColors[i] !== undefined) {
-        v = draft.warpColors[i];
-      }
-      warpColors[i] = v;
+    let amountToAdd = warpCount - draft.get('warpCount');
+    if(amountToAdd === 0) {
+      return draft;
     }
-    return {
-      ...draft,
-      warpCount,
-      warpColors
-    }
+    return draft.withMutations((d) => {
+      d.set('warpCount', warpCount);
+      let warpColors = this.changeArraySize(d.get('warpColors'), amountToAdd);
+      d.set('warpColors', warpColors);
+      let threading = this.changeArraySize(d.get('threading'), amountToAdd);
+      d.set('threading', threading);
+    });
   }
 
   updatePickCount(draft, pickCount) {
-    let weftColors = new Array(pickCount);
-    for(let i = 0; i < pickCount; i++) {
-      let v = 0;
-      if(draft.weftColors[i] !== undefined) {
-        v = draft.weftColors[i];
-      }
-      weftColors[i] = v;
+    let amountToAdd = pickCount - draft.get('pickCount');
+    if(amountToAdd === 0) {
+      return draft;
     }
-    return {
-      ...draft,
-      pickCount,
-      weftColors
-    }
+
+    return draft.withMutations((d) => {
+      d.set('pickCount', pickCount);
+      let weftColors = this.changeArraySize(d.get('weftColors'), amountToAdd);
+      d.set('weftColors', weftColors);
+    });
   }
 
   applyPattern(draft, pattern, warpOrWeft, mirroredRepeat) {
-    let newDraft = {...draft}
-    let length = warpOrWeft === 'warp' ? draft.warpCount : draft.pickCount;
+    let newDraft = draft.toJS();
+    let length = warpOrWeft === 'warp' ? newDraft.warpCount : newDraft.pickCount;
 
     if(warpOrWeft === 'warp') {
       pattern.reverse();
@@ -84,7 +81,20 @@ class DraftUtil {
       newDraft.treadling = array;
     }
 
-    return newDraft;
+    return fromJS(newDraft);
+  }
+
+  changeArraySize(array, amountToAdd, defaultValue = 0) {
+    let newArray = array.withMutations(wc => {
+      if(amountToAdd > 0) {
+        for(let i = 0; i < amountToAdd; i++) {
+          wc.push(defaultValue);
+        }
+      } else {
+        wc = wc.splice(wc.size - amountToAdd);
+      }
+    });
+    return newArray;
   }
 }
 

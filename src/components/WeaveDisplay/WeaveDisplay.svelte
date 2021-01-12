@@ -32,57 +32,36 @@
     renderer = new Renderer(canvas);
     renderer.resizeCanvas();
     renderer.onTieupClick((x, y) => {
-      draft.update(v => {
-        let tieup = v.tieup;
-        let tv = tieup[x][y];
-        tieup[x][y] = tv === 1 ? 0 : 1;
-        return {
-          ...v,
-          tieup
-        };
-      });
+      draft.update(d => d.updateIn(['tieup', x, y], i => i === 1 ? 0 : 1));
     });
 
     renderer.onThreadingClick((x, y) => {
-      let t = $draft.threading;
-      if(t[x] === y) {
-        t[x] = undefined;
-      } else {
-        t[x] = y;
-      }
-      draft.update((value) => ({
-        ...value,
-        threading: t
-      }));
+      draft.update(d => d.updateIn(['threading', x], (v) => {
+        if(v === y) {
+          return undefined;
+        } else {
+          return y;
+        }
+      }))
     });
 
     renderer.onTreadlingClick((x, y) => {
-      let t = $draft.treadling;
-      if(t[y] === x) {
-        t[y] = undefined;
-      } else {
-        t[y] = x;
-      }
-      draft.update((value) => ({
-        ...value,
-        treadling: t
-      }));
+      draft.update(d => 
+        d.updateIn(['treadling', y], (v) => {
+          if(v === x) {
+            return undefined;
+          } else {
+            return x;
+          }
+        }))
     });
 
     renderer.onWarpColorClick((x, y) => {
-      console.log(x, y);
-      draft.update(value => ({
-        ...value,
-        warpColors: value.warpColors.map((c, i) => i === x ? $ui.selectedColor : c)
-      }));
+      draft.update(d => d.setIn(['warpColors', x], $ui.get('selectedColor')));
     });
 
     renderer.onWeftColorClick((x, y) => {
-      console.log(x, y);
-      draft.update(value => ({
-        ...value,
-        weftColors: value.weftColors.map((c, i) => i === y ? $ui.selectedColor : c)
-      }));
+      draft.update(d => d.setIn(['weftColors', y], $ui.get('selectedColor')));
     });
   });
 

@@ -1,14 +1,9 @@
 <script>
   import draft from '../../stores/Draft';
   import ui from '../../stores/UI';
-  import { onMount } from 'svelte';
 
-
-  onMount(() => {
-  });
-
-  let width = $draft.warpCount * $ui.cellSize;
-  let height = $draft.pickCount * $ui.cellSize;
+  let width = $draft.get('warpCount') * $ui.get('cellSize');
+  let height = $draft.get('pickCount') * $ui.get('cellSize');
 
 </script>
 <div

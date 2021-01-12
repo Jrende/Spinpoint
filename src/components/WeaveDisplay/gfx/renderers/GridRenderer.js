@@ -62,8 +62,8 @@ export class GridRenderer {
       x < (gridX + gridW) &&
       y < (gridY + gridH)
     ) {
-      let i = Math.floor(((x - gridX) / gridW) * xCount + pos[0] / cellSize);
-      let j = Math.floor(((y - gridY) / gridH) * yCount + pos[1] / cellSize);
+      let i = Math.floor(((x - gridX) / gridW) * xCount + pos.get(0) / cellSize);
+      let j = Math.floor(((y - gridY) / gridH) * yCount + pos.get(1) / cellSize);
       return [i, j, event];
     }
     return undefined;
@@ -119,8 +119,8 @@ export class GridRenderer {
     this.cellToggleTexture.bind(0);
     this.shader.setSampler2D('cellToggleSampler', 0);
     this.shader.setVec2('pos', [
-      pos[0] / (warpCount * cellSize) * scrollX,
-      pos[1] / (pickCount * cellSize) * scrollY
+      pos.get(0) / (warpCount * cellSize) * scrollX,
+      pos.get(1) / (pickCount * cellSize) * scrollY
     ]);
 
     this.shader.setFloat('vert', yCount > xCount ? 1.0 : 0.0);

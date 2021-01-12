@@ -44,6 +44,8 @@ void main(void) {
     float square = 1.0 - step(toggleValue, nx) * (1.0 - step(toggleValue, nx - cellSizeF));
 
     float v = (square + squareBorder) * border;
+    float overflow = step(x, 1.0) * step(y, 1.0);
+    v = mix(1.0, v, overflow);
     gl_FragColor = vec4(vec3(v), 1.0);
   }
 }

@@ -3,39 +3,32 @@
   import ui from '../../../stores/UI';
   import DraftUtil from '../../../util/DraftUtil';
 
-  let shaftCount = $draft.shaftCount;
-  let treadleCount = $draft.treadleCount;
-  let warpCount = $draft.warpCount;
-  let pickCount = $draft.pickCount;
+  let shaftCount = $draft.get('shaftCount');
+  let treadleCount = $draft.get('treadleCount');
+  let warpCount = $draft.get('warpCount');
+  let pickCount = $draft.get('pickCount');
   function submit(event) {
     event.preventDefault();
     let newDraft = $draft;
     let changed = false;
     if(
-      $draft.shaftCount !== shaftCount ||
-      $draft.treadleCount !== treadleCount) {
+      $draft.get('shaftCount') !== shaftCount ||
+      $draft.get('treadleCount') !== treadleCount) {
       changed = true;
-      console.log("Updated shaft or tredle");
       newDraft = DraftUtil.updateShaftOrTreadleCounts(newDraft, shaftCount, treadleCount);
     }
-    if($draft.warpCount !== warpCount) {
+    if($draft.get('warpCount') !== warpCount) {
       changed = true;
       newDraft = DraftUtil.updateWarpCount(newDraft, warpCount);
     }
-    if($draft.pickCount !== pickCount) {
+    if($draft.get('pickCount') !== pickCount) {
       changed = true;
       newDraft = DraftUtil.updatePickCount(newDraft, pickCount);
     }
     if(changed) {
-      draft.update((value) => {
-        let ret =  {
-          ...value,
-          ...newDraft
-        };
-        return ret;
-      });
+      draft.update((value) => newDraft);
     }
-    $ui.selectedMenu = -1;
+    ui.update(u => u.set('selectedMenu', -1));
   }
 </script>
 <form on:submit={submit}>

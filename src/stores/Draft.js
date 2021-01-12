@@ -1,16 +1,23 @@
 import tinycolor from 'tinycolor2';
 import { writable } from 'svelte/store'
+import { fromJS, List } from 'immutable';
+window.fromJS = fromJS;
+window.List = List;
 let draft = {};
 if(window.localStorage.getItem('draft')) {
   draft = JSON.parse(localStorage.getItem('draft'));
 } else {
-  /*
   draft = {
     treadling: [],
     threading: [],
-    warpColors: [],
-    weftColors: [],
-    tieup: [],
+    warpColors: new Array(30).fill(0),
+    weftColors: new Array(30).fill(1),
+    tieup: [
+      [1, 0, 0, 1],
+      [0, 0, 1, 1],
+      [0, 1, 1, 0],
+      [1, 1, 0, 0],
+    ],
     shaftCount: 4,
     treadleCount: 4,
     warpCount: 30,
@@ -18,43 +25,34 @@ if(window.localStorage.getItem('draft')) {
     yarn: [
       {
         name: 'White yarn',
-        color: { r: 1.0, g: 1.0, b: 1.0}
+        color: { r: 0.8, g: 0.8, b: 0.8}
       },
       {
         name: 'Black yarn',
-        color: { r: 0.0, g: 0.0, b: 0.0}
+        color: { r: 0.7, g: 0.0, b: 0.0}
       }
     ]
   };
 
-  for(let i = 0; i < draft.shaftCount; i++) {
-    draft.tieup[i] = [];
-    for(let j = 0; j < draft.shaftCount; j++) {
-      draft.tieup[i][j] = 0;
-    }
-  }
-
   for(let i = 0; i < draft.warpCount; i++) {
-    draft.warpColors[i] = 0;
+    draft.threading.push(i % 4);
   }
 
   for(let i = 0; i < draft.pickCount; i++) {
-    draft.weftColors[i] = 1;
+    draft.treadling.push(i % 4);
   }
-  */
-
-
-  draft = JSON.parse("{\"treadling\":[0,1,2,3,2,1,0,1,2,3,2,1,0,1,2,3,2,1,0,1,2,3,2,1,0,1,2,3,2,1],\"threading\":[3,2,1,0,1,2,3,2,1,0,1,2,3,2,3,0,3,2,3,2,1,0,1,2,3,2,1,0,1,2],\"warpColors\":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],\"weftColors\":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],\"tieup\":[[1,0,0,1],[0,0,1,1],[0,1,1,0],[1,1,0,0]],\"shaftCount\":4,\"treadleCount\":4,\"warpCount\":30,\"pickCount\":30,\"yarn\":[{\"name\":\"White yarn\",\"color\":{\"r\":1,\"g\":1,\"b\":1}},{\"name\":\"Black yarn\",\"color\":{\"r\":0,\"g\":0,\"b\":0}}]}");
 }
 
-const store = writable(draft);
+
+const store = writable(fromJS(draft));
 export default store;
 
 let d;
 store.subscribe(value => {
-  window.data = value;
-  d = value;
-  localStorage.setItem('draft', JSON.stringify(value));
+  let v = value.toJS();
+  window.data = v;
+  d = v;
+  localStorage.setItem('draft', JSON.stringify(v));
 });
 
 //window.draft = draft;

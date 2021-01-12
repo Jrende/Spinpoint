@@ -9,8 +9,8 @@
   let prevWarpOrWeft;
 
   let grid;
-  let xCount = $draft.treadleCount;
-  let yCount = $draft.shaftCount;
+  let xCount = $draft.get('treadleCount');
+  let yCount = $draft.get('shaftCount');
   let mirroredRepeat = true;
   let cellData = new Array(xCount);
   cellData = [0,1,2,3];
