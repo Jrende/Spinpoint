@@ -53,7 +53,7 @@
 
       <div class="help">
         <Route path="/">
-          <a href="/about" use:link>
+          <a href="weaver/about" use:link>
             <div class="icon">
               {@html HelpIcon}
             </div>
@@ -103,10 +103,6 @@
   }
 
   .sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-
     width: 50px;
     background-color: #40362A;
     padding: 10px 20px;
@@ -126,11 +122,8 @@
   }
 
   .settings-sidebar {
-    position: fixed;
-    right: 0;
-    height: 100vh;
-    display: flex;
-    z-index: 100;
+    max-height: 100vh;
+    overflow: auto;
   }
 
   .settings {

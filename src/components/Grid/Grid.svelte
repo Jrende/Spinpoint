@@ -11,8 +11,8 @@
 
   let canvas;
   let ctx;
-  let borderSize = $ui.get('borderSize');
-  let cellSize = $ui.get('cellSize') / 2.0;
+  let borderSize = 2.5;
+  let cellSize = 25;
   $: {
     if(ctx) {
       syncCanvasDimensions(xCount, yCount);
@@ -116,6 +116,8 @@
 
 <style>
   .grid {
+    min-height: 100px;
+    min-width: 100px;
     height: 100%;
     width: 100%;
   }

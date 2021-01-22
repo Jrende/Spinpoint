@@ -4,7 +4,7 @@ import App from './App.svelte';
 const app = new App({
   target: document.body,
   props: {
-    url: location.pathname
+    url: location.pathname.substr(location.pathname.lastIndexOf('/'))
   }
 });
 

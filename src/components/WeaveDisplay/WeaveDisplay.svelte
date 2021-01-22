@@ -28,9 +28,8 @@
   }
 
   onMount(() => {
-    syncCanvasDimensions();
     renderer = new Renderer(canvas);
-    renderer.resizeCanvas();
+    syncCanvasDimensions();
     renderer.onTieupClick((x, y) => {
       draft.update(d => d.updateIn(['tieup', x, y], i => i === 1 ? 0 : 1));
     });
@@ -65,20 +64,16 @@
     });
   });
 
-  function syncCanvasDimensions() {
+  export function syncCanvasDimensions() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
+    renderer.resizeCanvas();
+    renderer.render();
   }
 
 </script>
-<div class="container">
-  <canvas class="weave-display" bind:this={canvas} />
-</div>
+<canvas class="weave-display" bind:this={canvas} />
 <style>
-  .container {
-    height: 100%;
-  }
-
   .weave-display {
     image-rendering: crisp-edges;
     width: 100%;

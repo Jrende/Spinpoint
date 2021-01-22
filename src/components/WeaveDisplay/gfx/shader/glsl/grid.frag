@@ -29,23 +29,20 @@ float getBorder(float x, float y, float margin) {
 void main(void) {
   float x = uv.s + pos.x;
   float y = uv.t + pos.y;
+  float horiz = 1.0 - vert;
 
-  if(x > 1.0 || y > 1.0) {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-  } else {
-    float border = getBorder(x, y, gap);
-    float squareBorder = 1.0 - getBorder(x, y, cellMargin);
-    float horiz = 1.0 - vert;
+  vec2 tv = texture2D(cellToggleSampler, vec2(x * horiz + y * vert, 0)).rg;
+  float toggleValue = tv.r + tv.g - 1.0;
 
-    float toggleValue = texture2D(cellToggleSampler, vec2(x * horiz + y * vert, 0)).r;
+  float border = getBorder(x, y, gap);
+  float squareBorder = 1.0 - getBorder(x, y, cellMargin);
 
-    float nx = x * vert + y * horiz;
-    float cellSizeF = cellSize.x * vert + cellSize.y * horiz;
-    float square = 1.0 - step(toggleValue, nx) * (1.0 - step(toggleValue, nx - cellSizeF));
+  float nx = x * vert + y * horiz;
+  float cellSizeF = cellSize.x * vert + cellSize.y * horiz;
+  float square = 1.0 - step(toggleValue, nx) * (1.0 - step(toggleValue, nx - cellSizeF));
 
-    float v = (square + squareBorder) * border;
-    float overflow = step(x, 1.0) * step(y, 1.0);
-    v = mix(1.0, v, overflow);
-    gl_FragColor = vec4(vec3(v), 1.0);
-  }
+  float v = (square + squareBorder) * border;
+  float overflow = step(x, 1.0) * step(y, 1.0);
+  v = mix(1.0, v, overflow);
+  gl_FragColor = vec4(vec3(v), 1.0);
 }

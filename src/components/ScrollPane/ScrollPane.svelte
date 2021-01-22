@@ -8,12 +8,15 @@
 </script>
 <div
       class="scrollpane"
-      style={`width: ${width}px; height: ${height}px;`}
+      style={`left: ${width}px; top: ${height}px;`}
       >
 </div>
 <style>
   .scrollpane {
     background-color: #5959308f;
     pointer-events: none;
+    position: relative;
+    width: 10px;
+    height: 10px;
   }
 </style>

@@ -11,7 +11,7 @@
   export let url;
 </script>
 
-<Router url="{url}">
+<Router url="{url}" basepath="/weaver">
   <div class="application">
     <Sidebar />
     <Route path="about" component="{Help}" />

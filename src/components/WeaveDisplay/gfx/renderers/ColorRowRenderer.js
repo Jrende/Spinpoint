@@ -72,6 +72,7 @@ export class ColorRowRenderer {
   }
 
   render() {
+    if(this.values === undefined) return;
     let {
       pos,
       xCount,

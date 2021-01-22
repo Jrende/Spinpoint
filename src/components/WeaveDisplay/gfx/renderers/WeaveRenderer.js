@@ -53,6 +53,7 @@ export class WeaveRenderer {
   }
 
   render() {
+    if(this.values === undefined) return;
     let { ui, xCount, yCount, draft } = this.values;
     let { cellSize, borderSize, pos } = ui;
 

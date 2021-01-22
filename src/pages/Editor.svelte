@@ -1,5 +1,5 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, afterUpdate } from 'svelte';
   import { Map, List } from 'immutable';
   import ui from '../stores/UI';
   import draft from '../stores/Draft';
@@ -10,29 +10,39 @@
 
   const registerFocus = useFocus();
 
-  let containerElm;
+  let scrollContainer;
   let canvasContainer;
   let newCellSize = $ui.get('cellSize');
 
+  let scrollbarWidth = 15; //Works for chrome and firefox
+  let weaveDisplay;
+
+  let resizeObserver;
+
   onMount(() => {
-    window.scrollTo(
-      document.body.scrollWidth,
-      document.body.scrollHeight
+    scrollbarWidth = scrollContainer.offsetWidth - scrollContainer.clientWidth;
+    scrollContainer.addEventListener('scroll', updatePosition);
+    scrollContainer.scrollTo(
+      scrollContainer.scrollLeftMax,
+      scrollContainer.scrollTopMax
     );
-    document.addEventListener('scroll', updatePosition);
+    resizeObserver = new ResizeObserver(entries => {
+      weaveDisplay.syncCanvasDimensions();
+    });
+    resizeObserver.observe(canvasContainer);
   });
 
   onDestroy(() => {
-    document.removeEventListener('scroll', updatePosition);
+    scrollContainer.removeEventListener('scroll', updatePosition);
   });
 
   function updatePosition(event) {
     let xOffset = 0;
     let yOffset = 0;
     let canvasRect = canvasContainer.getBoundingClientRect();
-    let rect = containerElm.getBoundingClientRect();
-    let x = rect.width - window.scrollX - canvasRect.width;
-    let y = rect.height - window.scrollY - canvasRect.height;
+    let rect = scrollContainer.getBoundingClientRect();
+    let x = scrollContainer.scrollLeftMax - scrollContainer.scrollLeft;
+    let y = scrollContainer.scrollTopMax - scrollContainer.scrollTop ;
     
     ui.update(u => {
       return u.set('pos', List([x, y]))
@@ -44,44 +54,50 @@
   }
 
 </script>
-
-<div class="container-container" bind:this={containerElm} >
-  <div class="container">
-    <div class="fixed" bind:this={canvasContainer}>
-      <YarnSelector />
-      <WeaveDisplay />
-    </div>
-  </div>
+<div on:scroll={updatePosition} bind:this={scrollContainer} class="container" tabindex="0">
+  <YarnSelector />
   <ScrollPane />
-  <div class="ok-zoomer">
-    <input type="range" min="10" max="70" on:input={changeCellSize} bind:value={newCellSize} />
+  <div bind:this={canvasContainer} class="fixed" style={`
+                                   right: ${scrollbarWidth}px;
+                                   bottom: ${scrollbarWidth}px
+                                   `}>
+    <WeaveDisplay bind:this={weaveDisplay} />
   </div>
 </div>
-
+<div class="ok-zoomer">
+  <input type="range" min="5" max="70" on:input={changeCellSize} bind:value={newCellSize} />
+</div>
 <style>
-
-  .container-container {
-    position: relative;
-  }
 
   .container {
     overflow: auto;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
   }
-  
+
   .fixed {
-    position: fixed;
-    height: 100%;
+    display: flex;
+    justify-content: stretch;
+    align-items: stretch;
+
+    position: absolute;
+    right: 0;
+    left: 90px;
+    bottom: 0;
+    top: 0;
   }
 
   .ok-zoomer {
     position: fixed;
-    bottom: -15px;
-    right: 10px;
+    bottom: 0;
+    right: 20px;
+    z-index: 1000;
+  }
+
+  .scrollbar-measure {
+    width: 100px;
+    height: 100px;
+    overflow: scroll;
+    position: absolute;
+    top: -9999px;
   }
 
 </style>

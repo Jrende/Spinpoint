@@ -80,6 +80,7 @@ export class TieupRenderer {
   }
 
   render() {
+    if(this.values === undefined) return;
     let { ui, xCount, yCount, cellSize, borderSize } = this.values;
 
     let w = this.gl.canvas.width;

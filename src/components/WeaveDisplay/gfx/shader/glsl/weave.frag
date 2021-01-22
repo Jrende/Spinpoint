@@ -36,17 +36,20 @@ void main(void) {
   vec2 heddle = texture2D(threading, vec2(x, 0.0)).rg;
   vec2 pedal = texture2D(treadling, vec2(y, 0.0)).rg;
 
-  vec4 warpColor = texture2D(warpSampler, vec2(x, 0.0));
-  vec4 weftColor = texture2D(weftSampler, vec2(0.0, y));
+  vec3 warpColor = texture2D(warpSampler, vec2(x, 0.0)).rgb;
+  vec3 weftColor = texture2D(weftSampler, vec2(0.0, y)).rgb;
 
   float tieupValue = texture2D(tieup, vec2(heddle.r + 0.1, pedal.r + 0.1)).r;
 
-  vec3 color = mix(weftColor, warpColor, 1.0 - tieupValue).rgb;
   float absence = heddle.g * pedal.g;
-  color = mix(color, vec3(1.0, 1.0, 1.0), 1.0 - absence);
 
-  color *= getBorder(x, y, tieupValue) * absence;
+  vec3 color = mix(warpColor, weftColor, tieupValue);
+  color *= getBorder(x, y, tieupValue);
+
+  color = mix(weftColor * getBorder(x, y, 1.0), color, pedal.g);
+  color = mix(warpColor * getBorder(x, y, 0.0), color, heddle.g);
+
   float overflow = step(x, 1.0) * step(y, 1.0);
-  color = mix(vec3(1.0, 1.0, 1.0), color, overflow);
+  color = mix(vec3(1.0, 1.0, 1.0), color.rgb, overflow);
   gl_FragColor = vec4(color, 1.0);
 }

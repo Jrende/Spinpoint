@@ -2,6 +2,7 @@ import VertexArray from '../VertexArray';
 import { mat4, quat } from 'gl-matrix';
 import Texture from '../Texture';
 
+let instance = 0;
 export class GridRenderer {
   constructor(gl, shaders, vertical, scrollX, scrollY) {
     this.gl = gl;
@@ -10,6 +11,7 @@ export class GridRenderer {
     this.name = name;
     this.scrollX = scrollX;
     this.scrollY = scrollY;
+    this.instance = instance++;
 
     this.quad = new VertexArray(this.gl, [
       0.0, 1.0,
@@ -46,10 +48,12 @@ export class GridRenderer {
 
   handleEvent(event) {
     let { cellSize, xCount, yCount, pos, warpCount, pickCount } = this.values;
+    let scrollX = this.scrollX ? 1.0 : 0.0;
+    let scrollY = this.scrollY ? 1.0 : 0.0;
+
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
-    let cw = cellSize / w;
-    let ch = cellSize / h;
+
     let x = (w - event.offsetX) / w * 2.0;
     let y = (h - event.offsetY) / h * 2.0;
     let gridX = (this.rendererPos[0]) * (cellSize / w);
@@ -62,8 +66,13 @@ export class GridRenderer {
       x < (gridX + gridW) &&
       y < (gridY + gridH)
     ) {
-      let i = Math.floor(((x - gridX) / gridW) * xCount + pos.get(0) / cellSize);
-      let j = Math.floor(((y - gridY) / gridH) * yCount + pos.get(1) / cellSize);
+      let xOffset = scrollX * (pos.get(0) / cellSize);
+      let yOffset = scrollY * (pos.get(1) / cellSize);
+      let cellX = Math.floor((w - event.offsetX) / (cellSize / 2.0) + xOffset);
+      let cellY = Math.floor((h - event.offsetY) / (cellSize / 2.0) + yOffset);
+      let i = cellX - this.rendererPos[0];
+      let j = cellY - this.rendererPos[1];
+
       return [i, j, event];
     }
     return undefined;
@@ -82,6 +91,7 @@ export class GridRenderer {
   }
 
   render() {
+    if(this.values === undefined) return;
     let {
       xCount,
       yCount,
