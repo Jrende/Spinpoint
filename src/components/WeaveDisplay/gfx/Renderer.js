@@ -24,22 +24,13 @@ export class Renderer {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.gl.disable(this.gl.CULL_FACE);
     this.shaders = new ShaderBuilder(this.gl);
+    this.gl.enable(this.gl.BLEND);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
 
 
     let maxTextureSize = this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE);
     console.log("Max texture size", maxTextureSize);
-
-    this.tieupClickListeners = [];
-    this.threadingClickListeners = [];
-
-    this.treadlingClickListeners = [];
-    this.treadlingMouseUpListeners = [];
-    this.treadlingMouseDownListeners = [];
-    this.treadlingMouseMoveListeners = [];
-
-    this.warpColorListeners = [];
-    this.weftColorListeners = [];
 
     this.threadingTexture = new Texture(this.gl, 1, 1, [[0, 0, 0, 0]]);
     this.treadlingTexture = new Texture(this.gl, 1, 1, [[0, 0, 0, 0]])
@@ -120,6 +111,18 @@ export class Renderer {
           r.emitPointerDown(e);
         });
     })
+
+    let render = () => {
+      if(this.renderNextFrame) {
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.renderers
+          .filter(r => r.dirty)
+          .forEach(r => r.renderer.render());
+        this.renderNextFrame = false;
+      }
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
   }
 
   setRendererPosition(draft) {
@@ -139,7 +142,6 @@ export class Renderer {
   isDifferent(draft, prevDraft, ...args) {
     return args.some(a => draft.get(a) !== prevDraft.get(a));
   }
-
 
   update(draft, ui) {
     let prevDraft = this.prevDraft;
@@ -256,8 +258,8 @@ export class Renderer {
       this.weave.updateValues({
         xCount: draft.get('warpCount'),
         yCount: draft.get('pickCount'),
-        draft: draft.toJS(),
-        ui: ui.toJS()
+        cellSize: ui.get('cellSize'),
+        pos: ui.get('pos')
       });
       this.renderers[5].dirty = true;
     }
@@ -319,9 +321,6 @@ export class Renderer {
   }
 
   render() {
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-    this.renderers
-      .filter(r => r.dirty)
-      .forEach(r => r.renderer.render());
+    this.renderNextFrame = true;
   }
 }

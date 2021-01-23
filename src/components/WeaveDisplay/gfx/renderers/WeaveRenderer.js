@@ -55,9 +55,9 @@ export class WeaveRenderer extends RendererEventTarget {
   }
 
   render() {
+    console.log("render weave");
     if(this.values === undefined) return;
-    let { ui, xCount, yCount, draft } = this.values;
-    let { cellSize, borderSize, pos } = ui;
+    let { xCount, yCount, pos, cellSize } = this.values;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
@@ -104,8 +104,8 @@ export class WeaveRenderer extends RendererEventTarget {
     ]);
 
     this.weaveShader.setVec2('pos', [
-      pos[0] / (draft.warpCount * ui.cellSize),
-      pos[1] / (draft.pickCount * ui.cellSize)
+      pos.get(0) / (xCount * cellSize),
+      pos.get(1) / (yCount * cellSize)
     ]);
 
     this.quad.draw();

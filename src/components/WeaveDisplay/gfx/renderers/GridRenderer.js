@@ -8,13 +8,23 @@ export class GridRenderer extends RendererEventTarget {
   constructor(gl, shaders, vertical, scrollX, scrollY) {
     super();
     this.gl = gl;
-    this.shader = shaders.getShader('grid')
+    this.shader = shaders.getShader('grid');
+    this.solidShader = shaders.getShader('solid');
     this.vertical = vertical;
     this.name = name;
     this.scrollX = scrollX;
     this.scrollY = scrollY;
     this.instance = instance++;
 
+    this.centerQuad = new VertexArray(this.gl, [
+      -0.5, 0.5,
+      0.5, 0.5,
+      0.5, -0.5,
+      -0.5, -0.5,
+    ], [
+      1, 0, 2,
+      2, 0, 3
+    ], [2]);
     this.quad = new VertexArray(this.gl, [
       0.0, 1.0,
       1.0, 1.0,
@@ -90,6 +100,67 @@ export class GridRenderer extends RendererEventTarget {
 
   setCellToggleTexture(cellToggleTexture) {
     this.cellToggleTexture = cellToggleTexture;
+  }
+
+  renderPoints(points) {
+    this.render();
+    let {
+      xCount,
+      yCount,
+      cellSize,
+      borderSize,
+      warpCount,
+      pickCount,
+      pos
+    } = this.values;
+    console.log("render points");
+    this.solidShader.bind();
+    this.centerQuad.bind();
+    let w = this.gl.canvas.width;
+    let h = this.gl.canvas.height;
+    let cw = cellSize / w;
+    let ch = cellSize / h;
+    let scrollX = this.scrollX ? 1.0 : 0.0;
+    let scrollY = this.scrollY ? 1.0 : 0.0;
+
+
+    let mvp = mat4.identity(this.mvp);
+    let view = mat4.translate(mat4.identity(this.view), this.initialView, [
+        (this.rendererPos[0]) * cw,
+        (this.rendererPos[1]) * ch,
+        0.0
+    ]);
+    mat4.translate(view, view, 
+      [
+        cw/2.0,
+        ch/2.0,
+        1.0
+      ]
+    );
+    mat4.scale(view, view, 
+      [
+        cw,
+        ch,
+        1.0
+      ]
+    );
+    for(let i = 0; i < points.length; i++) {
+      let x, y;
+    if(yCount < xCount) {
+      x = i;
+      y = points[i];
+    } else {
+      x = points[i];
+      y = i;
+    }
+      mat4.translate(mvp, view, [ x, y, 0.0 ]);
+      mat4.scale(mvp, mvp, [ 0.61, 0.61, 1.0 ]);
+      this.solidShader.setMat4('mvp', mvp);
+      this.solidShader.setVec4('color', [1.0, 0.0, 0.0, 1.0]);
+      this.centerQuad.draw();
+    }
+    this.centerQuad.unbind()
+    this.solidShader.unbind();
   }
 
   render() {

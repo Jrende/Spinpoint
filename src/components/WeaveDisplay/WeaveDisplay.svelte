@@ -16,10 +16,10 @@
   let weftColor;
 
   let isDragging = false;
+  let linePoints = [0, 1, 2, 3, 3, 2, 2, 1, 2, 3, 0];
 
   $: {
     if(renderer) {
-      //debugger;
       renderer.update($draft, $ui);
       renderer.setRendererPosition($draft);
       try {
@@ -43,6 +43,9 @@
 
     renderer.treadling.onClick((x, y) => {
       draft.update(d => d.updateIn(['treadling', y], (v) => v === x ? undefined : x))
+    });
+
+    renderer.treadling.onPointerMove((x, y) => {
     });
 
     renderer.warpColor.onClick((x, y) => {
