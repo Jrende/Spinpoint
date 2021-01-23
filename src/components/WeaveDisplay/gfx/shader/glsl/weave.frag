@@ -40,11 +40,9 @@ void main(void) {
   vec3 weftColor = texture2D(weftSampler, vec2(0.0, y)).rgb;
 
   float tieupValue = texture2D(tieup, vec2(heddle.r + 0.1, pedal.r + 0.1)).r;
-
   float absence = heddle.g * pedal.g;
 
-  vec3 color = mix(warpColor, weftColor, tieupValue);
-  color *= getBorder(x, y, tieupValue);
+  vec3 color = mix(warpColor, weftColor, tieupValue) * getBorder(x, y, tieupValue);
 
   color = mix(weftColor * getBorder(x, y, 1.0), color, pedal.g);
   color = mix(warpColor * getBorder(x, y, 0.0), color, heddle.g);

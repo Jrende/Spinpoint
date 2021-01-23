@@ -4,8 +4,8 @@
   import ui from '../../../stores/UI';
   import Grid from '../../Grid/Grid.svelte';
   import gridIcon from 'icons/grid.svg';
+  import { line } from '../../../util/MathUtil';
 
-  let warpOrWeft;
   let prevWarpOrWeft;
 
   let grid;
@@ -14,7 +14,12 @@
   let mirroredRepeat = true;
   let cellData = new Array(xCount);
   cellData = [0,1,2,3];
-  warpOrWeft = 'warp';
+  let warpOrWeft = 'warp';
+
+  let isDragging = false;
+  let fromPos = undefined;
+  let linePoints = [];
+
   $: {
     if(warpOrWeft !== prevWarpOrWeft) {
       let temp = xCount;
@@ -47,6 +52,82 @@
     $ui.selectedMenu = -1;
   }
 
+  function onGridClick(i, j) {
+    if(grid.isDragging) {
+      return;
+    }
+    if(warpOrWeft === 'warp') {
+      cellData[i] = j;
+    } else if(warpOrWeft === 'weft') {
+      cellData[j] = i;
+    }
+    grid.drawForm(xCount, yCount, false);
+  }
+
+  function onGridMouseDown(i, j, event) {
+    fromPos = [i, j]
+    linePoints = [[i, j]];
+  }
+
+  function onGridMouseMove(i, j, event) {
+    if(event.buttons === 0) {
+      fromPos = undefined;
+      isDragging = false;
+      return;
+    }
+    if((event.buttons & 1) && ((event.movementX !== 0) || (event.movementY !== 0))) {
+      isDragging = true;
+    }
+    let lp = line(...fromPos, i, j);
+    linePoints = [];
+    lp.forEach(p => {
+      if(warpOrWeft === 'weft') {
+        linePoints[p[1]] = p[0];
+      } else if(warpOrWeft === 'warp') {
+        linePoints[p[0]] = p[1];
+      }
+    });
+    linePoints = addArrays(linePoints, cellData);
+    grid.drawForm(xCount, yCount, false);
+  }
+
+  function onGridMouseUp(i, j, event) {
+    if(isDragging) {
+      cellData = addArrays(linePoints, cellData);
+      fromPos = undefined;
+      linePoints = undefined;
+      isDragging = false;
+      grid.drawForm(xCount, yCount, false);
+    }
+  }
+
+  function addArrays(left, right) {
+    let ret = [...right];
+    for(let i = 0; i < left.length; i++) {
+      if(left[i] !== undefined) {
+        ret[i] = left[i];
+      }
+    }
+    return ret;
+  }
+
+  function toggleCell(i, j) {
+    let x, y;
+    if(warpOrWeft === 'warp') {
+      x = j;
+      y = i;
+    } else if(warpOrWeft === 'weft') {
+      x = i;
+      y = j;
+    }
+
+    if(isDragging) {
+      return linePoints[x] === y;
+    } else {
+      return cellData[x] === y;
+    }
+  }
+
 </script>
 <div class="pattern-fill">
   <div class="button-group">
@@ -76,22 +157,11 @@
         bind:this={grid}
         xCount={xCount}
         yCount={yCount}
-        toggleCell={(i, j) => {
-          if(warpOrWeft === 'warp') {
-            return cellData[j] === i;
-          } else if(warpOrWeft === 'weft') {
-            return cellData[i] === j;
-          }
-        }}
-        onClick={(i, j) => {
-          if(warpOrWeft === 'warp') {
-            cellData[j] = i;
-          } else if(warpOrWeft === 'weft') {
-            cellData[i] = j;
-          }
-          grid.drawForm(xCount, yCount, false);
-        }}
-        cellData={cellData}
+        toggleCell={toggleCell}
+        onClick={onGridClick}
+        onMouseDown={onGridMouseDown}
+        onMouseUp={onGridMouseUp}
+        onMouseMove={onGridMouseMove}
         disabled={warpOrWeft === undefined}
         />
         <button on:click={decrement}>-</button>

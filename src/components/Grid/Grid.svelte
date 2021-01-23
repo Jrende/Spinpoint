@@ -1,18 +1,26 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import ui from '../../stores/UI';
 
   export let xCount;
   export let yCount;
   export let toggleCell = (x, y) => false;
   export let onClick = (x, y) => { };
+  export let onMouseDown = (x, y) => { };
+  export let onMouseUp = (x, y) => { };
+  export let onMouseMove = (x, y) => { };
   export let disabled = false;
-  export let data;
 
   let canvas;
   let ctx;
   let borderSize = 2.5;
   let cellSize = 25;
+  let rect;
+  let resizeObserver = new ResizeObserver(entries => {
+    rect = canvas.getBoundingClientRect();
+  });
+  let dx = 0;
+  let dy = 0;
   $: {
     if(ctx) {
       syncCanvasDimensions(xCount, yCount);
@@ -27,6 +35,11 @@
 
   onMount(() => {
     ctx = canvas.getContext('2d');
+    resizeObserver.observe(canvas);
+  });
+  
+  onDestroy(() => {
+    resizeObserver.unobserve(canvas);
   });
 
   function syncCanvasDimensions(xCount, yCount) {
@@ -34,15 +47,40 @@
       canvas.height = cellSize * yCount + 2.0 * borderSize;
   }
 
+  function onCanvasMouseDown(event) {
+    if(!disabled) {
+      let indices = getIndices(event);
+      onMouseDown(...indices, event);
+    }
+  }
+
+  function onCanvasMouseMove(event) {
+    if(!disabled) {
+      let indices = getIndices(event);
+      onMouseMove(...indices, event);
+    }
+  }
+
+  function onCanvasMouseUp() {
+    if(!disabled) {
+      let indices = getIndices(event);
+      onMouseUp(...indices, event);
+    }
+  }
+
   function onCanvasClick() {
     if(!disabled) {
-      let rect = canvas.getBoundingClientRect();
-      let canvasSize = rect.width;
-      let size = (canvasSize - borderSize) / xCount;
-      let i = Math.floor(event.offsetX / size);
-      let j = Math.floor(event.offsetY / size);
-      onClick(j, i);
+      let indices = getIndices(event);
+      onClick(...indices, event);
     }
+  }
+
+  function getIndices(event) {
+    let canvasSize = rect.width;
+    let size = (canvasSize - borderSize) / xCount;
+    let i = Math.floor(event.offsetX / size);
+    let j = Math.floor(event.offsetY / size);
+    return [i, j];
   }
 
   function fillBorders(width, height) {
@@ -112,7 +150,17 @@
     }
   }
 </script>
-<canvas on:click={onCanvasClick} bind:this={canvas} width="1" height="1" class:disabled={disabled} />
+
+<canvas
+  on:click={onCanvasClick}
+  on:mouseup={onCanvasMouseUp}
+  on:mousedown={onCanvasMouseDown}
+  on:mousemove={onCanvasMouseMove}
+  bind:this={canvas}
+  width="1"
+  height="1"
+  class:disabled={disabled}
+  />
 
 <style>
   .grid {
