@@ -45,13 +45,20 @@ export default class Texture {
     this.gl.bindTexture(this.gl.TEXTURE_2D, null);
   }
 
+  delete() {
+    this.gl.deleteTexture(this.texture);
+  }
+
   bind(unit) {
     this.gl.activeTexture(this.gl.TEXTURE0 + unit);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
   }
 
-  /*
-  setColor(color) {
+  setColor(x, y, color) {
+    this.setColorArea(x, y, 1, 1, color);
+  }
+
+  setColorArea(x, y, width, height, color) {
     this.color = new Uint8Array([
       color[0] * 255,
       color[1] * 255,
@@ -59,18 +66,18 @@ export default class Texture {
       color[3] * 255
     ]);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-    this.gl.texSubImage2D(this.gl.TEXTURE_2D,
+    this.gl.texSubImage2D(
+      this.gl.TEXTURE_2D,
       0,
-      0,
-      0,
-      1,
-      1,
+      x,
+      y,
+      width,
+      height,
       this.gl.RGBA,
       this.gl.UNSIGNED_BYTE,
       this.color);
     this.gl.bindTexture(this.gl.TEXTURE_2D, null);
   }
-  */
 
   unbind() {
     this.gl.bindTexture(this.gl.TEXTURE_2D, null);

@@ -1,14 +1,13 @@
 precision highp float;
 
 uniform sampler2D cellToggleSampler;
-
 uniform vec2 cellSize;
 uniform vec2 pos;
 uniform float vert;
+uniform float gap;
 
 varying vec2 uv;
 
-const float gap = 0.04;
 const float cellMargin = 0.15;
 
 float getBorder(float x, float y, float margin) {

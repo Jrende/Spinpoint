@@ -1,10 +1,12 @@
 import VertexArray from '../VertexArray';
 import { mat4, quat } from 'gl-matrix';
 import Texture from '../Texture';
+import RendererEventTarget from './RendererEventTarget';
 
 let instance = 0;
-export class GridRenderer {
+export class GridRenderer extends RendererEventTarget {
   constructor(gl, shaders, vertical, scrollX, scrollY) {
+    super();
     this.gl = gl;
     this.shader = shaders.getShader('grid')
     this.vertical = vertical;
@@ -135,6 +137,7 @@ export class GridRenderer {
 
     this.shader.setFloat('vert', yCount > xCount ? 1.0 : 0.0);
 
+    this.shader.setFloat('gap', 0.04);
     this.shader.setVec2('cellSize', [
       cw / (cw * xCount),
       ch / (ch * yCount),

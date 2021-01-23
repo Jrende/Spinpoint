@@ -1,9 +1,11 @@
 import VertexArray from '../VertexArray';
 import { mat4, quat } from 'gl-matrix';
 import Texture from '../Texture';
+import RendererEventTarget from './RendererEventTarget';
 
-export class TieupRenderer {
+export class TieupRenderer extends RendererEventTarget {
   constructor(gl, shaders, toggleFunction = () => false, eventListeners = {}, settings = {innerCellMargin: 15}) {
+    super();
     this.gl = gl;
     this.shader = shaders.getShader('tieup')
 

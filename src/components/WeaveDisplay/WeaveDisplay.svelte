@@ -15,8 +15,11 @@
   let warpColor;
   let weftColor;
 
+  let isDragging = false;
+
   $: {
     if(renderer) {
+      //debugger;
       renderer.update($draft, $ui);
       renderer.setRendererPosition($draft);
       try {
@@ -30,36 +33,23 @@
   onMount(() => {
     renderer = new Renderer(canvas);
     syncCanvasDimensions();
-    renderer.onTieupClick((x, y) => {
+    renderer.tieup.onClick((x, y) => {
       draft.update(d => d.updateIn(['tieup', x, y], i => i === 1 ? 0 : 1));
     });
 
-    renderer.onThreadingClick((x, y) => {
-      draft.update(d => d.updateIn(['threading', x], (v) => {
-        if(v === y) {
-          return undefined;
-        } else {
-          return y;
-        }
-      }))
+    renderer.threading.onClick((x, y) => {
+      draft.update(d => d.updateIn(['threading', x], (v) => v === y ? undefined : y))
     });
 
-    renderer.onTreadlingClick((x, y) => {
-      draft.update(d => 
-        d.updateIn(['treadling', y], (v) => {
-          if(v === x) {
-            return undefined;
-          } else {
-            return x;
-          }
-        }))
+    renderer.treadling.onClick((x, y) => {
+      draft.update(d => d.updateIn(['treadling', y], (v) => v === x ? undefined : x))
     });
 
-    renderer.onWarpColorClick((x, y) => {
+    renderer.warpColor.onClick((x, y) => {
       draft.update(d => d.setIn(['warpColors', x], $ui.get('selectedColor')));
     });
 
-    renderer.onWeftColorClick((x, y) => {
+    renderer.weftColor.onClick((x, y) => {
       draft.update(d => d.setIn(['weftColors', y], $ui.get('selectedColor')));
     });
   });

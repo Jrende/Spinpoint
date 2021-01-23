@@ -53,7 +53,7 @@
   }
 
   function onGridClick(i, j) {
-    if(grid.isDragging) {
+    if(isDragging) {
       return;
     }
     if(warpOrWeft === 'warp') {

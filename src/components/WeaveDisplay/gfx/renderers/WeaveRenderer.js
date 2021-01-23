@@ -3,9 +3,11 @@ import VertexArray from '../VertexArray';
 import Framebuffer from '../Framebuffer';
 import Texture from '../Texture';
 import { mat4, quat } from 'gl-matrix';
+import RendererEventTarget from './RendererEventTarget';
 
-export class WeaveRenderer {
+export class WeaveRenderer extends RendererEventTarget {
   constructor(gl, shaders) {
+    super();
     this.gl = gl;
     this.quad = new VertexArray(this.gl, [
       0.0, 1.0,

@@ -153,9 +153,9 @@
 
 <canvas
   on:click={onCanvasClick}
-  on:mouseup={onCanvasMouseUp}
-  on:mousedown={onCanvasMouseDown}
-  on:mousemove={onCanvasMouseMove}
+  on:pointerup={onCanvasMouseUp}
+  on:pointerdown={onCanvasMouseDown}
+  on:pointermove={onCanvasMouseMove}
   bind:this={canvas}
   width="1"
   height="1"

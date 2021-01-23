@@ -1,9 +1,11 @@
 import VertexArray from '../VertexArray';
 import { mat4, quat } from 'gl-matrix';
 import Texture from '../Texture';
+import RendererEventTarget from './RendererEventTarget';
 
-export class ColorRowRenderer {
+export class ColorRowRenderer extends RendererEventTarget {
   constructor(gl, shaders, scrollX, scrollY) {
+    super();
     this.gl = gl;
     this.shader = shaders.getShader('colorRow')
     this.scrollX = scrollX;
