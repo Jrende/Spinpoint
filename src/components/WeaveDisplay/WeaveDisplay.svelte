@@ -5,6 +5,7 @@
   import ui from '../../stores/UI';
   import { Renderer } from './gfx/Renderer';
   import ScrollPane from '../ScrollPane/ScrollPane.svelte';
+  import { line } from '../../util/MathUtil';
 
   let renderer;
   let canvas;
@@ -15,8 +16,13 @@
   let warpColor;
   let weftColor;
 
+  let drag = '';
+  let hasDragged = false;
   let isDragging = false;
-  let linePoints = [0, 1, 2, 3, 3, 2, 2, 1, 2, 3, 0];
+  let fromPos = [];
+  let linePoints = [];
+  let oldLinePoints = [];
+  let vert = true;
 
   $: {
     if(renderer) {
@@ -34,18 +40,83 @@
     renderer = new Renderer(canvas);
     syncCanvasDimensions();
     renderer.tieup.onClick((x, y) => {
-      draft.update(d => d.updateIn(['tieup', x, y], i => i === 1 ? 0 : 1));
+      if(!hasDragged) {
+        draft.update(d => d.updateIn(['tieup', x, y], i => i === 1 ? 0 : 1));
+      }
+      hasDragged = false;
     });
 
+    /*
+    renderer.tieup.onPointerDown((x, y) => {
+      drag = 'tieup';
+      startDrag(x, y);
+    });
+
+    renderer.tieup.onPointerMove((x, y, event) => {
+      onMove(event, x, y);
+      if(isDragging && linePointsChanged()) {
+        renderer.tieup.renderPoints(linePoints);
+      }
+    });
+
+    renderer.tieup.onPointerUp((x, y) => {
+      if(hasDragged && drag === 'threading') {
+        updateListWithLine('threading');
+      }
+      stopDrag();
+    });
+    */
+
     renderer.threading.onClick((x, y) => {
-      draft.update(d => d.updateIn(['threading', x], (v) => v === y ? undefined : y))
+      if(!hasDragged) {
+        draft.update(d => d.updateIn(['threading', x], (v) => v === y ? undefined : y))
+      }
+      hasDragged = false;
+    });
+
+    renderer.threading.onPointerDown((x, y) => {
+      drag = 'threading';
+      startDrag(x, y);
+    });
+
+    renderer.threading.onPointerMove((x, y, event) => {
+      onMove(event, x, y);
+      if(isDragging && linePointsChanged()) {
+        renderer.threading.renderPoints(linePoints);
+      }
+    });
+
+    renderer.threading.onPointerUp((x, y) => {
+      if(hasDragged && drag === 'threading') {
+        updateListWithLine('threading');
+      }
+      stopDrag();
     });
 
     renderer.treadling.onClick((x, y) => {
-      draft.update(d => d.updateIn(['treadling', y], (v) => v === x ? undefined : x))
+      if(!hasDragged) {
+        draft.update(d => d.updateIn(['treadling', y], (v) => v === x ? undefined : x))
+      }
+      hasDragged = false;
     });
 
-    renderer.treadling.onPointerMove((x, y) => {
+    renderer.treadling.onPointerDown((x, y) => {
+      drag = 'treadling';
+      startDrag(x, y);
+    });
+
+    renderer.treadling.onPointerMove((x, y, event) => {
+      onMove(event, x, y);
+      if(isDragging && linePointsChanged()) {
+        renderer.treadling.renderPoints(linePoints);
+      }
+    });
+
+    renderer.treadling.onPointerUp((x, y) => {
+      if(hasDragged && drag === 'treadling') {
+        updateListWithLine('treadling');
+      }
+      stopDrag();
     });
 
     renderer.warpColor.onClick((x, y) => {
@@ -56,6 +127,57 @@
       draft.update(d => d.setIn(['weftColors', y], $ui.get('selectedColor')));
     });
   });
+
+  function updateListWithLine(name) {
+    draft.update(d => d.update(name, list => list.withMutations(l => {
+      linePoints.forEach((p, i) => l.set(i, p));
+    })));
+  }
+
+  function startDrag(i, j) {
+    fromPos = [i, j]
+    linePoints = [[i, j]];
+  }
+
+  function linePointsChanged() {
+    if(linePoints.length !== oldLinePoints.length) {
+      return true;
+    }
+    for(let i = 0; i < linePoints.length; i++) {
+      if(linePoints[i] !== oldLinePoints[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function onMove(event, i, j) {
+    if(event.buttons === 0) {
+      fromPos = undefined;
+      isDragging = false;
+      return;
+    }
+    if((event.buttons & 1) && ((event.movementX !== 0) || (event.movementY !== 0))) {
+      isDragging = true;
+      hasDragged = true;
+    }
+    oldLinePoints = [...linePoints];
+    let lp = line(...fromPos, i, j);
+    linePoints = [];
+    lp.forEach(p => {
+      if(drag === 'treadling') {
+        linePoints[p[1]] = p[0];
+      } else if(drag === 'threading') {
+        linePoints[p[0]] = p[1];
+      }
+    });
+  }
+
+  function stopDrag() {
+    fromPos = undefined;
+    isDragging = false;
+    drag = '';
+  }
 
   export function syncCanvasDimensions() {
     canvas.width = canvas.offsetWidth;

@@ -80,14 +80,6 @@ export class Renderer {
       },
     ];
 
-    canvas.addEventListener('click', (e) => {
-      this.renderers
-        .map(r => r.renderer)
-        .forEach(r => {
-          r.emitClick(e);
-        });
-    })
-
     canvas.addEventListener('pointermove', (e) => {
       this.renderers
         .map(r => r.renderer)
@@ -109,6 +101,14 @@ export class Renderer {
         .map(r => r.renderer)
         .forEach(r => {
           r.emitPointerDown(e);
+        });
+    })
+
+    canvas.addEventListener('click', (e) => {
+      this.renderers
+        .map(r => r.renderer)
+        .forEach(r => {
+          r.emitClick(e);
         });
     })
 

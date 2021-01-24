@@ -113,7 +113,6 @@ export class GridRenderer extends RendererEventTarget {
       pickCount,
       pos
     } = this.values;
-    console.log("render points");
     this.solidShader.bind();
     this.centerQuad.bind();
     let w = this.gl.canvas.width;
@@ -144,20 +143,30 @@ export class GridRenderer extends RendererEventTarget {
         1.0
       ]
     );
+    let minorSize = Math.min(xCount, yCount);
     for(let i = 0; i < points.length; i++) {
-      let x, y;
-    if(yCount < xCount) {
-      x = i;
-      y = points[i];
-    } else {
-      x = points[i];
-      y = i;
-    }
-      mat4.translate(mvp, view, [ x, y, 0.0 ]);
-      mat4.scale(mvp, mvp, [ 0.61, 0.61, 1.0 ]);
-      this.solidShader.setMat4('mvp', mvp);
-      this.solidShader.setVec4('color', [1.0, 0.0, 0.0, 1.0]);
-      this.centerQuad.draw();
+      for(let j = 0; j < minorSize; j++) {
+        let x, y;
+        if(yCount < xCount) {
+          x = i;
+          y = j;
+        } else {
+          x = j;
+          y = i;
+        }
+
+        if(points[i] === undefined) {
+          continue;
+        } else if(points[i] === j) {
+          this.solidShader.setVec4('color', [1.0, 0.0, 0.0, 1.0]);
+        } else {
+          this.solidShader.setVec4('color', [1.0, 1.0, 1.0, 1.0]);
+        }
+        mat4.translate(mvp, view, [ x, y, 0.0 ]);
+        mat4.scale(mvp, mvp, [ 0.60, 0.60, 1.0 ]);
+        this.solidShader.setMat4('mvp', mvp);
+        this.centerQuad.draw();
+      }
     }
     this.centerQuad.unbind()
     this.solidShader.unbind();
