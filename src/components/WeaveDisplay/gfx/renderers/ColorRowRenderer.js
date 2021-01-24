@@ -25,6 +25,73 @@ export class ColorRowRenderer extends RendererEventTarget {
     this.mvp = mat4.create();
   }
 
+  renderPoints(from, to, color) {
+    this.render();
+    let {
+      xCount,
+      yCount,
+      cellSize,
+      pos
+    } = this.values;
+    this.solidShader.bind();
+    this.centerQuad.bind();
+    if(to < from) {
+      [from, to] = [to, from]
+    }
+    console.log("render points from", from, "to", to);
+    let w = this.gl.canvas.width;
+    let h = this.gl.canvas.height;
+    let cw = cellSize / w;
+    let ch = cellSize / h;
+    let scrollX = this.scrollX ? 1.0 : 0.0;
+    let scrollY = this.scrollY ? 1.0 : 0.0;
+
+    let mvp = mat4.identity(this.mvp);
+    let view = mat4.translate(mat4.identity(this.view), this.initialView, [
+        (this.rendererPos[0]) * cw,
+        (this.rendererPos[1]) * ch,
+        0.0
+    ]);
+    mat4.translate(view, view, 
+      [
+        cw/2.0,
+        ch/2.0,
+        1.0
+      ]
+    );
+    mat4.scale(view, view, 
+      [
+        cw,
+        ch,
+        1.0
+      ]
+    );
+
+    for(let i = 0; i < (to - from) + 1; i++) {
+      let x, y;
+      if(xCount > yCount) {
+        x = from + i;
+        y = 0;
+      } else {
+        x = 0;
+        y = from + i;
+      }
+      this.solidShader.setVec4('color', [color.r, color.g, color.b, 1.0]);
+      mat4.translate(mvp, view, [
+        (-pos.get(0) / cellSize) * scrollX,
+        (-pos.get(1) / cellSize) * scrollY,
+        0.0
+      ]);
+      mat4.translate(mvp, mvp, [ x, y, 0.0 ]);
+      mat4.scale(mvp, mvp, [ 0.61, 0.61, 1.0 ]);
+      this.solidShader.setMat4('mvp', mvp);
+      this.centerQuad.draw();
+    }
+    this.centerQuad.unbind()
+    this.solidShader.unbind();
+  }
+
+
   handleEvent(event) {
     let { cellSize, xCount, yCount, pos, warpCount, pickCount } = this.values;
     let w = this.gl.canvas.width;

@@ -80,6 +80,8 @@ export class GridRenderer extends RendererEventTarget {
       xCount,
       yCount,
       cellSize,
+      warpCount,
+      pickCount,
       pos
     } = this.values;
     this.solidShader.bind();
@@ -131,8 +133,13 @@ export class GridRenderer extends RendererEventTarget {
         } else {
           this.solidShader.setVec4('color', [1.0, 1.0, 1.0, 1.0]);
         }
-        mat4.translate(mvp, view, [ x, y, 0.0 ]);
-        mat4.scale(mvp, mvp, [ 0.60, 0.60, 1.0 ]);
+        mat4.translate(mvp, view, [
+          (-pos.get(0) / cellSize) * scrollX,
+          (-pos.get(1) / cellSize) * scrollY,
+          0.0
+        ]);
+        mat4.translate(mvp, mvp, [ x, y, 0.0 ]);
+        mat4.scale(mvp, mvp, [ 0.62, 0.62, 1.0 ]);
         this.solidShader.setMat4('mvp', mvp);
         this.centerQuad.draw();
       }

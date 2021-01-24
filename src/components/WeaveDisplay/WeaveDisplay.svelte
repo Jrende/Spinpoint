@@ -24,6 +24,9 @@
   let oldLinePoints = [];
   let vert = true;
 
+  let colorStart;
+  let colorEnd;
+
   $: {
     if(renderer) {
       renderer.update($draft, $ui);
@@ -47,14 +50,15 @@
     });
 
     renderer.tieup.onPointerDown((x, y) => {
-      drag = 'tieup';
-      startDrag(x, y);
+      startDrag(x, y, 'tieup');
     });
 
     renderer.tieup.onPointerMove((x, y, event) => {
-      onMove(event, x, y);
-      if(isDragging && linePointsChanged()) {
-        renderer.tieup.renderPoints(linePoints);
+      if(drag === 'tieup') {
+        onMove(event, x, y);
+        if(isDragging && linePointsChanged()) {
+          renderer.tieup.renderPoints(linePoints);
+        }
       }
     });
 
@@ -73,14 +77,15 @@
     });
 
     renderer.threading.onPointerDown((x, y) => {
-      drag = 'threading';
-      startDrag(x, y);
+      startDrag(x, y, 'threading');
     });
 
     renderer.threading.onPointerMove((x, y, event) => {
-      onMove(event, x, y);
-      if(isDragging && linePointsChanged()) {
-        renderer.threading.renderPoints(linePoints);
+      if(drag === 'threading') {
+        onMove(event, x, y);
+        if(isDragging && linePointsChanged()) {
+          renderer.threading.renderPoints(linePoints);
+        }
       }
     });
 
@@ -99,14 +104,15 @@
     });
 
     renderer.treadling.onPointerDown((x, y) => {
-      drag = 'treadling';
-      startDrag(x, y);
+      startDrag(x, y, 'treadling');
     });
 
     renderer.treadling.onPointerMove((x, y, event) => {
-      onMove(event, x, y);
-      if(isDragging && linePointsChanged()) {
-        renderer.treadling.renderPoints(linePoints);
+      if(drag === 'treadling') {
+        onMove(event, x, y);
+        if(isDragging && linePointsChanged()) {
+          renderer.treadling.renderPoints(linePoints);
+        }
       }
     });
 
@@ -121,8 +127,60 @@
       draft.update(d => d.setIn(['warpColors', x], $ui.get('selectedColor')));
     });
 
+    renderer.warpColor.onPointerDown((x, y, event) => {
+      drag = 'warpColors';
+      isDragging = true;
+      colorStart = x;
+      let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS();
+      renderer.warpColor.renderPoints(colorStart, x, color);
+    });
+
+    renderer.warpColor.onPointerMove((x, y, event) => {
+      if(drag === 'warpColors') {
+        if(isDragging && x !== colorEnd) {
+          hasDragged = true;
+          let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS();
+          renderer.warpColor.renderPoints(colorStart, x, color);
+        }
+        colorEnd = x;
+      }
+    });
+
+    renderer.warpColor.onPointerUp((x, y, event) => {
+      if(hasDragged && drag === 'warpColors') {
+        updateColor('warpColors', colorStart, colorEnd, $ui.get('selectedColor'));
+      }
+      stopDrag();
+    });
+
     renderer.weftColor.onClick((x, y) => {
       draft.update(d => d.setIn(['weftColors', y], $ui.get('selectedColor')));
+    });
+
+    renderer.weftColor.onPointerDown((x, y, event) => {
+      drag = 'weftColors';
+      isDragging = true;
+      colorStart = y;
+      let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS();
+      renderer.weftColor.renderPoints(colorStart, y, color);
+    });
+
+    renderer.weftColor.onPointerMove((x, y, event) => {
+      if(drag === 'weftColors') {
+        if(isDragging && y !== colorEnd) {
+          hasDragged = true;
+          let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS();
+          renderer.weftColor.renderPoints(colorStart, y, color);
+        }
+        colorEnd = y;
+      }
+    });
+
+    renderer.weftColor.onPointerUp((x, y, event) => {
+      if(hasDragged && drag === 'weftColors') {
+        updateColor('weftColors', colorStart, colorEnd, $ui.get('selectedColor'));
+      }
+      stopDrag();
     });
   });
 
@@ -145,13 +203,28 @@
     draft.update(d => d.set('tieup', fromJS(newTieup)));
   }
 
+  function updateColor(name, colorStart, colorEnd, selectedColor) {
+    if(colorEnd < colorStart) {
+      [colorStart, colorEnd] = [colorEnd, colorStart];
+    }
+
+    let newList = $draft.get(name).withMutations(l => {
+      for(let i = 0; i < (colorEnd - colorStart) + 1; i++) {
+        l.set(colorStart + i, selectedColor);
+      }
+    });
+
+    draft.update(d => d.set(name, newList));
+  }
+
   function updateListWithLine(name) {
     draft.update(d => d.update(name, list => list.withMutations(l => {
       linePoints.forEach((p, i) => l.set(i, p));
     })));
   }
 
-  function startDrag(i, j) {
+  function startDrag(i, j, name) {
+    drag = name;
     fromPos = [i, j]
     linePoints = [[i, j]];
   }
