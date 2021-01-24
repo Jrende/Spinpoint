@@ -5,21 +5,11 @@ import RendererEventTarget from './RendererEventTarget';
 
 export class ColorRowRenderer extends RendererEventTarget {
   constructor(gl, shaders, scrollX, scrollY) {
-    super();
-    this.gl = gl;
+    super(gl, shaders);
     this.shader = shaders.getShader('colorRow')
     this.scrollX = scrollX;
     this.scrollY = scrollY;
 
-    this.quad = new VertexArray(this.gl, [
-      0.0, 1.0,
-      1.0, 1.0,
-      1.0, 0.0,
-      0.0, 0.0
-    ], [
-      1, 0, 2,
-      2, 0, 3
-    ], [2]);
     this.initialView = mat4.create();
     mat4.scale(this.initialView, this.initialView, [
         -1.0,
@@ -33,7 +23,6 @@ export class ColorRowRenderer extends RendererEventTarget {
       ]);
     this.view = mat4.create();
     this.mvp = mat4.create();
-    this.quat = quat.create();
   }
 
   handleEvent(event) {

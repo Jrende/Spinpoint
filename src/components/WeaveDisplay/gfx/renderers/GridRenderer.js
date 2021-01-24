@@ -3,37 +3,16 @@ import { mat4, quat } from 'gl-matrix';
 import Texture from '../Texture';
 import RendererEventTarget from './RendererEventTarget';
 
-let instance = 0;
 export class GridRenderer extends RendererEventTarget {
   constructor(gl, shaders, vertical, scrollX, scrollY) {
-    super();
+    super(gl, shaders);
     this.gl = gl;
     this.shader = shaders.getShader('grid');
-    this.solidShader = shaders.getShader('solid');
     this.vertical = vertical;
     this.name = name;
     this.scrollX = scrollX;
     this.scrollY = scrollY;
-    this.instance = instance++;
 
-    this.centerQuad = new VertexArray(this.gl, [
-      -0.5, 0.5,
-      0.5, 0.5,
-      0.5, -0.5,
-      -0.5, -0.5,
-    ], [
-      1, 0, 2,
-      2, 0, 3
-    ], [2]);
-    this.quad = new VertexArray(this.gl, [
-      0.0, 1.0,
-      1.0, 1.0,
-      1.0, 0.0,
-      0.0, 0.0
-    ], [
-      1, 0, 2,
-      2, 0, 3
-    ], [2]);
     this.mvp = mat4.create();
 
     this.initialView = mat4.create();
@@ -49,13 +28,6 @@ export class GridRenderer extends RendererEventTarget {
       ]);
     this.view = mat4.create();
     this.mvp = mat4.create();
-    this.quat = quat.create();
-    this.blackTexture = new Texture(
-      this.gl,
-      1,
-      1,
-      [[0.0, 0.0, 0.0, 1.0]]
-    );
   }
 
   handleEvent(event) {
@@ -108,9 +80,6 @@ export class GridRenderer extends RendererEventTarget {
       xCount,
       yCount,
       cellSize,
-      borderSize,
-      warpCount,
-      pickCount,
       pos
     } = this.values;
     this.solidShader.bind();

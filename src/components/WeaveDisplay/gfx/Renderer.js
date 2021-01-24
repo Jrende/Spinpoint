@@ -288,7 +288,7 @@ export class Renderer {
     }
 
     if(this.isDifferent(draft, prevDraft, 'tieup', 'shaftCount')) {
-      this.warpTexture.delete();
+      this.tieupTexture.delete();
       this.tieupTexture = createGridTexture(this.gl,
         draft.get('tieup'),
         draft.get('shaftCount'),

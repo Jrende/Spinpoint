@@ -5,19 +5,8 @@ import RendererEventTarget from './RendererEventTarget';
 
 export class TieupRenderer extends RendererEventTarget {
   constructor(gl, shaders, toggleFunction = () => false, eventListeners = {}, settings = {innerCellMargin: 15}) {
-    super();
-    this.gl = gl;
+    super(gl, shaders);
     this.shader = shaders.getShader('tieup')
-
-    this.quad = new VertexArray(this.gl, [
-      0.0, 1.0,
-      1.0, 1.0,
-      1.0, 0.0,
-      0.0, 0.0
-    ], [
-      1, 0, 2,
-      2, 0, 3
-    ], [2]);
     this.mvp = mat4.create();
 
     this.settings = settings;
@@ -35,13 +24,62 @@ export class TieupRenderer extends RendererEventTarget {
       ]);
     this.view = mat4.create();
     this.mvp = mat4.create();
-    this.quat = quat.create();
-    this.blackTexture = new Texture(
-      this.gl,
-      1,
-      1,
-      [[0.0, 0.0, 0.0, 1.0]]
+  }
+
+  renderPoints(points) {
+    this.render();
+    let {
+      xCount,
+      yCount,
+      cellSize,
+      pos
+    } = this.values;
+    this.solidShader.bind();
+    this.centerQuad.bind();
+    let w = this.gl.canvas.width;
+    let h = this.gl.canvas.height;
+    let cw = cellSize / w;
+    let ch = cellSize / h;
+    let scrollX = this.scrollX ? 1.0 : 0.0;
+    let scrollY = this.scrollY ? 1.0 : 0.0;
+
+
+    let mvp = mat4.identity(this.mvp);
+    let view = mat4.translate(mat4.identity(this.view), this.initialView, [
+        (this.rendererPos[0]) * cw,
+        (this.rendererPos[1]) * ch,
+        0.0
+    ]);
+    mat4.translate(view, view, 
+      [
+        cw/2.0,
+        ch/2.0,
+        1.0
+      ]
     );
+    mat4.scale(view, view, 
+      [
+        cw,
+        ch,
+        1.0
+      ]
+    );
+    let minorSize = Math.min(xCount, yCount);
+    for(let i = 0; i < xCount; i++) {
+      for(let j = 0; j < yCount; j++) {
+        if(points[i] === undefined || points[i][j] === undefined) {
+          continue;
+        } else if(points[i][j] === true) {
+          this.solidShader.setVec4('color', [1.0, 0.0, 0.0, 1.0]);
+        }
+        mat4.translate(mvp, view, [ i, j, 0.0 ]);
+        mat4.scale(mvp, mvp, [ 0.80, 0.80, 1.0 ]);
+        this.solidShader.setMat4('mvp', mvp);
+        this.centerQuad.draw();
+      }
+    }
+    this.centerQuad.unbind()
+    this.solidShader.unbind();
   }
 
 

@@ -7,19 +7,8 @@ import RendererEventTarget from './RendererEventTarget';
 
 export class WeaveRenderer extends RendererEventTarget {
   constructor(gl, shaders) {
-    super();
+    super(gl, shaders);
     this.gl = gl;
-    this.quad = new VertexArray(this.gl, [
-      0.0, 1.0,
-      1.0, 1.0,
-      1.0, 0.0,
-      0.0, 0.0
-    ], [
-      1, 0, 2,
-      2, 0, 3
-    ], [2]);
-
-    this.colorShader = shaders.getShader('solid');
     this.weaveShader = shaders.getShader('weave');
 
     this.initialView = mat4.create();
@@ -35,7 +24,6 @@ export class WeaveRenderer extends RendererEventTarget {
       ]);
     this.view = mat4.create();
     this.mvp = mat4.create();
-    this.quat = quat.create();
   }
 
   updateValues(values) {
