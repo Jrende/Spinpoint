@@ -44,8 +44,8 @@ void main(void) {
 
   vec3 color = mix(warpColor, weftColor, tieupValue) * getBorder(x, y, tieupValue);
 
-  color = mix(weftColor * getBorder(x, y, 1.0), color, pedal.g);
-  color = mix(warpColor * getBorder(x, y, 0.0), color, heddle.g);
+  color = mix(warpColor * getBorder(x, y, 0.0), color, pedal.g);
+  color = mix(weftColor * getBorder(x, y, 1.0), color, heddle.g);
 
   float overflow = step(x, 1.0) * step(y, 1.0);
   color = mix(vec3(1.0, 1.0, 1.0), color.rgb, overflow);
