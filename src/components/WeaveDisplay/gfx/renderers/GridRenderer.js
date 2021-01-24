@@ -76,6 +76,7 @@ export class GridRenderer extends RendererEventTarget {
 
   renderPoints(points) {
     this.render();
+    console.log("render points");
     let {
       xCount,
       yCount,
@@ -129,7 +130,7 @@ export class GridRenderer extends RendererEventTarget {
         if(points[i] === undefined) {
           continue;
         } else if(points[i] === j) {
-          this.solidShader.setVec4('color', [1.0, 0.0, 0.0, 1.0]);
+          this.solidShader.setVec4('color', [0.02, 0.4, 0.02, 1.0]);
         } else {
           this.solidShader.setVec4('color', [1.0, 1.0, 1.0, 1.0]);
         }

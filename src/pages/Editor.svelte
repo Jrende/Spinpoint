@@ -22,15 +22,44 @@
   onMount(() => {
     scrollbarWidth = scrollContainer.offsetWidth - scrollContainer.clientWidth;
     scrollContainer.addEventListener('scroll', updatePosition);
+    let width = $draft.get('warpCount') * $ui.get('cellSize');
+    let height = $draft.get('pickCount') * $ui.get('cellSize');
     scrollContainer.scrollTo(
-      scrollContainer.scrollLeftMax,
-      scrollContainer.scrollTopMax
+      width,
+      height
     );
     resizeObserver = new ResizeObserver(entries => {
       weaveDisplay.syncCanvasDimensions();
     });
     resizeObserver.observe(canvasContainer);
+
+    scrollContainer.addEventListener('pointermove', e => {
+      let evt = createMouseEvent('pointermove', e);
+      weaveDisplay.dispatchEvent(evt);
+    });
+    scrollContainer.addEventListener('pointerup', e => {
+      let evt = createMouseEvent('pointerup', e);
+      weaveDisplay.dispatchEvent(evt);
+    });
+    scrollContainer.addEventListener('pointerdown', e => {
+      let evt = createMouseEvent('pointerdown', e);
+      weaveDisplay.dispatchEvent(evt);
+    });
+    scrollContainer.addEventListener('click', e => {
+      let evt = createMouseEvent('click', e);
+      weaveDisplay.dispatchEvent(evt);
+    });
   });
+
+  function createMouseEvent(name, e) {
+    return new MouseEvent(name, {
+      clientX: e.clientX,
+      clientY: e.clientY,
+      buttons: e.buttons,
+      movementX: e.movementX,
+      movementY: e.movementY
+    });
+  }
 
   onDestroy(() => {
     scrollContainer.removeEventListener('scroll', updatePosition);
@@ -41,8 +70,10 @@
     let yOffset = 0;
     let canvasRect = canvasContainer.getBoundingClientRect();
     let rect = scrollContainer.getBoundingClientRect();
-    let x = scrollContainer.scrollLeftMax - scrollContainer.scrollLeft;
-    let y = scrollContainer.scrollTopMax - scrollContainer.scrollTop ;
+    let width = $draft.get('warpCount') * $ui.get('cellSize');
+    let height = $draft.get('pickCount') * $ui.get('cellSize');
+    let x = width - scrollContainer.scrollLeft;
+    let y = height - scrollContainer.scrollTop;
     
     ui.update(u => {
       return u.set('pos', List([x, y]))
@@ -83,6 +114,8 @@
     left: 90px;
     bottom: 0;
     top: 0;
+
+    pointer-events: none;
   }
 
   .ok-zoomer {

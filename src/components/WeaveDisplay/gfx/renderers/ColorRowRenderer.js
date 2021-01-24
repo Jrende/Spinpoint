@@ -38,7 +38,6 @@ export class ColorRowRenderer extends RendererEventTarget {
     if(to < from) {
       [from, to] = [to, from]
     }
-    console.log("render points from", from, "to", to);
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
     let cw = cellSize / w;

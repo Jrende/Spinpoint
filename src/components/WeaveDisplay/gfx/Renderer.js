@@ -79,6 +79,7 @@ export class Renderer {
     ];
 
     canvas.addEventListener('pointermove', (e) => {
+      e.preventDefault();
       this.renderers
         .map(r => r.renderer)
         .forEach(r => {
@@ -87,6 +88,7 @@ export class Renderer {
     })
 
     canvas.addEventListener('pointerup', (e) => {
+      e.preventDefault();
       this.renderers
         .map(r => r.renderer)
         .forEach(r => {
@@ -95,6 +97,7 @@ export class Renderer {
     })
     
     canvas.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
       this.renderers
         .map(r => r.renderer)
         .forEach(r => {
@@ -103,6 +106,7 @@ export class Renderer {
     })
 
     canvas.addEventListener('click', (e) => {
+      e.preventDefault();
       this.renderers
         .map(r => r.renderer)
         .forEach(r => {
