@@ -22,11 +22,11 @@
   onMount(() => {
     scrollbarWidth = scrollContainer.offsetWidth - scrollContainer.clientWidth;
     scrollContainer.addEventListener('scroll', updatePosition);
-    let width = $draft.get('warpCount') * $ui.get('cellSize');
-    let height = $draft.get('pickCount') * $ui.get('cellSize');
+    let scrollLeftMax = scrollContainer.scrollWidth - scrollContainer.clientWidth
+    let scrollTopMax = scrollContainer.scrollHeight - scrollContainer.clientHeight
     scrollContainer.scrollTo(
-      width,
-      height
+      scrollLeftMax,
+      scrollTopMax
     );
     resizeObserver = new ResizeObserver(entries => {
       weaveDisplay.syncCanvasDimensions();
@@ -70,10 +70,10 @@
     let yOffset = 0;
     let canvasRect = canvasContainer.getBoundingClientRect();
     let rect = scrollContainer.getBoundingClientRect();
-    let width = $draft.get('warpCount') * $ui.get('cellSize');
-    let height = $draft.get('pickCount') * $ui.get('cellSize');
-    let x = width - scrollContainer.scrollLeft;
-    let y = height - scrollContainer.scrollTop;
+    let scrollLeftMax = scrollContainer.scrollWidth - scrollContainer.clientWidth
+    let scrollTopMax = scrollContainer.scrollHeight - scrollContainer.clientHeight
+    let x = scrollLeftMax - scrollContainer.scrollLeft;
+    let y = scrollTopMax - scrollContainer.scrollTop;
     
     ui.update(u => {
       return u.set('pos', List([x, y]))
