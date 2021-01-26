@@ -219,6 +219,7 @@
   }
 
   .button-group div {
+    border-radius: 8px;
     flex-grow: 1;
     text-align: center;
     cursor: pointer;

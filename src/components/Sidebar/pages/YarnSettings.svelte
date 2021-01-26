@@ -15,10 +15,14 @@
 
   let newYarnName = "";
   let newYarnColor = color;
-  let yarnUnderModification = -1;
+  let yarnUnderModification = 0;
 
-  let yarnsElm;
-  let settingsElm;
+  let colorPickerVisible = false;
+  let colorPickerX;
+  let colorPickerY;
+
+  $: selectedYarn = $draft.getIn(['yarn', yarnUnderModification]).toJS();
+  $: selectedColor = tinycolor.fromRatio(selectedYarn.color);
 
   function focus(elm){
     elm.focus()
@@ -28,9 +32,8 @@
     event.preventDefault();
     draft.update((value) =>
       value.update('yarn', y =>
-      y.push(fromJS({ name: newYarnName, color: newYarnColor }))));
-    newYarnName = "";
-    newYarnColor = color;
+        y.push(fromJS({ name: 'Yarn', color: { r: 1.0, g: 1.0, b: 1.0 } }))));
+    yarnUnderModification = $draft.get('yarn').size - 1;
   }
 
   function selectYarnForModification(event, i) {
@@ -56,128 +59,158 @@
     yarnUnderModification = -1;
   }
 
+  function changeName(newName, yarnId) {
+    draft.update(d => d.setIn(['yarn', yarnId, 'name'], newName));
+  }
+
+  function changeColor(newColor, yarnId) {
+    draft.update(d => d.setIn(['yarn', yarnId, 'color'], fromJS(newColor)));
+  }
+
   function deleteColor(index) {
     draft.update((value) => {
-      value.yarn.splice(index, 1);
-      return value;
+      return value.update('yarn', list => list.splice(index, 1));
     });
-    yarnUnderModification = -1;
+    yarnUnderModification = index - 1;
+  }
+
+  function showColorPicker(event) {
+    event.preventDefault();
+    colorPickerVisible = true;
+    colorPickerX = event.clientX;
+    colorPickerY = event.clientY;
   }
 
 </script>
-<div class="settings" on:click={maybeCancel} bind:this={settingsElm}>
-  <div class="yarns" bind:this={yarnsElm}>
-    {#each $draft.get('yarn').toJS() as yarn, i}
-      {#if yarnUnderModification === i}
-        <form class="yarn" on:submit={() => updateYarn(event, i, yarn)}>
-          <div class="top-row">
-            <div>
-              <label for="newYarnName">Name</label>
-              <input type="text" id="newYarnName" bind:value={yarn.name} use:focus />
-            </div>
-            <button class="delete" on:click={() => deleteColor(i)}>Delete</button>
-          </div>
-          <ColorPicker onChange={(value) => newYarnColor = value} value={yarn.color} />
-          <button class="primary">Save</button>
-        </form>
-      {:else}
-        <div class="yarn">
-          <button
-            class="color"
-            style={`
-            background-color: ${colors[i].toHexString()};
-            border-color: ${colors[i].isLight() ? 'black' : 'white'};
-            color: ${colors[i].isLight() ? 'black' : 'white'}
-            `}
-            on:click={(e) => selectYarnForModification(e, i)}
-            >
-            {yarn.name}
-          </button>
-        </div>
-      {/if}
-    {/each}
-    {#if yarnUnderModification === $draft.get('yarn').size}
-      <form class="yarn" on:submit={createNewYarn}>
-        <label for="newYarnName">Name</label>
-        <input type="text" id="newYarnName" bind:value={newYarnName} use:focus />
-        <ColorPicker onChange={(value) => newYarnColor = value} value={color} />
-        <button class="primary">Save</button>
-      </form>
-    {:else}
-      <button on:click={(e) => selectYarnForModification(e, $draft.get('yarn').size)}>
-        <div class="icon">{@html add}</div>
-        <span>Add new yarn</span>
-      </button>
-    {/if}
+<div class="yarn-settings">
+  <div class="container">
+    <div class="add-or-remove">
+      <button class="add" on:click={createNewYarn}>+</button>
+      <button class="remove" on:click={() => deleteColor(yarnUnderModification)}>-</button>
+    </div>
+    <div class="yarns">
+      {#each $draft.get('yarn').toJS() as yarn, i}
+        <button
+          class:selected={yarnUnderModification === i}
+          class="yarn"
+          on:click={(e) => selectYarnForModification(e, i)}>
+          <div class="color" style={`background-color: ${colors[i].toHexString()};`}></div> 
+          <div class="name">{yarn.name}</div>
+        </button>
+      {/each}
+    </div>
   </div>
+  <form class="controls">
+    <fieldset>
+      <label for="newYarnName">Name</label>
+      <input type="text" id="newYarnName" value={selectedYarn.name} on:input={(e) => changeName(e.target.value, yarnUnderModification)} use:focus />
+    </fieldset>
+    <fieldset>
+      <label for="newYarnColor">Color</label>
+      <button class="yarn-color-change" style={`background-color: ${selectedColor.toHexString()};`} on:click={showColorPicker}></button>
+    </fieldset>
+  </form>
 </div>
+{#if colorPickerVisible === true}
+  <ColorPicker onChange={(value) => changeColor(value, yarnUnderModification)} value={selectedYarn.color} x={colorPickerX} y={colorPickerY} onBlur={() => colorPickerVisible = false}/>
+{/if}
 <style>
-  .yarns {
-    padding: 10px;
-    background-color: lightgray;
+  .container {
+    display: flex;
+    align-items: start;
   }
 
-  .yarns .yarn {
+  .add-or-remove {
+    margin-right: 5px;
+    text-align: center;
+    background-color: var(--color-2);
+    padding: 4px;
+    color: white;
+    border-radius: 4px;
+    border: 1px solid #535353;
+
     display: flex;
     flex-direction: column;
   }
 
-  .yarns .yarn:not(:first-child):before {
-    content: "";
-    height: 1.5px;
-    background-color: rgba(0, 0, 0, 0.2);
-    margin: 10px 0;
-    position: relative;
-    left: -10px;
-    width: calc(100% + 20px);
+  .add-or-remove button {
+    color: var(--color-1);
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .yarn {
+    background: none;
+    border: none;
+
+    display: flex;
+    color: var(--color-1);
+    margin: 4px;
+    padding: 4px 0;
+    border-radius: 4px;
+  }
+
+  .yarn.selected {
+    color: var(--color-2);
+    background-color: var(--color-1);
+  }
+
+  .yarn:not(:first-child):before {
+  }
+
+  .name {
+    margin-left: 4px;
   }
 
   .color {
-    border: 1px solid black;
+    margin-left: 4px;
+    width: 1em;
+    border: 1px solid var(--color-2);
   }
 
-  button {
-    background-color: white;
-    display: flex;
-    align-items: baseline;
-    width: 100%;
-  }
+  .yarns {
+    background-color: var(--color-2);
+    min-width: 10em;
+    border-radius: 4px;
+    border: 1px solid #535353;
 
-  input {
-    width: 100%;
-    background-color: white;
-  }
-
-  .icon {
-    width: 14px;
-    height: 14px;
-    margin-right: 8px;
-  }
-
-  .settings {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    min-width: 300px;
-    height: 100%;
+    flex-grow: 1;
   }
 
-  button.delete {
-    width: initial;
-    margin: 4px;
-    background-color: red;
-    color: white;
-    background-color: #d91b1b;
-    border-radius: 4px;
-    display: flex;
+  .controls {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 4px;
+    margin-top: 8px;
+  }
+
+  fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: span 2;
     align-items: center;
-    justify-content: center;
-    margin: 8px;
-    margin-right: 0;
+    justify-content: stretch;
   }
 
-  .top-row {
-    display: flex;
+  .yarn-color-change {
+    width: 100%;
+    margin: 0;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--color-2);
+  }
+
+  .controls input {
+    margin: 0;
+    padding: 8px;
   }
 
 </style>

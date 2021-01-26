@@ -224,7 +224,6 @@
   }
 
   function startDrag(i, j, name) {
-    console.log("start drag", name);
     drag = name;
     fromPos = [i, j]
     linePoints = [[i, j]];
@@ -270,7 +269,6 @@
   }
 
   function stopDrag() {
-    console.log("stop drag", drag);
     fromPos = undefined;
     isDragging = false;
     drag = '';

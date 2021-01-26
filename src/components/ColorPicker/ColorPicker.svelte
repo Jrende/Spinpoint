@@ -372,6 +372,29 @@
   import { onMount,onDestroy } from 'svelte';
   export let value;
   export let onChange = () => {};
+  export let onBlur = () => {};
+  export let x;
+  export let y;
+
+  let realX;
+  let realY;
+  $: {
+    if(elm !== undefined) {
+      console.log(x, y);
+      let rect = elm.parentElement.getBoundingClientRect();
+      if((x + rect.width) > window.innerWidth) {
+        realX = x - rect.width - 10;
+      } else {
+      }
+      realX = x - rect.width / 2.0;
+      if((y + rect.height) > window.innerHeight) {
+        realY = y - rect.height - 10;
+      } else {
+        realY = y;
+      }
+
+    }
+  }
 
   let elm;
   let beforeElm;
@@ -400,22 +423,42 @@
     render(state);
   });
 
+  function bodyMouseMove(event) {
+    let rect = elm.getBoundingClientRect();
+    let centerX = rect.x + (rect.width / 2);
+    let centerY = rect.y + (rect.height / 2);
+    let distToCenter = vec2.sub(vec2.create(), [event.clientX, event.clientY], [centerX, centerY]);
+    if(Math.abs(distToCenter[0]) > 220 || Math.abs(distToCenter[1]) > 220) {
+      onBlur();
+    }
+  }
+
+  function bodyMouseDown(event) {
+    let container = elm.parentElement;
+    if(!container.contains(event.target)) {
+      onBlur();
+    }
+  }
+
 </script>
-<div class="color-picker" bind:this={elm}>
-  <div
-    bind:this={beforeElm}
-    class="color-input-color"
-    style="{`background-color: #${hexString}`}"
-    >
-    <input
-      type="text"
-      spellCheck="false"
-      maxLength="6"
-      style={`color: ${(color.isLight() ? 'black' : 'white')}`}
-      value={hexString}
-      on:input={onHexInputChange}
-      on:paste={onHexInputChange}
-      />
+<svelte:body on:mousemove={bodyMouseMove} on:mousedown={bodyMouseDown} />
+<div class="color-picker-container" style={`left: ${realX}px; top: ${realY}px`}>
+  <div class="color-picker" bind:this={elm}>
+    <div
+      bind:this={beforeElm}
+      class="color-input-color"
+      style="{`background-color: #${hexString}`}"
+      >
+      <input
+        type="text"
+        spellCheck="false"
+        maxLength="6"
+        style={`color: ${(color.isLight() ? 'black' : 'white')}`}
+        value={hexString}
+        on:input={onHexInputChange}
+        on:paste={onHexInputChange}
+        />
+    </div>
   </div>
 </div>
 <style>
@@ -427,17 +470,22 @@
   .color-picker .color-input-color {
     margin: 0.2em;
     margin-top: 0.5em;
-    border: 1px solid black;
     border-radius: 4px;
   }
 
   .color-picker .color-input-color input {
     background: none;
-    border: none;
     width: 100%;
     text-align: center;
     font-size: 14pt;
     margin: 0;
+  }
+
+  .color-picker-container {
+    position: absolute;
+    padding: 12px;
+    background-color: var(--color-2);
+    border: 1px solid var(--color-4);
   }
 
 </style>

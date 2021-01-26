@@ -73,11 +73,9 @@
     {#if $ui.get('selectedMenu') !== -1}
       <div class="settings-sidebar" style={`left: ${sidebarWidth}px`}>
         <div class="settings">
-          <h2>{items[$ui.get('selectedMenu')].title}</h2>
           <svelte:component this={items[$ui.get('selectedMenu')].component} />
         </div>
-        <div class="overlay" on:click={() => selectMenu(-1)}>
-        </div>
+        <div class="overlay" on:click={() => selectMenu(-1)}></div>
       </div>
     {/if}
   </div>
@@ -127,9 +125,10 @@
   }
 
   .settings {
-    background-color: white;
+    background-color: var(--color-5);
     padding: 20px;
-    border-right: 1px solid var(--color-4);
+    border-left: none;
+    border: 1px solid var(--color-4);
   }
 
   .overlay {
@@ -139,4 +138,5 @@
 
   .pattern-bucket {
   }
+
 </style>

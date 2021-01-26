@@ -76,7 +76,6 @@ export class GridRenderer extends RendererEventTarget {
 
   renderPoints(points) {
     this.render();
-    console.log("render points");
     let {
       xCount,
       yCount,
