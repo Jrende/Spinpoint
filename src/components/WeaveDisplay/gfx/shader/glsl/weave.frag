@@ -7,7 +7,7 @@ uniform sampler2D treadling;
 uniform sampler2D tieup;
 
 uniform vec2 cellSize;
-uniform vec2 pos;
+uniform vec2 scrollPos;
 
 varying vec2 uv;
 
@@ -31,8 +31,8 @@ float getBorder(float x, float y, float tieupValue) {
 }
 
 void main(void) {
-  float x = uv.s + pos.x;
-  float y = uv.t + pos.y;
+  float x = uv.s + scrollPos.x;
+  float y = uv.t + scrollPos.y;
   vec2 heddle = texture2D(threading, vec2(x, 0.0)).rg;
   vec2 pedal = texture2D(treadling, vec2(y, 0.0)).rg;
 

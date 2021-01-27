@@ -47,72 +47,42 @@ export class Renderer {
     this.tieup = new TieupRenderer(this.gl, this.shaders);
     this.threading = new GridRenderer(this.gl, this.shaders, false, true, false);
     this.treadling = new GridRenderer(this.gl, this.shaders, true, false, true);
-    this.warpColor= new ColorRowRenderer(this.gl, this.shaders, true, false);
-    this.weftColor = new ColorRowRenderer(this.gl, this.shaders, false, true);
+    this.warpColors= new ColorRowRenderer(this.gl, this.shaders, true, false);
+    this.weftColors = new ColorRowRenderer(this.gl, this.shaders, false, true);
     this.weave = new WeaveRenderer(this.gl, this.shaders);
 
     this.renderers = [
       {
         renderer: this.tieup,
+        name: 'tieup',
         dirty: true
       },
       {
         renderer: this.threading,
+        name: 'threading',
         dirty: true
       },
       {
         renderer: this.treadling,
+        name: 'treadling',
         dirty: true
       },
       {
-        renderer: this.warpColor,
+        renderer: this.warpColors,
+        name: 'warpColors',
         dirty: true
       },
       {
-        renderer: this.weftColor,
+        renderer: this.weftColors,
+        name: 'weftColors',
         dirty: true
       },
       {
         renderer: this.weave,
+        name: 'weave',
         dirty: true
       },
     ];
-
-    canvas.addEventListener('pointermove', (e) => {
-      e.preventDefault();
-      this.renderers
-        .map(r => r.renderer)
-        .forEach(r => {
-          r.emitPointerMove(e);
-        });
-    })
-
-    canvas.addEventListener('pointerup', (e) => {
-      e.preventDefault();
-      this.renderers
-        .map(r => r.renderer)
-        .forEach(r => {
-          r.emitPointerUp(e);
-        });
-    })
-    
-    canvas.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      this.renderers
-        .map(r => r.renderer)
-        .forEach(r => {
-          r.emitPointerDown(e);
-        });
-    })
-
-    canvas.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.renderers
-        .map(r => r.renderer)
-        .forEach(r => {
-          r.emitClick(e);
-        });
-    })
 
     let render = () => {
       if(this.renderNextFrame) {
@@ -133,8 +103,8 @@ export class Renderer {
     this.tieup.setRendererPosition([3, 3]);
     this.threading.setRendererPosition([treadleCount + 4, 3]);
     this.treadling.setRendererPosition([3, shaftCount + 4]);
-    this.weftColor.setRendererPosition([1, shaftCount + 4]);
-    this.warpColor.setRendererPosition([treadleCount + 4, 1]);
+    this.weftColors.setRendererPosition([1, shaftCount + 4]);
+    this.warpColors.setRendererPosition([treadleCount + 4, 1]);
     this.weave.setRendererPosition([
       treadleCount + 4,
       shaftCount + 4
@@ -166,7 +136,8 @@ export class Renderer {
         xCount: draft.get('treadleCount'),
         yCount: draft.get('shaftCount'),
         cellSize: ui.get('cellSize'),
-        borderSize: ui.get('borderSize')
+        borderSize: ui.get('borderSize'),
+        scrollPos: ui.get('scrollPos')
       });
       this.renderers[0].dirty = true;
       this.tieup.setCellToggleTexture(this.tieupTexture);
@@ -186,7 +157,7 @@ export class Renderer {
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
         borderSize: ui.get('borderSize'),
-        pos: ui.get('pos')
+        scrollPos: ui.get('scrollPos')
       });
       this.renderers[1].dirty = true;
       this.threading.setCellToggleTexture(this.threadingTexture);
@@ -207,7 +178,7 @@ export class Renderer {
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
         borderSize: ui.get('borderSize'),
-        pos: ui.get('pos'),
+        scrollPos: ui.get('scrollPos'),
       });
       this.renderers[2].dirty = true;
       this.treadling.setCellToggleTexture(this.treadlingTexture);
@@ -220,17 +191,17 @@ export class Renderer {
         'warpColors') ||
       ui !== prevUI
     ) {
-      this.warpColor.updateValues({
+      this.warpColors.updateValues({
         xCount: draft.get('pickCount'),
         yCount: 1,
         pickCount: draft.get('pickCount'),
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
         borderSize: ui.get('borderSize'),
-        pos: ui.get('pos')
+        scrollPos: ui.get('scrollPos')
       });
       this.renderers[3].dirty = true;
-      this.warpColor.setColorTexture(this.warpTexture);
+      this.warpColors.setColorTexture(this.warpTexture);
     }
 
     if(
@@ -240,17 +211,17 @@ export class Renderer {
       'weftColors') ||
       ui !== prevUI
     ) {
-      this.weftColor.updateValues({
+      this.weftColors.updateValues({
         xCount: 1,
         yCount: draft.get('pickCount'),
         pickCount: draft.get('pickCount'),
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
         borderSize: ui.get('borderSize'),
-        pos: ui.get('pos')
+        scrollPos: ui.get('scrollPos')
       });
       this.renderers[4].dirty = true;
-      this.weftColor.setColorTexture(this.weftTexture);
+      this.weftColors.setColorTexture(this.weftTexture);
     }
 
     if(
@@ -261,7 +232,7 @@ export class Renderer {
         xCount: draft.get('warpCount'),
         yCount: draft.get('pickCount'),
         cellSize: ui.get('cellSize'),
-        pos: ui.get('pos')
+        scrollPos: ui.get('scrollPos')
       });
       this.renderers[5].dirty = true;
     }
@@ -320,6 +291,10 @@ export class Renderer {
     this.width = this.gl.canvas.width;
     this.height = this.gl.canvas.height;
     this.gl.viewport(0, 0, this.width, this.height);
+  }
+
+  addEventListener(name, func) {
+    this.gl.canvas.addEventListener(name, func);
   }
 
   render() {

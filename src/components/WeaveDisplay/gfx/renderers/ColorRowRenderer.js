@@ -25,13 +25,24 @@ export class ColorRowRenderer extends RendererEventTarget {
     this.mvp = mat4.create();
   }
 
+  getCellsBetweenPoints(from, to) {
+    let fromCell = this.getCellAtPos(from);
+    let toCell = this.getCellAtPos(to);
+    let vert = this.values.yCount > this.values.xCount;
+    if(!vert) {
+      return [fromCell[0], toCell[0]];
+    } else {
+      return [fromCell[1], toCell[1]];
+    }
+  }
+
   renderPoints(from, to, color) {
     this.render();
     let {
       xCount,
       yCount,
       cellSize,
-      pos
+      scrollPos
     } = this.values;
     this.solidShader.bind();
     this.centerQuad.bind();
@@ -77,8 +88,8 @@ export class ColorRowRenderer extends RendererEventTarget {
       }
       this.solidShader.setVec4('color', [color.r, color.g, color.b, 1.0]);
       mat4.translate(mvp, view, [
-        (-pos.get(0) / cellSize) * scrollX,
-        (-pos.get(1) / cellSize) * scrollY,
+        (-scrollPos.get(0) / cellSize) * scrollX,
+        (-scrollPos.get(1) / cellSize) * scrollY,
         0.0
       ]);
       mat4.translate(mvp, mvp, [ x, y, 0.0 ]);
@@ -92,7 +103,7 @@ export class ColorRowRenderer extends RendererEventTarget {
 
 
   handleEvent(event) {
-    let { cellSize, xCount, yCount, pos, warpCount, pickCount } = this.values;
+    let { cellSize, xCount, yCount, scrollPos, warpCount, pickCount } = this.values;
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
     let cw = cellSize / w;
@@ -109,8 +120,8 @@ export class ColorRowRenderer extends RendererEventTarget {
       x < (gridX + gridW) &&
       y < (gridY + gridH)
     ) {
-      let i = Math.floor(((x - gridX) / gridW) * xCount + pos.get(0) / cellSize);
-      let j = Math.floor(((y - gridY) / gridH) * yCount + pos.get(1) / cellSize);
+      let i = Math.floor(((x - gridX) / gridW) * xCount + scrollPos.get(0) / cellSize);
+      let j = Math.floor(((y - gridY) / gridH) * yCount + scrollPos.get(1) / cellSize);
       return [i, j, event];
     }
     return undefined;
@@ -120,8 +131,8 @@ export class ColorRowRenderer extends RendererEventTarget {
     this.values = values;
   }
 
-  setRendererPosition(pos) {
-    this.rendererPos = pos;
+  setRendererPosition(scrollPos) {
+    this.rendererPos = scrollPos;
   }
 
   setColorTexture(colorTexture) {
@@ -131,7 +142,7 @@ export class ColorRowRenderer extends RendererEventTarget {
   render() {
     if(this.values === undefined) return;
     let {
-      pos,
+      scrollPos,
       xCount,
       yCount,
       cellSize,
@@ -166,9 +177,9 @@ export class ColorRowRenderer extends RendererEventTarget {
 
     this.colorTexture.bind(0);
     this.shader.setSampler2D('colorSampler', 0);
-    this.shader.setVec2('pos', [
-      pos.get(0) / (warpCount * cellSize) * scrollX,
-      pos.get(1) / (pickCount * cellSize) * scrollY
+    this.shader.setVec2('scrollPos', [
+      scrollPos.get(0) / (warpCount * cellSize) * scrollX,
+      scrollPos.get(1) / (pickCount * cellSize) * scrollY
     ]);
 
 

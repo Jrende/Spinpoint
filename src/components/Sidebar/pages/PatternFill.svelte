@@ -167,9 +167,11 @@
         <button on:click={decrement}>-</button>
         <button on:click={increment}>+</button>
     </div>
-    <div>
-      <label for="mirrored-repeat">Mirrored repeat</label>
-      <input type="checkbox" bind:checked={mirroredRepeat} name="mirrored-repeat" id="mirrored-repeat" />
+    <div class="controls">
+      <fieldset>
+        <label for="mirrored-repeat">Mirrored repeat</label>
+        <input type="checkbox" bind:checked={mirroredRepeat} name="mirrored-repeat" id="mirrored-repeat" />
+      </fieldset>
     </div>
     <button on:click={apply}>Apply</button>
   {/if}
@@ -208,12 +210,12 @@
     color: var(--color-1);
   }
 
-  input:checked + label {
+  .button-group input:checked + label {
     background-color: var(--color-1);
     color: var(--color-2);
   }
 
-  input:checked + label :global(svg) {
+  .button-group input:checked + label :global(svg) {
     stroke: var(--color-2);
     fill: var(--color-2);
   }

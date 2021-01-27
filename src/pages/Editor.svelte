@@ -76,7 +76,7 @@
     let y = scrollTopMax - scrollContainer.scrollTop;
     
     ui.update(u => {
-      return u.set('pos', List([x, y]))
+      return u.set('scrollPos', List([x, y]))
     });
   }
 

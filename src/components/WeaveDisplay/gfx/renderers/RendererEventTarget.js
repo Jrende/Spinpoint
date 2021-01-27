@@ -1,5 +1,7 @@
 import VertexArray from '../VertexArray';
 import Texture from '../Texture';
+import { line } from '../../../../util/MathUtil';
+import { fromJS } from 'immutable';
 
 export default class RendererEventTarget {
   clickListeners = [];
@@ -30,49 +32,50 @@ export default class RendererEventTarget {
     ], [2]);
   }
 
-  onClick(listener) {
-    this.clickListeners.push(listener);
+  isWithinGrid(pos) {
+    let { cellSize, xCount, yCount } = this.values;
+
+    let w = this.gl.canvas.width;
+    let h = this.gl.canvas.height;
+
+    let x = (w - event.offsetX) / w * 2.0;
+    let y = (h - event.offsetY) / h * 2.0;
+    let gridX = (this.rendererPos[0]) * (cellSize / w);
+    let gridY = (this.rendererPos[1]) * (cellSize / h);
+    let gridW = (xCount * cellSize) / w;
+    let gridH = (yCount * cellSize) / h;
+    return (
+      x > gridX &&
+      y > gridY &&
+      x < (gridX + gridW) &&
+      y < (gridY + gridH)
+    );
   }
 
-  onPointerMove(listener) {
-    this.pointerMoveListeners.push(listener);
+  getCellAtPos(pos) {
+    let { cellSize, xCount, yCount, scrollPos, warpCount, pickCount } = this.values;
+    let scrollX = this.scrollX ? 1.0 : 0.0;
+    let scrollY = this.scrollY ? 1.0 : 0.0;
+    let w = this.gl.canvas.width;
+    let h = this.gl.canvas.height;
+    let xOffset = scrollX * (scrollPos.get(0) / cellSize);
+    let yOffset = scrollY * (scrollPos.get(1) / cellSize);
+    let cellX = Math.floor((w - pos[0]) / (cellSize / 2.0) + xOffset);
+    let cellY = Math.floor((h - pos[1]) / (cellSize / 2.0) + yOffset);
+    let i = cellX - this.rendererPos[0];
+    let j = cellY - this.rendererPos[1];
+    return [i, j];
   }
 
-  onPointerUp(listener) {
-    this.pointerUpListeners.push(listener);
+  getCellsBetweenPoints(from, to) {
+    let fromCell = this.getCellAtPos(from);
+    let toCell = this.getCellAtPos(to);
+    let linePoints = line(fromCell[0], fromCell[1], toCell[0], toCell[1]);
+    let {xCount, yCount} = this.values;
+    return linePoints.filter(p => 
+      p[0] >= 0 && p[0] < xCount &&
+      p[1] >= 0 && p[1] < yCount
+    );
   }
 
-  onPointerDown(listener) {
-    this.pointerDownListeners.push(listener);
-  }
-
-  emitClick(e) {
-    let event = this.handleEvent(e);
-    if(event !== undefined) {
-      this.clickListeners.forEach(l => l(...event));
-    }
-  }
-
-  emitPointerMove(e) {
-    let event = this.handleEvent(e);
-    if(event !== undefined) {
-      this.pointerMoveListeners.forEach(l => l(...event));
-    }
-  }
-
-  emitPointerUp(e) {
-    let event = this.handleEvent(e);
-    if(event !== undefined) {
-      this.pointerUpListeners.forEach(l => l(...event));
-    }
-  }
-
-  emitPointerDown(e) {
-    let event = this.handleEvent(e);
-    if(event !== undefined) {
-      this.pointerDownListeners.forEach(l => l(...event));
-    }
-  }
-
-  handleEvent(event) {}
 }

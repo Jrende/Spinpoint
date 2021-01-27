@@ -9,23 +9,13 @@
 
   let renderer;
   let canvas;
-  let tieup;
-  let treadling;
-  let threading;
-  let weave;
-  let warpColor;
-  let weftColor;
 
-  let drag = '';
-  let hasDragged = false;
-  let isDragging = false;
-  let fromPos = [];
-  let linePoints = [];
+  let drag;
+  let linePoints;
   let oldLinePoints = [];
-  let vert = true;
-
-  let colorStart;
-  let colorEnd;
+  let oldP = [];
+  let startPos;
+  let endPos;
 
   $: {
     if(renderer) {
@@ -42,147 +32,93 @@
   onMount(() => {
     renderer = new Renderer(canvas);
     syncCanvasDimensions();
-    renderer.tieup.onClick((x, y) => {
-      if(!hasDragged) {
-        draft.update(d => d.updateIn(['tieup', x, y], i => i === 1 ? 0 : 1));
+
+    renderer.addEventListener('pointerdown', (e) => {
+        startPos = [e.offsetX, e.offsetY];
+    });
+
+    renderer.addEventListener('pointermove', (e) => {
+      endPos = [e.offsetX, e.offsetY];
+      if(drag !== undefined && e.buttons === 0) {
+        drag = undefined;
+        renderer[drag].render();
+      } 
+
+      if(drag === undefined && e.buttons & 1 !== 0 && (e.movementX !== 0 || e.movementY !== 0)) {
+        let r = renderer.renderers.find(r => r.renderer.isWithinGrid(startPos));
+        if(r !== undefined) {
+          drag = r.name;
+        }
       }
-      hasDragged = false;
-    });
 
-    renderer.tieup.onPointerDown((x, y) => {
-      startDrag(x, y, 'tieup');
-    });
-
-    renderer.tieup.onPointerMove((x, y, event) => {
-      if(drag === 'tieup') {
-        onMove(event, x, y);
-        if(isDragging && linePointsChanged()) {
-          renderer.tieup.renderPoints(linePoints);
+      if(drag !== undefined) {
+        linePoints = renderer[drag].getCellsBetweenPoints(startPos, endPos);
+        if(!drag.includes('Color')) {
+          let p = pointsToArray(linePoints);
+          if(linePointsChanged(p, oldP)) { 
+            renderer[drag].renderPoints(p);
+          }
+          oldP = p;
+        } else {
+          if(linePointsChanged(linePoints, oldLinePoints)) { 
+            let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS()
+            renderer[drag].renderPoints(...linePoints, color);
+          }
+          oldLinePoints = linePoints
         }
       }
     });
 
-    renderer.tieup.onPointerUp((x, y) => {
-      if(hasDragged && drag === 'tieup') {
-        updateGridWithLine('tieup');
-      }
-      stopDrag();
-    });
+    renderer.addEventListener('pointerup', (e) => {
+      if(drag !== undefined) {
+        switch(drag) {
+          case 'warpColors':
+          case 'weftColors':
+            updateColor(drag, linePoints[0], linePoints[1], $ui.get('selectedColor'));
+            break;
+          case 'treadling':
+          case 'threading':
+            updateListWithLine(drag);
+            break;
+          case 'tieup':
+            updateGridWithLine(drag);
+            break;
+        }
 
-    renderer.threading.onClick((x, y) => {
-      if(!hasDragged) {
-        draft.update(d => d.updateIn(['threading', x], (v) => v === y ? undefined : y))
-      }
-      hasDragged = false;
-    });
-
-    renderer.threading.onPointerDown((x, y) => {
-      startDrag(x, y, 'threading');
-    });
-
-    renderer.threading.onPointerMove((x, y, event) => {
-      if(drag === 'threading') {
-        onMove(event, x, y);
-        if(isDragging && linePointsChanged()) {
-          renderer.threading.renderPoints(linePoints);
+        renderer[drag].render();
+        drag = undefined;
+      } else {
+        let pos = [e.offsetX, e.offsetY];
+        let r = renderer.renderers.find(r => r.renderer.isWithinGrid(pos));
+        if(r === undefined) {
+          return;
+        }
+        let name = r.name;
+        let cell = renderer[name].getCellAtPos(pos);
+        switch(name) {
+          case 'warpColors':
+            updateColor(name, cell[0], cell[0], $ui.get('selectedColor'));
+            break;
+          case 'weftColors':
+            updateColor(name, cell[1], cell[1], $ui.get('selectedColor'));
+            break;
+          case 'threading':
+            updateGrid(name, cell[0], cell[1]);
+            break;
+          case 'treadling':
+            updateGrid(name, cell[1], cell[0]);
+            break;
+          case 'tieup':
+            draft.update(d => d.updateIn(['tieup', cell[0], cell[1]], c => c === 1 ? 0 : 1));
+            break;
         }
       }
-    });
-
-    renderer.threading.onPointerUp((x, y) => {
-      if(hasDragged && drag === 'threading') {
-        updateListWithLine('threading');
-      }
-      stopDrag();
-    });
-
-    renderer.treadling.onClick((x, y) => {
-      if(!hasDragged) {
-        draft.update(d => d.updateIn(['treadling', y], (v) => v === x ? undefined : x))
-      }
-      hasDragged = false;
-    });
-
-    renderer.treadling.onPointerDown((x, y) => {
-      startDrag(x, y, 'treadling');
-    });
-
-    renderer.treadling.onPointerMove((x, y, event) => {
-      if(drag === 'treadling') {
-        onMove(event, x, y);
-        if(isDragging && linePointsChanged()) {
-          renderer.treadling.renderPoints(linePoints);
-        }
-      }
-    });
-
-    renderer.treadling.onPointerUp((x, y) => {
-      if(hasDragged && drag === 'treadling') {
-        updateListWithLine('treadling');
-      }
-      stopDrag();
-    });
-
-    renderer.warpColor.onClick((x, y) => {
-      draft.update(d => d.setIn(['warpColors', x], $ui.get('selectedColor')));
-    });
-
-    renderer.warpColor.onPointerDown((x, y, event) => {
-      drag = 'warpColors';
-      isDragging = true;
-      colorStart = x;
-      let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS();
-      renderer.warpColor.renderPoints(colorStart, x, color);
-    });
-
-    renderer.warpColor.onPointerMove((x, y, event) => {
-      if(drag === 'warpColors') {
-        if(isDragging && x !== colorEnd) {
-          hasDragged = true;
-          let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS();
-          renderer.warpColor.renderPoints(colorStart, x, color);
-        }
-        colorEnd = x;
-      }
-    });
-
-    renderer.warpColor.onPointerUp((x, y, event) => {
-      if(hasDragged && drag === 'warpColors') {
-        updateColor('warpColors', colorStart, colorEnd, $ui.get('selectedColor'));
-      }
-      stopDrag();
-    });
-
-    renderer.weftColor.onClick((x, y) => {
-      draft.update(d => d.setIn(['weftColors', y], $ui.get('selectedColor')));
-    });
-
-    renderer.weftColor.onPointerDown((x, y, event) => {
-      drag = 'weftColors';
-      isDragging = true;
-      colorStart = y;
-      let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS();
-      renderer.weftColor.renderPoints(colorStart, y, color);
-    });
-
-    renderer.weftColor.onPointerMove((x, y, event) => {
-      if(drag === 'weftColors') {
-        if(isDragging && y !== colorEnd) {
-          hasDragged = true;
-          let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS();
-          renderer.weftColor.renderPoints(colorStart, y, color);
-        }
-        colorEnd = y;
-      }
-    });
-
-    renderer.weftColor.onPointerUp((x, y, event) => {
-      if(hasDragged && drag === 'weftColors') {
-        updateColor('weftColors', colorStart, colorEnd, $ui.get('selectedColor'));
-      }
-      stopDrag();
     });
   });
+
+  function updateGrid(name, index, value) {
+    draft.update(d => d.updateIn([name, index], c => c === value ? -1 : value));
+  }
 
   function updateGridWithLine(name) {
     let newTieup = [];
@@ -223,36 +159,19 @@
     })));
   }
 
-  function startDrag(i, j, name) {
-    drag = name;
-    fromPos = [i, j]
-    linePoints = [[i, j]];
-  }
-
-  function linePointsChanged() {
-    if(linePoints.length !== oldLinePoints.length) {
+  function linePointsChanged(left, right) {
+    if(left.length !== right.length) {
       return true;
     }
-    for(let i = 0; i < linePoints.length; i++) {
-      if(linePoints[i] !== oldLinePoints[i]) {
+    for(let i = 0; i < left.length; i++) {
+      if(left[i] !== right[i]) {
         return true;
       }
     }
     return false;
   }
 
-  function onMove(event, i, j) {
-    if(event.buttons === 0) {
-      fromPos = undefined;
-      isDragging = false;
-      return;
-    }
-    if((event.buttons & 1) && ((event.movementX !== 0) || (event.movementY !== 0))) {
-      isDragging = true;
-      hasDragged = true;
-    }
-    oldLinePoints = [...linePoints];
-    let lp = line(...fromPos, i, j);
+  function pointsToArray(lp) {
     linePoints = [];
     lp.forEach(p => {
       if(drag === 'tieup') {
@@ -266,12 +185,7 @@
         linePoints[p[0]] = p[1];
       }
     });
-  }
-
-  function stopDrag() {
-    fromPos = undefined;
-    isDragging = false;
-    drag = '';
+    return linePoints;
   }
 
   export function syncCanvasDimensions() {

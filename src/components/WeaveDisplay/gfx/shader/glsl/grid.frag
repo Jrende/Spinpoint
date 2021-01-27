@@ -2,7 +2,7 @@ precision highp float;
 
 uniform sampler2D cellToggleSampler;
 uniform vec2 cellSize;
-uniform vec2 pos;
+uniform vec2 scrollPos;
 uniform float vert;
 uniform float gap;
 
@@ -26,8 +26,8 @@ float getBorder(float x, float y, float margin) {
 }
 
 void main(void) {
-  float x = uv.s + pos.x;
-  float y = uv.t + pos.y;
+  float x = uv.s + scrollPos.x;
+  float y = uv.t + scrollPos.y;
   float horiz = 1.0 - vert;
 
   vec2 tv = texture2D(cellToggleSampler, vec2(x * horiz + y * vert, 0)).rg;

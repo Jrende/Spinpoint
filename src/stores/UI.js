@@ -4,10 +4,10 @@ import { fromJS } from 'immutable';
 
 let ui = {
   borderSize: 2,
-  selectedMenu: 1,
+  selectedMenu: -1,
   selectedColor: 0,
   cellSize: 60,
-  pos: [0, 0]
+  scrollPos: [0, 0]
 };
 
 const store = writable(fromJS(ui));

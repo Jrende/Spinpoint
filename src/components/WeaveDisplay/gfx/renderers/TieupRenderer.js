@@ -32,7 +32,7 @@ export class TieupRenderer extends RendererEventTarget {
       xCount,
       yCount,
       cellSize,
-      pos
+      scrollPos
     } = this.values;
     this.solidShader.bind();
     this.centerQuad.bind();
@@ -111,8 +111,8 @@ export class TieupRenderer extends RendererEventTarget {
     this.values = values;
   }
 
-  setRendererPosition(pos) {
-    this.rendererPos = pos;
+  setRendererPosition(scrollPos) {
+    this.rendererPos = scrollPos;
   }
 
   setCellToggleTexture(cellToggleTexture) {
@@ -151,7 +151,7 @@ export class TieupRenderer extends RendererEventTarget {
     this.cellToggleTexture.bind(0);
     this.shader.setSampler2D('cellToggleSampler', 0);
 
-    this.shader.setVec2('pos', [ 0,0 ]);
+    this.shader.setVec2('scrollPos', [ 0,0 ]);
 
     this.shader.setVec2('cellSize', [
       cw / (cw * xCount),

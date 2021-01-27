@@ -3,7 +3,7 @@ precision highp float;
 uniform sampler2D colorSampler;
 
 uniform vec2 cellSize;
-uniform vec2 pos;
+uniform vec2 scrollPos;
 uniform float vert;
 
 varying vec2 uv;
@@ -27,8 +27,8 @@ float getBorder(float x, float y, float margin) {
 }
 
 void main(void) {
-  float x = uv.s + pos.x;
-  float y = uv.t + pos.y;
+  float x = uv.s + scrollPos.x;
+  float y = uv.t + scrollPos.y;
   if(x > 1.0 || y > 1.0) {
     gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
   } else {

@@ -38,14 +38,14 @@ export class WeaveRenderer extends RendererEventTarget {
     this.weftTexture = weftTexture;
   }
 
-  setRendererPosition(pos) {
-    this.rendererPos = pos;
+  setRendererPosition(scrollPos) {
+    this.rendererPos = scrollPos;
   }
 
   render() {
     console.log("render weave");
     if(this.values === undefined) return;
-    let { xCount, yCount, pos, cellSize } = this.values;
+    let { xCount, yCount, scrollPos, cellSize } = this.values;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
@@ -91,9 +91,9 @@ export class WeaveRenderer extends RendererEventTarget {
       ch / (ch * yCount),
     ]);
 
-    this.weaveShader.setVec2('pos', [
-      pos.get(0) / (xCount * cellSize),
-      pos.get(1) / (yCount * cellSize)
+    this.weaveShader.setVec2('scrollPos', [
+      scrollPos.get(0) / (xCount * cellSize),
+      scrollPos.get(1) / (yCount * cellSize)
     ]);
 
     this.quad.draw();

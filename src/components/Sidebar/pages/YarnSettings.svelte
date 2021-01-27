@@ -100,7 +100,7 @@
       {/each}
     </div>
   </div>
-  <form class="controls">
+  <div class="controls">
     <fieldset>
       <label for="newYarnName">Name</label>
       <input type="text" id="newYarnName" value={selectedYarn.name} on:input={(e) => changeName(e.target.value, yarnUnderModification)} use:focus />
@@ -109,7 +109,7 @@
       <label for="newYarnColor">Color</label>
       <button class="yarn-color-change" style={`background-color: ${selectedColor.toHexString()};`} on:click={showColorPicker}></button>
     </fieldset>
-  </form>
+  </div>
 </div>
 {#if colorPickerVisible === true}
   <ColorPicker onChange={(value) => changeColor(value, yarnUnderModification)} value={selectedYarn.color} x={colorPickerX} y={colorPickerY} onBlur={() => colorPickerVisible = false}/>
@@ -179,25 +179,6 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-  }
-
-  .controls {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-gap: 4px;
-    margin-top: 8px;
-  }
-
-  fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0;
-
-    display: grid;
-    grid-template-columns: subgrid;
-    grid-column: span 2;
-    align-items: center;
-    justify-content: stretch;
   }
 
   .yarn-color-change {

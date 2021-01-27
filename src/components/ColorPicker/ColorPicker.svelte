@@ -380,19 +380,17 @@
   let realY;
   $: {
     if(elm !== undefined) {
-      console.log(x, y);
       let rect = elm.parentElement.getBoundingClientRect();
       if((x + rect.width) > window.innerWidth) {
         realX = x - rect.width - 10;
       } else {
+        realX = x - rect.width / 2.0;
       }
-      realX = x - rect.width / 2.0;
       if((y + rect.height) > window.innerHeight) {
         realY = y - rect.height - 10;
       } else {
         realY = y;
       }
-
     }
   }
 
