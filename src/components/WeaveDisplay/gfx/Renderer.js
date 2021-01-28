@@ -21,11 +21,11 @@ export class Renderer {
       preserveDrawingBuffer: true
     });
     this.gl.clearColor(1, 1, 1, 1);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.gl.disable(this.gl.CULL_FACE);
     this.shaders = new ShaderBuilder(this.gl);
-    this.gl.enable(this.gl.BLEND);
-    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+    //this.gl.enable(this.gl.BLEND);
+    //this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+    this.gl.disable(this.gl.DEPTH_TEST);
 
     let maxTextureSize = this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE);
     console.log("Max texture size", maxTextureSize);
@@ -89,7 +89,10 @@ export class Renderer {
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.renderers
           .filter(r => r.dirty)
-          .forEach(r => r.renderer.render());
+          .forEach(r => {
+            //r.dirty = false;
+            r.renderer.render()
+          });
         this.renderNextFrame = false;
       }
       requestAnimationFrame(render);
@@ -118,6 +121,11 @@ export class Renderer {
   update(draft, ui) {
     let prevDraft = this.prevDraft;
     let prevUI = this.prevUI;
+
+    if(this.isDifferent(ui, prevUI, 'cellSize')) {
+      this.clear();
+    }
+
     this.updateTextures(draft);
     this.weave.setTextures(
       this.threadingTexture,
@@ -130,7 +138,7 @@ export class Renderer {
       'treadleCount',
       'shaftCount',
       'tieup') ||
-      ui !== prevUI
+      this.isDifferent(ui, prevUI, 'cellSize')
     ) {
       this.tieup.updateValues({
         xCount: draft.get('treadleCount'),
@@ -148,7 +156,8 @@ export class Renderer {
       'shaftCount',
       'pickCount',
       'threading') ||
-      ui !== prevUI
+      ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
+      this.isDifferent(ui, prevUI, 'cellSize')
     ) {
       this.threading.updateValues({
         xCount: draft.get('warpCount'),
@@ -156,7 +165,6 @@ export class Renderer {
         pickCount: draft.get('pickCount'),
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
-        borderSize: ui.get('borderSize'),
         scrollPos: ui.get('scrollPos')
       });
       this.renderers[1].dirty = true;
@@ -169,7 +177,8 @@ export class Renderer {
       'pickCount',
       'warpCount',
       'treadling') ||
-      ui !== prevUI
+      ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
+      this.isDifferent(ui, prevUI, 'cellSize')
     ) {
       this.treadling.updateValues({
         xCount: draft.get('treadleCount'),
@@ -189,7 +198,8 @@ export class Renderer {
         'warpCount',
         'pickCount',
         'warpColors') ||
-      ui !== prevUI
+      ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
+      this.isDifferent(ui, prevUI, 'cellSize')
     ) {
       this.warpColors.updateValues({
         xCount: draft.get('pickCount'),
@@ -209,7 +219,8 @@ export class Renderer {
       'warpCount',
       'pickCount',
       'weftColors') ||
-      ui !== prevUI
+      ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
+      this.isDifferent(ui, prevUI, 'cellSize')
     ) {
       this.weftColors.updateValues({
         xCount: 1,
@@ -239,7 +250,7 @@ export class Renderer {
 
 
     this.prevDraft = draft;
-    this.prevUI = draft;
+    this.prevUI = ui;
   }
 
   updateTextures(draft) {
@@ -299,5 +310,11 @@ export class Renderer {
 
   render() {
     this.renderNextFrame = true;
+  }
+
+  clear() {
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.renderers.forEach(r => r.dirty = true);
+    this.render();
   }
 }

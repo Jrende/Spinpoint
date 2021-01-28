@@ -14,8 +14,12 @@
   let linePoints;
   let oldLinePoints = [];
   let oldP = [];
+
+  //Startpos doesn't take scrolling into account
+  //Maybe create a posWithScroll value?
   let startPos;
   let endPos;
+  let startScroll;
 
   $: {
     if(renderer) {
@@ -29,16 +33,30 @@
     }
   }
 
+  let oldScroll = [];
+  $: {
+    let scroll = $ui.get('scrollPos').toJS();
+    if(renderer !== undefined  && drag !== undefined && (scroll[0] !== oldScroll[0] || scroll[1] !== oldScroll[1])) {
+      if(drag.includes('Color')) {
+        let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS()
+        renderer[drag].renderPoints(...linePoints, color);
+      } else {
+        renderer[drag].renderPoints(linePoints);
+      }
+    }
+    oldScroll = scroll;
+  }
+
   onMount(() => {
     renderer = new Renderer(canvas);
     syncCanvasDimensions();
 
     renderer.addEventListener('pointerdown', (e) => {
-        startPos = [e.offsetX, e.offsetY];
+      startPos = [e.offsetX, e.offsetY];
+      startScroll = $ui.get('scrollPos').toJS();
     });
 
     renderer.addEventListener('pointermove', (e) => {
-      endPos = [e.offsetX, e.offsetY];
       if(drag !== undefined && e.buttons === 0) {
         drag = undefined;
         renderer[drag].render();
@@ -52,7 +70,15 @@
       }
 
       if(drag !== undefined) {
-        linePoints = renderer[drag].getCellsBetweenPoints(startPos, endPos);
+        let cellSize = $ui.get('cellSize');
+        let scroll = $ui.get('scrollPos').toJS();
+        endPos = [e.offsetX - scroll[0] / cellSize, e.offsetY - scroll[1] / cellSize];
+        let startPosScroll = [
+          startPos[0] + (scroll[0] - startScroll[0]) / 2.0,
+          startPos[1] + (scroll[1] - startScroll[1]) / 2.0
+        ];
+
+        linePoints = renderer[drag].getCellsBetweenPoints(startPosScroll, endPos);
         if(!drag.includes('Color')) {
           let p = pointsToArray(linePoints);
           if(linePointsChanged(p, oldP)) { 
@@ -75,6 +101,7 @@
           case 'warpColors':
           case 'weftColors':
             updateColor(drag, linePoints[0], linePoints[1], $ui.get('selectedColor'));
+            renderer.clear();
             break;
           case 'treadling':
           case 'threading':
