@@ -13,13 +13,13 @@ if(window.localStorage.getItem('draft')) {
     warpColors: new Array(30).fill(0),
     weftColors: new Array(30).fill(1),
     tieup: [
-      [1, 0, 0, 1],
-      [0, 0, 1, 1],
-      [0, 1, 1, 0],
-      [1, 1, 0, 0],
+      [1, 0, 0, 1, 1, 0],
+      [0, 0, 1, 1, 0, 1],
+      [0, 1, 1, 0, 1, 0],
+      [1, 1, 0, 0, 0, 1],
     ],
     shaftCount: 4,
-    treadleCount: 4,
+    treadleCount: 6,
     warpCount: 30,
     pickCount: 30,
     yarn: [

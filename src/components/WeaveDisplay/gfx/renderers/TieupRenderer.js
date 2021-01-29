@@ -137,9 +137,6 @@ export class TieupRenderer extends RendererEventTarget {
         (this.rendererPos[1]) * ch,
         0.0
     ]);
-    let width = Math.min(
-    (cellSize * xCount) / w, 
-    w);
     mat4.scale(mvp, view, 
       [
         (cellSize * xCount) / w,

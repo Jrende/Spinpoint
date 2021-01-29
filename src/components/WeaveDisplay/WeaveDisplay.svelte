@@ -105,7 +105,8 @@
             break;
           case 'treadling':
           case 'threading':
-            updateListWithLine(drag);
+            let lp = pointsToArray(linePoints);
+            updateListWithLine(drag, lp);
             break;
           case 'tieup':
             updateGridWithLine(drag);
@@ -136,7 +137,15 @@
             updateGrid(name, cell[1], cell[0]);
             break;
           case 'tieup':
-            draft.update(d => d.updateIn(['tieup', cell[0], cell[1]], c => c === 1 ? 0 : 1));
+            draft.update(d => {
+              let n = d.updateIn(['tieup', cell[0], cell[1]], c => {
+                let r = c === 1 ? 0 : 1;
+                debugger;
+                return r;
+              })
+              debugger;
+              return n;
+            });
             break;
         }
       }
@@ -148,21 +157,26 @@
   }
 
   function updateGridWithLine(name) {
-    let newTieup = [];
-    for(let i = 0; i < $draft.get('shaftCount'); i++) {
-      newTieup.push([]);
-    }
+    let shaftCount = $draft.get('shaftCount');
+    let treadleCount = $draft.get('treadleCount');
 
-    let tieup = $draft.get('tieup');
-    for(let i = 0; i < $draft.get('treadleCount'); i++) {
-      for(let j = 0; j < $draft.get('shaftCount'); j++) {
-        if(linePoints[i] !== undefined && linePoints[i][j] === true) {
-          newTieup[i][j] = 1;
-        } else {
-          newTieup[i][j] = tieup.getIn([i, j]);
-        }
-      }
+
+    let newTieup = $draft.get('tieup').toJS();
+
+    /*
+    let test = new Array(treadleCount);
+    for(let i = 0; i < shaftCount; i++) {
+      test[i] = new Array(treadleCount);
+      test[i].fill(0);
     }
+    */
+
+    linePoints.forEach(p => {
+      let x = p[0];
+      let y = p[1];
+      test[x][y] = 1;
+    });
+
     draft.update(d => d.set('tieup', fromJS(newTieup)));
   }
 
@@ -180,9 +194,9 @@
     draft.update(d => d.set(name, newList));
   }
 
-  function updateListWithLine(name) {
+  function updateListWithLine(name, lp) {
     draft.update(d => d.update(name, list => list.withMutations(l => {
-      linePoints.forEach((p, i) => l.set(i, p));
+      lp.forEach((p, i) => l.set(i, p));
     })));
   }
 
@@ -199,20 +213,20 @@
   }
 
   function pointsToArray(lp) {
-    linePoints = [];
+    let ret = [];
     lp.forEach(p => {
       if(drag === 'tieup') {
-        if(linePoints[p[0]] === undefined) {
-          linePoints[p[0]] = [];
+        if(ret[p[0]] === undefined) {
+          ret[p[0]] = [];
         }
-        linePoints[p[0]][p[1]] = true;
+        ret[p[0]][p[1]] = true;
       } else  if(drag === 'treadling') {
-        linePoints[p[1]] = p[0];
+        ret[p[1]] = p[0];
       } else if(drag === 'threading') {
-        linePoints[p[0]] = p[1];
+        ret[p[0]] = p[1];
       }
     });
-    return linePoints;
+    return ret;
   }
 
   export function syncCanvasDimensions() {

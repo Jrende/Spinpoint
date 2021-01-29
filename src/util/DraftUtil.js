@@ -4,15 +4,15 @@ class DraftUtil {
   }
 
   updateShaftOrTreadleCounts(draft, shaftCount, treadleCount) {
-    let tieup = new Array(treadleCount);
-    for(let i = 0; i < treadleCount; i++) {
-      tieup[i] = new Array(shaftCount);
+    let tieup = new Array(shaftCount);
+    for(let i = 0; i < shaftCount; i++) {
+      tieup[i] = new Array(treadleCount);
     }
 
-    for(let i = 0; i < treadleCount; i++) {
-      for(let j = 0; j < shaftCount; j++) {
+    for(let i = 0; i < shaftCount; i++) {
+      for(let j = 0; j < treadleCount; j++) {
         if(draft.getIn(['tieup', i]) !== undefined && draft.getIn(['tieup', i, j]) !== undefined) {
-          tieup[i][j] = draft.get(['tieup', i, j]);
+          tieup[i][j] = draft.getIn(['tieup', i, j]);
         } else {
           tieup[i][j] = 0;
         }

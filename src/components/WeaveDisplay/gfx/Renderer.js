@@ -263,11 +263,11 @@ export class Renderer {
         draft.get('warpCount'));
     }
 
-    if(this.isDifferent(draft, prevDraft, 'treadling', 'shaftCount', 'pickCount')) {
+    if(this.isDifferent(draft, prevDraft, 'treadling', 'treadleCount', 'pickCount')) {
       this.treadlingTexture.delete();
       this.treadlingTexture = create1DGridTexture(this.gl,
         draft.get('treadling'),
-        draft.get('shaftCount'),
+        draft.get('treadleCount'),
         draft.get('pickCount'));
     }
 
@@ -275,7 +275,7 @@ export class Renderer {
       this.tieupTexture.delete();
       this.tieupTexture = createGridTexture(this.gl,
         draft.get('tieup'),
-        draft.get('shaftCount'),
+        draft.get('treadleCount'),
         draft.get('shaftCount'));
     }
 

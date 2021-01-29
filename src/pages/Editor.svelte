@@ -14,7 +14,7 @@
   let canvasContainer;
   let newCellSize = $ui.get('cellSize');
 
-  let scrollbarWidth = 15; //Works for chrome and firefox
+  let scrollbarWidth = 15;
   let weaveDisplay;
 
   let resizeObserver;
@@ -81,6 +81,7 @@
   }
 
   function changeCellSize() {
+    let scroll = $ui.get('scrollPos');
     ui.update(u => u.set('cellSize', newCellSize));
   }
 

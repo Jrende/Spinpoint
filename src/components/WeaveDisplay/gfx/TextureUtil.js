@@ -1,12 +1,11 @@
 import Texture from './Texture';
 export function create1DGridTexture(gl, data, shafts, length) {
   let gridTexture = new Uint8Array(length * 4);
-  gridTexture.fill(0);
   for(let i = 0; i < length; i++) {
     let n = i * 4;
     let value = (data.get(i) / shafts) * 255;
     let absence = 255;
-    if(data.get(i) === null || data.get(i) === undefined) {
+    if(data.get(i) === null || data.get(i) === undefined || data.get(i) === -1) {
       absence = 0;
     }
     gridTexture[n + 0] = value;
@@ -20,9 +19,8 @@ export function create1DGridTexture(gl, data, shafts, length) {
 
 export function createGridTexture(gl, data, width, height) {
   let gridTexture = new Uint8Array(width * height * 4);
-  gridTexture.fill(0);
-  for(let i = 0; i < data.size; i++) {
-    for(let j = 0; j < data.get(0).size; j++) {
+  for(let i = 0; i < width; i++) {
+    for(let j = 0; j < height; j++) {
       if(data.getIn([i, j]) === 1) {
         let n = (i + j*width) * 4;
         gridTexture[n + 0] = 255;
