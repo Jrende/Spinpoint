@@ -27,9 +27,9 @@ float getBorder(float x, float y, float margin) {
 
 void main(void) {
   vec3 color = vec3(1.0, 1.0, 1.0);
-  float x = uv.s;
-  float y = uv.t;
-  float toggleValue = texture2D(cellToggleSampler, vec2(uv)).r;
+  float x = (uv.s);
+  float y = (uv.t);
+  float toggleValue = texture2D(cellToggleSampler, vec2(x, y)).r;
 
   float border = getBorder(x, y, gap);
   vec3 fill = mix(

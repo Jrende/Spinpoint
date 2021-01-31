@@ -67,10 +67,10 @@ export class TieupRenderer extends RendererEventTarget {
     let minorSize = Math.min(xCount, yCount);
     for(let i = 0; i < xCount; i++) {
       for(let j = 0; j < yCount; j++) {
-        if(points[i] === undefined || points[i][j] === undefined) {
-          continue;
-        } else if(points[i][j] === true) {
+        if(points.some(p => p[0] === i && p[1] === j)) {
           this.solidShader.setVec4('color', [1.0, 0.0, 0.0, 1.0]);
+        } else {
+          continue;
         }
         mat4.translate(mvp, view, [ i, j, 0.0 ]);
         mat4.scale(mvp, mvp, [ 0.80, 0.80, 1.0 ]);

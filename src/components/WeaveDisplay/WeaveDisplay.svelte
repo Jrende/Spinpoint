@@ -15,8 +15,6 @@
   let oldLinePoints = [];
   let oldP = [];
 
-  //Startpos doesn't take scrolling into account
-  //Maybe create a posWithScroll value?
   let startPos;
   let endPos;
   let startScroll;
@@ -80,11 +78,18 @@
 
         linePoints = renderer[drag].getCellsBetweenPoints(startPosScroll, endPos);
         if(!drag.includes('Color')) {
-          let p = pointsToArray(linePoints);
-          if(linePointsChanged(p, oldP)) { 
-            renderer[drag].renderPoints(p);
+          if(drag === 'tieup') {
+            if(linePointsChanged(linePoints, oldLinePoints)) { 
+              renderer[drag].renderPoints(linePoints);
+            }
+            oldLinePoints = linePoints
+          } else {
+            let p = pointsToArray(linePoints);
+            if(linePointsChanged(p, oldP)) { 
+              renderer[drag].renderPoints(p);
+            }
+            oldP = p;
           }
-          oldP = p;
         } else {
           if(linePointsChanged(linePoints, oldLinePoints)) { 
             let color = $draft.getIn(['yarn', $ui.get('selectedColor'), 'color']).toJS()
@@ -109,7 +114,7 @@
             updateListWithLine(drag, lp);
             break;
           case 'tieup':
-            updateGridWithLine(drag);
+            updateTieupWithPoints(linePoints);
             break;
         }
 
@@ -137,15 +142,7 @@
             updateGrid(name, cell[1], cell[0]);
             break;
           case 'tieup':
-            draft.update(d => {
-              let n = d.updateIn(['tieup', cell[0], cell[1]], c => {
-                let r = c === 1 ? 0 : 1;
-                debugger;
-                return r;
-              })
-              debugger;
-              return n;
-            });
+            toggleTieup(cell[1], cell[0]);
             break;
         }
       }
@@ -156,28 +153,16 @@
     draft.update(d => d.updateIn([name, index], c => c === value ? -1 : value));
   }
 
-  function updateGridWithLine(name) {
-    let shaftCount = $draft.get('shaftCount');
-    let treadleCount = $draft.get('treadleCount');
-
-
-    let newTieup = $draft.get('tieup').toJS();
-
-    /*
-    let test = new Array(treadleCount);
-    for(let i = 0; i < shaftCount; i++) {
-      test[i] = new Array(treadleCount);
-      test[i].fill(0);
-    }
-    */
-
-    linePoints.forEach(p => {
-      let x = p[0];
-      let y = p[1];
-      test[x][y] = 1;
+  function updateTieupWithPoints(linePoints) {
+    let w = $draft.get('treadleCount');
+    let h = $draft.get('shaftCount');
+    draft.update(d => {
+      let draft = d;
+      linePoints.forEach(p => {
+        draft = draft.setIn(['tieup', p[1], p[0]], 1);
+      });
+      return draft;
     });
-
-    draft.update(d => d.set('tieup', fromJS(newTieup)));
   }
 
   function updateColor(name, colorStart, colorEnd, selectedColor) {
@@ -195,9 +180,18 @@
   }
 
   function updateListWithLine(name, lp) {
+    let w = $draft.get('treadleCount');
+    let h = $draft.get('shaftCount');
+    let m = Math.max(w, h);
     draft.update(d => d.update(name, list => list.withMutations(l => {
       lp.forEach((p, i) => l.set(i, p));
     })));
+  }
+
+  function toggleTieup(x, y) {
+    let w = $draft.get('treadleCount');
+    let h = $draft.get('shaftCount');
+    draft.update(d => d.updateIn(['tieup', x, y], v => v === 1 ? 0 : 1));
   }
 
   function linePointsChanged(left, right) {
@@ -216,10 +210,6 @@
     let ret = [];
     lp.forEach(p => {
       if(drag === 'tieup') {
-        if(ret[p[0]] === undefined) {
-          ret[p[0]] = [];
-        }
-        ret[p[0]][p[1]] = true;
       } else  if(drag === 'treadling') {
         ret[p[1]] = p[0];
       } else if(drag === 'threading') {

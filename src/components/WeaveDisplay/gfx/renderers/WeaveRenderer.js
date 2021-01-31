@@ -43,8 +43,9 @@ export class WeaveRenderer extends RendererEventTarget {
   }
 
   render() {
+    console.log("render weave");
     if(this.values === undefined) return;
-    let { xCount, yCount, scrollPos, cellSize } = this.values;
+    let { xCount, yCount, scrollPos, cellSize, shaftCount, treadleCount } = this.values;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
@@ -84,6 +85,9 @@ export class WeaveRenderer extends RendererEventTarget {
 
     this.tieup.bind(4);
     this.weaveShader.setSampler2D('tieup', 4);
+
+    this.weaveShader.setFloat('shaftCount', shaftCount);
+    this.weaveShader.setFloat('treadleCount', treadleCount);
 
     this.weaveShader.setVec2('cellSize', [
       cw / (cw * xCount),

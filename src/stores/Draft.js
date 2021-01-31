@@ -10,13 +10,13 @@ if(window.localStorage.getItem('draft')) {
   draft = {
     treadling: [],
     threading: [],
-    warpColors: new Array(30).fill(0),
-    weftColors: new Array(30).fill(1),
+    warpColors: new Array(30).fill(1),
+    weftColors: new Array(30).fill(0),
     tieup: [
-      [1, 0, 0, 1, 1, 0],
-      [0, 0, 1, 1, 0, 1],
-      [0, 1, 1, 0, 1, 0],
-      [1, 1, 0, 0, 0, 1],
+      [1, 0, 0, 1, 0, 1],
+      [0, 0, 1, 1, 1, 0],
+      [0, 1, 1, 0, 0, 1],
+      [1, 1, 0, 0, 1, 0],
     ],
     shaftCount: 4,
     treadleCount: 6,
@@ -39,9 +39,11 @@ if(window.localStorage.getItem('draft')) {
   }
 
   for(let i = 0; i < draft.pickCount; i++) {
-    draft.treadling.push(i % 4);
+    draft.treadling.push((i) % 6);
   }
 }
+  /*
+    */
 
 
 const store = writable(fromJS(draft));

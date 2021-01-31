@@ -242,6 +242,8 @@ export class Renderer {
       this.weave.updateValues({
         xCount: draft.get('warpCount'),
         yCount: draft.get('pickCount'),
+        shaftCount: draft.get('shaftCount'),
+        treadleCount: draft.get('treadleCount'),
         cellSize: ui.get('cellSize'),
         scrollPos: ui.get('scrollPos')
       });

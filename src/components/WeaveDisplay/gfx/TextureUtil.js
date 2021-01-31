@@ -19,10 +19,13 @@ export function create1DGridTexture(gl, data, shafts, length) {
 
 export function createGridTexture(gl, data, width, height) {
   let gridTexture = new Uint8Array(width * height * 4);
-  for(let i = 0; i < width; i++) {
-    for(let j = 0; j < height; j++) {
+  let num = 0;
+  for(let i = 0; i < height; i++) {
+    for(let j = 0; j < width; j++) {
       if(data.getIn([i, j]) === 1) {
-        let n = (i + j*width) * 4;
+        num++;
+        //Why only 8?
+        let n = (i * width + j) * 4;
         gridTexture[n + 0] = 255;
         gridTexture[n + 1] = 255;
         gridTexture[n + 2] = 255;
@@ -30,6 +33,18 @@ export function createGridTexture(gl, data, width, height) {
       }
     }
   }
+
+  console.log('num', num);
+  let s = ''
+  for(let i = 0; i < height; i++) {
+    for(let j = 0; j < width; j++) {
+      let n = (i * width + j) * 4;
+      s += (gridTexture[n] === 255 ? 1 : 0) + ','
+    }
+    s += '\n'
+  }
+  console.log(s);
+
   return new Texture(gl, width, height, gridTexture);
 }
 

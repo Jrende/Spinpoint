@@ -8,6 +8,8 @@ uniform sampler2D tieup;
 
 uniform vec2 cellSize;
 uniform vec2 scrollPos;
+uniform float shaftCount;
+uniform float treadleCount;
 
 varying vec2 uv;
 
@@ -31,23 +33,27 @@ float getBorder(float x, float y, float tieupValue) {
 }
 
 void main(void) {
-  float x = uv.s + scrollPos.x;
-  float y = uv.t + scrollPos.y;
-  vec2 heddle = texture2D(threading, vec2(x, 0.0)).rg;
+  float x = (uv.s + scrollPos.x);
+  float y = (uv.t + scrollPos.y);
+
+  vec2 shaft = texture2D(threading, vec2(x, 0.0)).rg;
   vec2 pedal = texture2D(treadling, vec2(y, 0.0)).rg;
 
   vec3 warpColor = texture2D(warpSampler, vec2(x, 0.0)).rgb;
   vec3 weftColor = texture2D(weftSampler, vec2(0.0, y)).rgb;
 
-  float tieupValue = texture2D(tieup, vec2(heddle.r + 0.1, pedal.r + 0.1)).r;
-  float absence = heddle.g * pedal.g;
+  vec2 off = vec2(
+      1.0 / (treadleCount + 1.0),
+      1.0 / (shaftCount + 1.0));
+  float tieupValue = 1.0 - texture2D(tieup, vec2(pedal.r + off.x, shaft.r + off.y)).r;
+  float absence = shaft.g * pedal.g;
 
   vec3 color = mix(warpColor, weftColor, tieupValue) * getBorder(x, y, tieupValue);
 
   color = mix(warpColor * getBorder(x, y, 0.0), color, pedal.g);
-  color = mix(weftColor * getBorder(x, y, 1.0), color, heddle.g);
+  color = mix(weftColor * getBorder(x, y, 1.0), color, shaft.g);
 
-  float overflow = step(x, 1.0) * step(y, 1.0);
+  float overflow = step(y, 1.0) * step(x, 1.0);
   color = mix(vec3(1.0, 1.0, 1.0), color.rgb, overflow);
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(vec3(color), 1.0);
 }
