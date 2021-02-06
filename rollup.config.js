@@ -7,6 +7,7 @@ import css from 'rollup-plugin-css-only';
 import { string } from "rollup-plugin-string";
 import svg from 'rollup-plugin-svg-import';
 import includePaths from 'rollup-plugin-includepaths';
+import json from '@rollup/plugin-json';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -54,6 +55,7 @@ export default {
     svg({
       stringify: true
     }),
+    json(),
     includePaths({
       paths: ['src', 'assets'],
       extensions: ['.js', '.json', '.html', 'svg']

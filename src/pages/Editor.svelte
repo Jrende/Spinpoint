@@ -31,7 +31,9 @@
       scrollTopMax
     );
     resizeObserver = new ResizeObserver(entries => {
-      weaveDisplay.syncCanvasDimensions();
+      if(weaveDisplay !== undefined && weaveDisplay !== null) {
+        weaveDisplay.syncCanvasDimensions();
+      }
     });
     resizeObserver.observe(canvasContainer);
 

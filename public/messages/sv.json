@@ -1,0 +1,24 @@
+{
+  "page": {
+    "weave_settings": {
+      "shaft_count": "Antal skaft",
+      "treadle_count": "Antal trampor",
+      "warp_count": "Antal varptrådar",
+      "weft_count": "Antal inslag",
+      "save": "Spara"
+    },
+    "yarn_settings": {
+      "name": "Namn",
+      "color": "Färg"
+    },
+    "pattern_fill": {
+      "mirrored_repeat": "Spegelvänd upprepning",
+      "apply": "Kör"
+    }
+  },
+  "terms": {
+    "warp": "Varp",
+    "weft": "Inslag"
+  }
+}
+

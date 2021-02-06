@@ -1,5 +1,14 @@
+<script context="module">
+  import { waitLocale } from 'svelte-i18n'
+
+  export async function preload() {
+    return waitLocale()
+  }
+</script>
+
 <script>
   import { Router, Link, Route } from "svelte-navigator";
+  import { isLoading } from 'svelte-i18n';
   import {
     Sidebar
   } from './components';
@@ -11,6 +20,7 @@
   export let url;
 </script>
 
+{#if !$isLoading}
 <Router url="{url}" basepath="/weaver">
   <div class="application">
     <Sidebar />
@@ -18,6 +28,7 @@
     <Route path="/" component="{Editor}" />
   </div>
 </Router>
+{/if}
 
 <style>
   .application {

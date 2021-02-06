@@ -5,6 +5,7 @@
   import Grid from '../../Grid/Grid.svelte';
   import gridIcon from 'icons/grid.svg';
   import { line } from '../../../util/MathUtil';
+  import { _ } from 'svelte-i18n'
 
   let prevWarpOrWeft;
 
@@ -100,13 +101,19 @@
     }
   }
 
-  function onGridMouseUp(i, j, event) {
+  function onGridMouseUp(event) {
     if(isDragging) {
       cellData = addArrays(linePoints, cellData);
       startPos = undefined;
       linePoints = undefined;
       isDragging = false;
     } else {
+      let rect = grid.getBoundingClientRect();
+      let pos = [
+        event.clientX - rect.left,
+        event.clientY - rect.top
+      ]
+      let [i, j] = grid.getCellAtPos(pos);
       if(warpOrWeft === 'warp') {
         cellData[i] = cellData[i] === j ? undefined : j;
       } else if(warpOrWeft === 'weft') {
@@ -162,7 +169,7 @@
               value="warp"
               class:notActive={warpOrWeft === undefined}
               bind:group={warpOrWeft}>
-      <label for="warp">Warp {@html gridIcon}</label>
+      <label for="warp">{$_('terms.warp')} {@html gridIcon}</label>
     </div>
     <div class="weft">
       <input
@@ -171,7 +178,7 @@
               name="warp-or-weft"
               value="weft"
               bind:group={warpOrWeft}>
-      <label for="weft">Weft {@html gridIcon}</label>
+      <label for="weft">{$_('terms.weft')}{@html gridIcon}</label>
     </div>
   </div>
   {#if warpOrWeft !== undefined}
@@ -190,11 +197,11 @@
     </div>
     <div class="controls">
       <fieldset>
-        <label for="mirrored-repeat">Mirrored repeat</label>
+        <label for="mirrored-repeat">{$_('page.pattern_fill.mirrored_repeat')}</label>
         <input type="checkbox" bind:checked={mirroredRepeat} name="mirrored-repeat" id="mirrored-repeat" />
       </fieldset>
     </div>
-    <button on:click={apply}>Apply</button>
+    <button on:click={apply}>{$_('page.pattern_fill.apply')}</button>
   {/if}
 </div>
 <style>

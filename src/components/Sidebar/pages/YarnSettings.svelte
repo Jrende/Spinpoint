@@ -4,6 +4,7 @@
   import draft from '../../../stores/Draft';
   import ui from '../../../stores/UI';
   import ColorPicker from '../../ColorPicker/ColorPicker.svelte';
+  import { _ } from 'svelte-i18n'
 
   import add from 'icons/add.svg';
 
@@ -102,11 +103,13 @@
   </div>
   <div class="controls">
     <fieldset>
-      <label for="newYarnName">Name</label>
+
+    
+      <label for="newYarnName">{$_('page.yarn_settings.name')}</label>
       <input type="text" id="newYarnName" value={selectedYarn.name} on:input={(e) => changeName(e.target.value, yarnUnderModification)} use:focus />
     </fieldset>
     <fieldset>
-      <label for="newYarnColor">Color</label>
+      <label for="newYarnColor">{$_('page.yarn_settings.color')}</label>
       <button class="yarn-color-change" style={`background-color: ${selectedColor.toHexString()};`} on:click={showColorPicker}></button>
     </fieldset>
   </div>

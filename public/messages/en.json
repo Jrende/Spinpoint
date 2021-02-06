@@ -1,0 +1,23 @@
+{
+  "page": {
+    "settings": {
+      "shaft_count": "Number of shafts",
+      "treadle_count": "Number of treadles",
+      "warp_count": "Number of warp threads",
+      "weft_count": "Number of weft threads",
+      "save": "Save"
+    },
+    "yarn_settings": {
+      "name": "Name",
+      "color": "Color"
+    },
+    "pattern_fill": {
+      "mirrored_repeat": "Mirrored repetition",
+      "apply": "Apply"
+    }
+  },
+  "terms": {
+    "warp": "Warp",
+    "weft": "Weft"
+  }
+}
