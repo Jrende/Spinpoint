@@ -6,7 +6,6 @@
   import { useFocus } from "svelte-navigator";
   import WeaveDisplay from '../components/WeaveDisplay/WeaveDisplay.svelte';
   import YarnSelector from '../components/YarnSelector/YarnSelector.svelte';
-  import ScrollPane from '../components/ScrollPane/ScrollPane.svelte';
 
   const registerFocus = useFocus();
 
@@ -18,6 +17,9 @@
   let weaveDisplay;
 
   let resizeObserver;
+
+  let width = $draft.get('warpCount') * $ui.get('cellSize');
+  let height = $draft.get('pickCount') * $ui.get('cellSize');
 
   onMount(() => {
     scrollbarWidth = scrollContainer.offsetWidth - scrollContainer.clientWidth;
@@ -88,7 +90,11 @@
 </script>
 <div on:scroll={updatePosition} bind:this={scrollContainer} class="container" tabindex="0">
   <YarnSelector />
-  <ScrollPane />
+<div
+      class="scrollpane"
+      style={`left: ${width}px; top: ${height}px;`}
+      >
+</div>
   <div bind:this={canvasContainer} class="fixed" style={`
                                    right: ${scrollbarWidth}px;
                                    bottom: ${scrollbarWidth}px
@@ -132,6 +138,14 @@
     overflow: scroll;
     position: absolute;
     top: -9999px;
+  }
+
+  .scrollpane {
+    background-color: #5959308f;
+    pointer-events: none;
+    position: relative;
+    width: 10px;
+    height: 10px;
   }
 
 </style>

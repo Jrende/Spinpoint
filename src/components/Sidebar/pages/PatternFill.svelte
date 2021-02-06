@@ -9,24 +9,35 @@
   let prevWarpOrWeft;
 
   let grid;
-  let xCount = $draft.get('treadleCount');
-  let yCount = $draft.get('shaftCount');
   let mirroredRepeat = true;
-  let cellData = new Array(xCount);
-  cellData = [0,1,2,3];
   let warpOrWeft = 'warp';
 
   let isDragging = false;
-  let fromPos = undefined;
+  let startPos = undefined;
   let linePoints = [];
 
+  let xCount;
+  let yCount;
+  let cellData = []
+
+
   $: {
-    if(warpOrWeft !== prevWarpOrWeft) {
-      let temp = xCount;
-      xCount = yCount;
-      yCount = temp;
-      prevWarpOrWeft = warpOrWeft;
+    let treadleCount = $draft.get('treadleCount');
+    let shaftCount = $draft.get('shaftCount');
+    if(warpOrWeft === 'warp') {
+      xCount = shaftCount;
+      yCount = shaftCount;
+    } else {
+      xCount = treadleCount;
+      yCount = treadleCount;
     }
+
+    normalizeCellData();
+  }
+
+  function normalizeCellData() {
+    cellData.splice(yCount, cellData.length);
+    cellData = cellData.map(v => v > (xCount - 1) ? undefined : v);
   }
 
 
@@ -47,58 +58,62 @@
   }
 
   function apply() {
-    let newPattern = draftUtil.applyPattern($draft, cellData, warpOrWeft, mirroredRepeat);
+    let c;
+    if(warpOrWeft === 'warp') {
+      c = xCount;
+    } else if(warpOrWeft === 'weft') {
+      c = yCount;
+    }
+    let newPattern = draftUtil.applyPattern($draft, cellData.map(v => (c - 1) - v), warpOrWeft, mirroredRepeat);
     draft.update(value => newPattern);
     $ui.selectedMenu = -1;
   }
 
-  function onGridClick(i, j) {
-    if(isDragging) {
-      return;
-    }
-    if(warpOrWeft === 'warp') {
-      cellData[i] = j;
-    } else if(warpOrWeft === 'weft') {
-      cellData[j] = i;
-    }
-    grid.drawForm(xCount, yCount, false);
-  }
-
-  function onGridMouseDown(i, j, event) {
-    fromPos = [i, j]
-    linePoints = [[i, j]];
-  }
-
-  function onGridMouseMove(i, j, event) {
+  function onGridMouseMove(event) {
+    event.stopPropagation();
     if(event.buttons === 0) {
-      fromPos = undefined;
+      startPos = undefined;
       isDragging = false;
       return;
     }
-    if((event.buttons & 1) && ((event.movementX !== 0) || (event.movementY !== 0))) {
+    let rect = grid.getBoundingClientRect();
+    let pos = [
+      event.clientX - rect.left,
+      event.clientY - rect.top
+    ]
+    if(isDragging === false && (event.buttons & 1) && ((event.movementX !== 0) || (event.movementY !== 0))) {
       isDragging = true;
+      startPos = pos
     }
-    let lp = line(...fromPos, i, j);
-    linePoints = [];
-    lp.forEach(p => {
-      if(warpOrWeft === 'weft') {
-        linePoints[p[1]] = p[0];
-      } else if(warpOrWeft === 'warp') {
-        linePoints[p[0]] = p[1];
-      }
-    });
-    linePoints = addArrays(linePoints, cellData);
-    grid.drawForm(xCount, yCount, false);
+    if(isDragging) {
+      let lp = grid.getCellsBetweenPoints(startPos, pos);
+      linePoints = [];
+      lp.forEach(p => {
+        if(warpOrWeft === 'weft') {
+          linePoints[p[1]] = p[0];
+        } else if(warpOrWeft === 'warp') {
+          linePoints[p[0]] = p[1];
+        }
+      });
+      linePoints = addArrays(linePoints, cellData);
+      grid.drawForm(xCount, yCount, false);
+    }
   }
 
   function onGridMouseUp(i, j, event) {
     if(isDragging) {
       cellData = addArrays(linePoints, cellData);
-      fromPos = undefined;
+      startPos = undefined;
       linePoints = undefined;
       isDragging = false;
-      grid.drawForm(xCount, yCount, false);
+    } else {
+      if(warpOrWeft === 'warp') {
+        cellData[i] = cellData[i] === j ? undefined : j;
+      } else if(warpOrWeft === 'weft') {
+        cellData[j] = cellData[j] === i ? undefined : i;
+      }
     }
+    grid.drawForm(xCount, yCount, false);
   }
 
   function addArrays(left, right) {
@@ -126,6 +141,14 @@
     } else {
       return cellData[x] === y;
     }
+  }
+
+  function onGridMouseDown(event) {
+    document.body.addEventListener('mousemove', onGridMouseMove);
+  }
+
+  function onBodyMouseUp(event) {
+    document.body.removeEventListener('mousemove', onGridMouseMove);
   }
 
 </script>
@@ -158,10 +181,8 @@
         xCount={xCount}
         yCount={yCount}
         toggleCell={toggleCell}
-        onClick={onGridClick}
         onMouseDown={onGridMouseDown}
         onMouseUp={onGridMouseUp}
-        onMouseMove={onGridMouseMove}
         disabled={warpOrWeft === undefined}
         />
         <button on:click={decrement}>-</button>

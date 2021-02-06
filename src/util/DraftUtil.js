@@ -58,21 +58,23 @@ class DraftUtil {
     let newDraft = draft.toJS();
     let length = warpOrWeft === 'warp' ? newDraft.warpCount : newDraft.pickCount;
 
-    if(warpOrWeft === 'warp') {
-      pattern.reverse();
-    }
     let array = new Array(length);
+    let p = [...pattern];
+    if(warpOrWeft === 'warp') {
+      p.reverse();
+    }
+
     let offset = 0;
     for(let i = 0; i < length; i++) {
-      if(mirroredRepeat && (i !== 0 && (i % (pattern.length - 1)) === 0)) {
+      if(mirroredRepeat && (i !== 0 && (i % (p.length - 1)) === 0)) {
         offset += 1;
       }
       let j = i + offset;
-      let v = j % (pattern.length);
-      if(mirroredRepeat && (Math.floor(j / pattern.length) % 2) === 1) {
-        v = pattern.length - (j % pattern.length) - 1;
+      let v = j % (p.length);
+      if(mirroredRepeat && (Math.floor(j / p.length) % 2) === 1) {
+        v = p.length - (j % p.length) - 1;
       }
-      array[i] = pattern[v];
+      array[i] = p[v];
     }
 
     if(warpOrWeft === 'warp') {

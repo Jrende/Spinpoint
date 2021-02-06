@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { line } from '../../util/MathUtil';
   import ui from '../../stores/UI';
 
   export let xCount;
@@ -49,37 +50,47 @@
 
   function onCanvasMouseDown(event) {
     if(!disabled) {
-      let indices = getIndices(event);
-      onMouseDown(...indices, event);
+      onMouseDown(event);
     }
   }
 
   function onCanvasMouseMove(event) {
     if(!disabled) {
-      let indices = getIndices(event);
-      onMouseMove(...indices, event);
+      onMouseMove(event);
     }
   }
 
   function onCanvasMouseUp() {
     if(!disabled) {
-      let indices = getIndices(event);
-      onMouseUp(...indices, event);
+      onMouseUp(event);
     }
   }
 
   function onCanvasClick() {
     if(!disabled) {
-      let indices = getIndices(event);
-      onClick(...indices, event);
+      onClick(event);
     }
   }
 
-  function getIndices(event) {
+  export function getBoundingClientRect() {
+    return canvas.getBoundingClientRect();
+  }
+
+  export function getCellsBetweenPoints(from, to) {
+    let fromCell = this.getCellAtPos(from);
+    let toCell = this.getCellAtPos(to);
+    let linePoints = line(fromCell[0], fromCell[1], toCell[0], toCell[1]);
+    return linePoints.filter(p => 
+      p[0] >= 0 && p[0] < xCount &&
+      p[1] >= 0 && p[1] < yCount
+    );
+  }
+
+  export function getCellAtPos(pos) {
     let canvasSize = rect.width;
     let size = (canvasSize - borderSize) / xCount;
-    let i = Math.floor(event.offsetX / size);
-    let j = Math.floor(event.offsetY / size);
+    let i = Math.floor(pos[0] / size);
+    let j = Math.floor(pos[1] / size);
     return [i, j];
   }
 

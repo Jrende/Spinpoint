@@ -34,6 +34,7 @@ export function createGridTexture(gl, data, width, height) {
     }
   }
 
+    /*
   console.log('num', num);
   let s = ''
   for(let i = 0; i < height; i++) {
@@ -44,6 +45,7 @@ export function createGridTexture(gl, data, width, height) {
     s += '\n'
   }
   console.log(s);
+  */
 
   return new Texture(gl, width, height, gridTexture);
 }

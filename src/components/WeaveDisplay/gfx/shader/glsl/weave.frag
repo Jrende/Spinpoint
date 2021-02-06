@@ -42,10 +42,13 @@ void main(void) {
   vec3 warpColor = texture2D(warpSampler, vec2(x, 0.0)).rgb;
   vec3 weftColor = texture2D(weftSampler, vec2(0.0, y)).rgb;
 
-  vec2 off = vec2(
+  vec2 tieupOffset = vec2(
       1.0 / (treadleCount + 1.0),
       1.0 / (shaftCount + 1.0));
-  float tieupValue = 1.0 - texture2D(tieup, vec2(pedal.r + off.x, shaft.r + off.y)).r;
+  float tieupValue = 1.0 - texture2D(tieup, vec2(
+        pedal.r + tieupOffset.x,
+        shaft.r + tieupOffset.y
+        )).r;
   float absence = shaft.g * pedal.g;
 
   vec3 color = mix(warpColor, weftColor, tieupValue) * getBorder(x, y, tieupValue);

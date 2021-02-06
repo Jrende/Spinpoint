@@ -4,7 +4,6 @@
   import draft from '../../stores/Draft';
   import ui from '../../stores/UI';
   import { Renderer } from './gfx/Renderer';
-  import ScrollPane from '../ScrollPane/ScrollPane.svelte';
   import { line } from '../../util/MathUtil';
 
   let renderer;
@@ -30,8 +29,6 @@
       }
     }
   }
-
-  let oldScroll = [];
   $: {
     let scroll = $ui.get('scrollPos').toJS();
     if(renderer !== undefined  && drag !== undefined && (scroll[0] !== oldScroll[0] || scroll[1] !== oldScroll[1])) {
@@ -45,6 +42,8 @@
     oldScroll = scroll;
   }
 
+  let oldScroll = [];
+
   onMount(() => {
     renderer = new Renderer(canvas);
     syncCanvasDimensions();
@@ -56,8 +55,8 @@
 
     renderer.addEventListener('pointermove', (e) => {
       if(drag !== undefined && e.buttons === 0) {
-        drag = undefined;
         renderer[drag].render();
+        drag = undefined;
       } 
 
       if(drag === undefined && e.buttons & 1 !== 0 && (e.movementX !== 0 || e.movementY !== 0)) {
@@ -67,7 +66,7 @@
         }
       }
 
-      if(drag !== undefined) {
+      if(drag !== undefined && drag !== 'weave') {
         let cellSize = $ui.get('cellSize');
         let scroll = $ui.get('scrollPos').toJS();
         endPos = [e.offsetX - scroll[0] / cellSize, e.offsetY - scroll[1] / cellSize];
