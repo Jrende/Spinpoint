@@ -197,6 +197,7 @@ export class Renderer {
       this.isDifferent(draft, prevDraft, 
         'warpCount',
         'pickCount',
+        'yarn',
         'warpColors') ||
       ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
       this.isDifferent(ui, prevUI, 'cellSize')
@@ -218,6 +219,7 @@ export class Renderer {
       this.isDifferent(draft, prevDraft, 
       'warpCount',
       'pickCount',
+      'yarn',
       'weftColors') ||
       ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
       this.isDifferent(ui, prevUI, 'cellSize')

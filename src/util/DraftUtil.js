@@ -98,6 +98,27 @@ class DraftUtil {
     });
     return newArray;
   }
+
+  applyColor(draft, colors, warpOrWeft) {
+    let newColors = [];
+    let count;
+    if(warpOrWeft === 'warp') {
+      count = draft.get('warpCount');
+    } else if(warpOrWeft === 'weft') {
+      count = draft.get('pickCount');
+    }
+
+    for(let i = 0; i < count; i++) {
+      newColors[i] = colors[i % colors.length];
+    }
+
+    if(warpOrWeft === 'warp') {
+      return draft.set('warpColors', fromJS(newColors));
+    } else if(warpOrWeft === 'weft') {
+      return draft.set('weftColors', fromJS(newColors));
+    }
+  }
+
 }
 
 export default new DraftUtil();

@@ -8,16 +8,22 @@
       "save": "Save"
     },
     "yarn_settings": {
-      "name": "Name",
-      "color": "Color"
+      "name": "Name"
     },
     "pattern_fill": {
       "mirrored_repeat": "Mirrored repetition",
+      "warp_weft_title": "Threading/treadling",
+      "color_title": "Warp/weft colors",
       "apply": "Apply"
     }
   },
   "terms": {
     "warp": "Warp",
-    "weft": "Weft"
+    "weft": "Weft",
+    "treadling": "Treadling",
+    "threading": "Threading",
+    "treadles": "Treadles",
+    "heddle": "Heddle",
+    "color": "Color"
   }
 }

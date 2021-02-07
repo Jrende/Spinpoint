@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { line } from '../../util/MathUtil';
   import ui from '../../stores/UI';
+  import tinycolor from 'tinycolor2';
 
   export let xCount;
   export let yCount;
@@ -36,6 +37,7 @@
 
   onMount(() => {
     ctx = canvas.getContext('2d');
+    rect = canvas.getBoundingClientRect();
     resizeObserver.observe(canvas);
   });
   
@@ -149,7 +151,13 @@
     let innerCellMargin = 10;
     for(let i = 0; i < xCount; i++) {
       for(let j = 0; j < yCount; j++) {
-        if(toggleCell(j, i)) {
+        let value = toggleCell(j, i);
+        if(value) {
+          if(value instanceof Object) {
+            ctx.fillStyle = tinycolor.fromRatio(value).toHexString();
+          } else {
+            ctx.fillStyle = 'black';
+          }
           ctx.fillRect(
             i * cellSize + innerCellMargin / 2.0 + borderSize,
             j * cellSize + innerCellMargin / 2.0 + borderSize,

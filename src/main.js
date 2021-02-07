@@ -1,4 +1,4 @@
-import i18n from './i18n/i18n';
+import './i18n/i18n';
 import tinycolor from 'tinycolor2';
 import App from './App.svelte';
 

@@ -10,7 +10,7 @@
   import ui from '../../stores/UI';
   import WeaveSettings from './pages/WeaveSettings.svelte';
   import YarnSettings from './pages/YarnSettings.svelte';
-  import PatternFill from './pages/PatternFill.svelte';
+  import PatternFill from './pages/PatternFill/PatternFill.svelte';
 
   let items = [
     {

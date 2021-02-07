@@ -103,13 +103,11 @@
   </div>
   <div class="controls">
     <fieldset>
-
-    
       <label for="newYarnName">{$_('page.yarn_settings.name')}</label>
       <input type="text" id="newYarnName" value={selectedYarn.name} on:input={(e) => changeName(e.target.value, yarnUnderModification)} use:focus />
     </fieldset>
     <fieldset>
-      <label for="newYarnColor">{$_('page.yarn_settings.color')}</label>
+      <label for="newYarnColor">{$_('terms.color')}</label>
       <button class="yarn-color-change" style={`background-color: ${selectedColor.toHexString()};`} on:click={showColorPicker}></button>
     </fieldset>
   </div>

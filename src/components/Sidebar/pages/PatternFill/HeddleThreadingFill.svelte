@@ -1,10 +1,10 @@
 <script>
-  import draft from '../../../stores/Draft';
-  import draftUtil from '../../../util/DraftUtil';
-  import ui from '../../../stores/UI';
-  import Grid from '../../Grid/Grid.svelte';
+  import draft from '../../../../stores/Draft';
+  import draftUtil from '../../../../util/DraftUtil';
+  import ui from '../../../../stores/UI';
+  import Grid from '../../../Grid/Grid.svelte';
   import gridIcon from 'icons/grid.svg';
-  import { line } from '../../../util/MathUtil';
+  import { line } from '../../../../util/MathUtil';
   import { _ } from 'svelte-i18n'
 
   let prevWarpOrWeft;
@@ -67,7 +67,6 @@
     }
     let newPattern = draftUtil.applyPattern($draft, cellData.map(v => (c - 1) - v), warpOrWeft, mirroredRepeat);
     draft.update(value => newPattern);
-    $ui.selectedMenu = -1;
   }
 
   function onGridMouseMove(event) {
@@ -163,22 +162,22 @@
   <div class="button-group">
     <div class="warp">
       <input
-        type="radio"
-              id="warp"
-              name="warp-or-weft"
-              value="warp"
-              class:notActive={warpOrWeft === undefined}
-              bind:group={warpOrWeft}>
-      <label for="warp">{$_('terms.warp')} {@html gridIcon}</label>
+      type="radio"
+      id="warp"
+      name="warp-or-weft"
+      value="warp"
+      class:notActive={warpOrWeft === undefined}
+      bind:group={warpOrWeft}>
+      <label for="warp">{@html gridIcon}</label>
     </div>
     <div class="weft">
       <input
-        type="radio"
-              id="weft"
-              name="warp-or-weft"
-              value="weft"
-              bind:group={warpOrWeft}>
-      <label for="weft">{$_('terms.weft')}{@html gridIcon}</label>
+      type="radio"
+      id="weft"
+      name="warp-or-weft"
+      value="weft"
+      bind:group={warpOrWeft}>
+      <label for="weft">{@html gridIcon}</label>
     </div>
   </div>
   {#if warpOrWeft !== undefined}
@@ -230,7 +229,7 @@
     padding: 4px;
     height: 50px;
     cursor: pointer;
-    border: 3px solid var(--color-2);
+    border: 1px solid var(--color-2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -268,6 +267,10 @@
 
   .weft :global(svg) {
     transform: rotateZ(90deg);
+  }
+
+  .warp :global(svg) {
+    width: 75px;
   }
 
   .warp label {
