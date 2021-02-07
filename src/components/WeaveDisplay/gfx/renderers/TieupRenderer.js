@@ -1,15 +1,11 @@
-import VertexArray from '../VertexArray';
-import { mat4, quat } from 'gl-matrix';
-import Texture from '../Texture';
+import { mat4} from 'gl-matrix';
 import RendererEventTarget from './RendererEventTarget';
 
 export class TieupRenderer extends RendererEventTarget {
-  constructor(gl, shaders, toggleFunction = () => false, eventListeners = {}, settings = {innerCellMargin: 15}) {
+  constructor(gl, shaders) {
     super(gl, shaders);
     this.shader = shaders.getShader('tieup')
     this.mvp = mat4.create();
-
-    this.settings = settings;
 
     this.initialView = mat4.create();
     mat4.scale(this.initialView, this.initialView, [
@@ -32,7 +28,6 @@ export class TieupRenderer extends RendererEventTarget {
       xCount,
       yCount,
       cellSize,
-      scrollPos
     } = this.values;
     this.solidShader.bind();
     this.centerQuad.bind();
@@ -40,9 +35,6 @@ export class TieupRenderer extends RendererEventTarget {
     let h = this.gl.canvas.height;
     let cw = cellSize / w;
     let ch = cellSize / h;
-    let scrollX = this.scrollX ? 1.0 : 0.0;
-    let scrollY = this.scrollY ? 1.0 : 0.0;
-
 
     let mvp = mat4.identity(this.mvp);
     let view = mat4.translate(mat4.identity(this.view), this.initialView, [
@@ -64,7 +56,6 @@ export class TieupRenderer extends RendererEventTarget {
         1.0
       ]
     );
-    let minorSize = Math.min(xCount, yCount);
     for(let i = 0; i < xCount; i++) {
       for(let j = 0; j < yCount; j++) {
         if(points.some(p => p[0] === i && p[1] === j)) {
@@ -121,7 +112,7 @@ export class TieupRenderer extends RendererEventTarget {
 
   render() {
     if(this.values === undefined) return;
-    let { ui, xCount, yCount, cellSize, borderSize } = this.values;
+    let {xCount, yCount, cellSize} = this.values;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;

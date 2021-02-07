@@ -1,8 +1,4 @@
-import ShaderBuilder from '../shader/';
-import VertexArray from '../VertexArray';
-import Framebuffer from '../Framebuffer';
-import Texture from '../Texture';
-import { mat4, quat } from 'gl-matrix';
+import { mat4} from 'gl-matrix';
 import RendererEventTarget from './RendererEventTarget';
 
 export class WeaveRenderer extends RendererEventTarget {

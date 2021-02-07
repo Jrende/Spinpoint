@@ -1,11 +1,11 @@
 <script>
   import { onMount } from 'svelte';
-  import { Router, Link, Route, link } from 'svelte-navigator';
+  import { Router, Route, link } from 'svelte-navigator';
   import HelpIcon from 'icons/help.svg';
   import BackIcon from 'icons/back.svg';
-  import ScarfIcon from 'icons/scarf.svg'
-  import YarnIcon from 'icons/yarn.svg'
-  import PatternBucket from 'icons/pattern-bucket.svg'
+  import ScarfIcon from 'icons/scarf.svg';
+  import YarnIcon from 'icons/yarn.svg';
+  import PatternBucket from 'icons/pattern-bucket.svg';
 
   import ui from '../../stores/UI';
   import WeaveSettings from './pages/WeaveSettings.svelte';
@@ -16,12 +16,12 @@
     {
       icon: ScarfIcon,
       title: 'Weave settings',
-      component: WeaveSettings
+      component: WeaveSettings,
     },
     {
       icon: YarnIcon,
       title: 'Yarns',
-      component: YarnSettings
+      component: YarnSettings,
     },
     {
       icon: PatternBucket,
@@ -36,16 +36,18 @@
   });
 
   function selectMenu(index) {
-    ui.update(u => u.update('selectedMenu', s => s === index ? -1 : index));
+    ui.update((u) =>
+      u.update('selectedMenu', (s) => (s === index ? -1 : index))
+    );
   }
 </script>
 
 <Router primary={false}>
   <div class="sidebar-container">
-    <div class="sidebar" bind:this={sidebar} >
+    <div class="sidebar" bind:this={sidebar}>
       {#each items as item, i}
         <button class="icon-button" on:click={() => selectMenu(i)}>
-      <div class={"icon"}>
+          <div class={'icon'}>
             {@html item.icon}
           </div>
         </button>
@@ -60,14 +62,13 @@
           </a>
         </Route>
         <Route path="about">
-        <a class="help" href="/" use:link>
-          <div class="icon">
-            {@html BackIcon}
-          </div>
-        </a>
+          <a class="help" href="/" use:link>
+            <div class="icon">
+              {@html BackIcon}
+            </div>
+          </a>
         </Route>
       </div>
-
     </div>
 
     {#if $ui.get('selectedMenu') !== -1}
@@ -75,7 +76,7 @@
         <div class="settings">
           <svelte:component this={items[$ui.get('selectedMenu')].component} />
         </div>
-        <div class="overlay" on:click={() => selectMenu(-1)}></div>
+        <div class="overlay" on:click={() => selectMenu(-1)} />
       </div>
     {/if}
   </div>
@@ -102,7 +103,7 @@
 
   .sidebar {
     width: 50px;
-    background-color: #40362A;
+    background-color: #40362a;
     padding: 10px 20px;
     display: flex;
     flex-direction: column;
@@ -132,11 +133,7 @@
   }
 
   .overlay {
-    background-color: rgba(0.0, 0.0, 0.0, 0.4);
+    background-color: rgba(0, 0, 0, 0.4);
     flex-grow: 1;
   }
-
-  .pattern-bucket {
-  }
-
 </style>

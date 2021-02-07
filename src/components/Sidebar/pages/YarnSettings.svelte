@@ -2,11 +2,8 @@
   import tinycolor from 'tinycolor2';
   import { fromJS } from 'immutable';
   import draft from '../../../stores/Draft';
-  import ui from '../../../stores/UI';
   import ColorPicker from '../../ColorPicker/ColorPicker.svelte';
   import { _ } from 'svelte-i18n'
-
-  import add from 'icons/add.svg';
 
   let colors;
   $: {
@@ -14,7 +11,6 @@
   }
   let color = {r: 1.0, g: 0.0, b: 0.0};
 
-  let newYarnName = "";
   let newYarnColor = color;
   let yarnUnderModification = 0;
 
@@ -42,22 +38,6 @@
     if(i !== $draft.get('yarn').size) {
       newYarnColor = $draft.getIn(['yarn', i, 'color']).toJS();
     }
-  }
-
-  function maybeCancel(event) {
-    if(event.target === settingsElm) {
-      yarnUnderModification = -1;
-      event.stopPropagation();
-    }
-  }
-
-  function updateYarn(event, index, yarn) {
-    event.preventDefault();
-    draft.update(d => d.updateIn(['yarn', index], y => fromJS({
-      name: yarn.name,
-      color: fromJS(newYarnColor)
-    })));
-    yarnUnderModification = -1;
   }
 
   function changeName(newName, yarnId) {

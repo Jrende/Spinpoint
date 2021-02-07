@@ -6,7 +6,7 @@ export function line(x0, y0, x1, y1) {
   let dy = -Math.abs(y1 - y0);
   let sy = y0 < y1 ? 1 : -1;
   let err = dx + dy;
-  while(true) {
+  for(;;) {
     points.push([x0, y0]);
     if(x0 === x1 && y0 === y1) {
       break;

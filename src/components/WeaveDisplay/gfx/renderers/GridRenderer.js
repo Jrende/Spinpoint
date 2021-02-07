@@ -1,6 +1,4 @@
-import VertexArray from '../VertexArray';
-import { mat4, quat } from 'gl-matrix';
-import Texture from '../Texture';
+import { mat4} from 'gl-matrix';
 import RendererEventTarget from './RendererEventTarget';
 
 export class GridRenderer extends RendererEventTarget {
@@ -48,8 +46,6 @@ export class GridRenderer extends RendererEventTarget {
       xCount,
       yCount,
       cellSize,
-      warpCount,
-      pickCount,
       scrollPos
     } = this.values;
     this.solidShader.bind();
@@ -122,7 +118,6 @@ export class GridRenderer extends RendererEventTarget {
       xCount,
       yCount,
       cellSize,
-      borderSize,
       warpCount,
       pickCount,
       scrollPos

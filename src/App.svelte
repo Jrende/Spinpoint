@@ -1,33 +1,29 @@
 <script context="module">
-  import { waitLocale } from 'svelte-i18n'
+  import { waitLocale } from 'svelte-i18n';
 
   export async function preload() {
-    return waitLocale()
+    return waitLocale();
   }
 </script>
 
 <script>
-  import { Router, Link, Route } from "svelte-navigator";
+  import { Router, Route } from 'svelte-navigator';
   import { isLoading } from 'svelte-i18n';
-  import {
-    Sidebar
-  } from './components';
+  import { Sidebar } from './components';
   import Editor from './pages/Editor.svelte';
   import Help from './pages/Help.svelte';
-  import ui from './stores/UI';
-  import draft from './stores/Draft';
 
   export let url;
 </script>
 
 {#if !$isLoading}
-<Router url="{url}" basepath="/weaver">
-  <div class="application">
-    <Sidebar />
-    <Route path="about" component="{Help}" />
-    <Route path="/" component="{Editor}" />
-  </div>
-</Router>
+  <Router {url} basepath="/weaver">
+    <div class="application">
+      <Sidebar />
+      <Route path="about" component={Help} />
+      <Route path="/" component={Editor} />
+    </div>
+  </Router>
 {/if}
 
 <style>
@@ -36,41 +32,4 @@
     display: grid;
     grid-template-columns: auto 1fr;
   }
-
-  main {
-    grid-gap: 16px;
-    padding: 16px;
-    display: grid;
-  }
-
-  .tieup-container {
-    grid-row: 2;
-    grid-column: 2;
-  }
-
-  .threading-container {
-    grid-row: 2;
-    grid-column: 3;
-  }
-
-  .treadling-container {
-    grid-row: 3;
-    grid-column: 2;
-  }
-
-  .weave-display-container {
-    grid-row: 3;
-    grid-column: 3;
-  }
-
-  .warp-colors {
-    grid-row: 1;
-    grid-column: 3;
-  }
-
-  .weft-colors {
-    grid-row: 3;
-    grid-column: 1;
-  }
-
 </style>

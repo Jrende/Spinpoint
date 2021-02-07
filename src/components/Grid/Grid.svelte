@@ -1,16 +1,15 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { line } from '../../util/MathUtil';
-  import ui from '../../stores/UI';
   import tinycolor from 'tinycolor2';
 
   export let xCount;
   export let yCount;
-  export let toggleCell = (x, y) => false;
-  export let onClick = (x, y) => { };
-  export let onMouseDown = (x, y) => { };
-  export let onMouseUp = (x, y) => { };
-  export let onMouseMove = (x, y) => { };
+  export let toggleCell = () => false;
+  export let onClick = () => {};
+  export let onMouseDown = () => {};
+  export let onMouseUp = () => {};
+  export let onMouseMove = () => {};
   export let disabled = false;
 
   let canvas;
@@ -18,19 +17,18 @@
   let borderSize = 2.5;
   let cellSize = 25;
   let rect;
-  let resizeObserver = new ResizeObserver(entries => {
+  let resizeObserver = new ResizeObserver(() => {
     rect = canvas.getBoundingClientRect();
   });
-  let dx = 0;
-  let dy = 0;
+
   $: {
-    if(ctx) {
+    if (ctx) {
       syncCanvasDimensions(xCount, yCount);
     }
   }
 
   $: {
-    if(ctx) {
+    if (ctx) {
       drawForm(xCount, yCount, disabled);
     }
   }
@@ -40,36 +38,36 @@
     rect = canvas.getBoundingClientRect();
     resizeObserver.observe(canvas);
   });
-  
+
   onDestroy(() => {
     resizeObserver.unobserve(canvas);
   });
 
   function syncCanvasDimensions(xCount, yCount) {
-      canvas.width = cellSize * xCount + 2.0 * borderSize;
-      canvas.height = cellSize * yCount + 2.0 * borderSize;
+    canvas.width = cellSize * xCount + 2.0 * borderSize;
+    canvas.height = cellSize * yCount + 2.0 * borderSize;
   }
 
   function onCanvasMouseDown(event) {
-    if(!disabled) {
+    if (!disabled) {
       onMouseDown(event);
     }
   }
 
   function onCanvasMouseMove(event) {
-    if(!disabled) {
+    if (!disabled) {
       onMouseMove(event);
     }
   }
 
   function onCanvasMouseUp() {
-    if(!disabled) {
+    if (!disabled) {
       onMouseUp(event);
     }
   }
 
   function onCanvasClick() {
-    if(!disabled) {
+    if (!disabled) {
       onClick(event);
     }
   }
@@ -82,9 +80,8 @@
     let fromCell = this.getCellAtPos(from);
     let toCell = this.getCellAtPos(to);
     let linePoints = line(fromCell[0], fromCell[1], toCell[0], toCell[1]);
-    return linePoints.filter(p => 
-      p[0] >= 0 && p[0] < xCount &&
-      p[1] >= 0 && p[1] < yCount
+    return linePoints.filter(
+      (p) => p[0] >= 0 && p[0] < xCount && p[1] >= 0 && p[1] < yCount
     );
   }
 
@@ -97,63 +94,38 @@
   }
 
   function fillBorders(width, height) {
-    ctx.fillRect(
-      0,
-      0,
-      borderSize,
-      height
-    );
-    ctx.fillRect(
-      width,
-      0,
-      borderSize,
-      height
-    );
-    ctx.fillRect(
-      0,
-      0,
-      width,
-      borderSize
-    );
-    ctx.fillRect(
-      0,
-      height,
-      width + borderSize,
-      borderSize
-    );
+    ctx.fillRect(0, 0, borderSize, height);
+    ctx.fillRect(width, 0, borderSize, height);
+    ctx.fillRect(0, 0, width, borderSize);
+    ctx.fillRect(0, height, width + borderSize, borderSize);
   }
 
   export function drawForm(xCount, yCount, disabled) {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    if(disabled) {
+    if (disabled) {
       ctx.fillStyle = 'gray';
     } else {
       ctx.fillStyle = 'black';
     }
 
-    let cw = ctx.canvas.width;
-    let ch = ctx.canvas.height;
-    let size = (cellSize - borderSize / 4.0);
-    let bluppSize = size / 2.0;
-
     let width = cellSize * xCount + borderSize;
     let height = cellSize * yCount + borderSize;
     fillBorders(width, height);
 
-    for(let i = 1; i < xCount; i++) {
+    for (let i = 1; i < xCount; i++) {
       ctx.fillRect(i * cellSize + borderSize / 2.0, 0, borderSize, height);
     }
-    for(let i = 1; i < yCount; i++) {
+    for (let i = 1; i < yCount; i++) {
       ctx.fillRect(0, i * cellSize + borderSize / 2.0, width, borderSize);
     }
 
     let innerCellMargin = 10;
-    for(let i = 0; i < xCount; i++) {
-      for(let j = 0; j < yCount; j++) {
+    for (let i = 0; i < xCount; i++) {
+      for (let j = 0; j < yCount; j++) {
         let value = toggleCell(j, i);
-        if(value) {
-          if(value instanceof Object) {
+        if (value) {
+          if (value instanceof Object) {
             ctx.fillStyle = tinycolor.fromRatio(value).toHexString();
           } else {
             ctx.fillStyle = 'black';
@@ -178,17 +150,10 @@
   bind:this={canvas}
   width="1"
   height="1"
-  class:disabled={disabled}
-  />
+  class:disabled
+/>
 
 <style>
-  .grid {
-    min-height: 100px;
-    min-width: 100px;
-    height: 100%;
-    width: 100%;
-  }
-
   canvas {
     image-rendering: crisp-edges;
   }
@@ -196,6 +161,4 @@
   canvas:not(.disabled) {
     cursor: pointer;
   }
-
-
 </style>

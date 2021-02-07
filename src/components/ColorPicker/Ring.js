@@ -1,5 +1,4 @@
 import VertexArray from '../WeaveDisplay/gfx/VertexArray';
-import Geometry from '../WeaveDisplay/gfx/geometry/Geometry';
 
 function generateGeometry(gl, numPoints, innerRadius) {
   let points = [0, 0, 0];
@@ -29,10 +28,21 @@ function generateGeometry(gl, numPoints, innerRadius) {
   return new VertexArray(gl, points, indices, [3], gl.TRIANGLES);
 }
 
-export default class Ring extends Geometry {
+export default class Ring {
   constructor(gl, points = 6, innerRadius = 0.5) {
-    super();
     this.points = points;
     this.geometry = generateGeometry(gl, points, innerRadius);
+  }
+
+  bind(gl) {
+    this.geometry.bind(gl);
+  }
+
+  unbind(gl) {
+    this.geometry.bind(gl);
+  }
+
+  draw(gl) {
+    this.geometry.draw(gl);
   }
 }

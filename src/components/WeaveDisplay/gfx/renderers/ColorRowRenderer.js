@@ -1,6 +1,4 @@
-import VertexArray from '../VertexArray';
-import { mat4, quat } from 'gl-matrix';
-import Texture from '../Texture';
+import { mat4} from 'gl-matrix';
 import RendererEventTarget from './RendererEventTarget';
 
 export class ColorRowRenderer extends RendererEventTarget {
@@ -103,11 +101,9 @@ export class ColorRowRenderer extends RendererEventTarget {
 
 
   handleEvent(event) {
-    let { cellSize, xCount, yCount, scrollPos, warpCount, pickCount } = this.values;
+    let { cellSize, xCount, yCount, scrollPos } = this.values;
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
-    let cw = cellSize / w;
-    let ch = cellSize / h;
     let x = (w - event.offsetX) / w * 2.0;
     let y = (h - event.offsetY) / h * 2.0;
     let gridX = (this.rendererPos[0]) * (cellSize / w);
@@ -146,7 +142,6 @@ export class ColorRowRenderer extends RendererEventTarget {
       xCount,
       yCount,
       cellSize,
-      borderSize,
       warpCount,
       pickCount
     } = this.values;

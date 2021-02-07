@@ -6,7 +6,7 @@ export default class Shader {
   }
 
   getAttributes(source) {
-    return this.vert
+    return source
       .split('\n')
       .filter(row => row.includes('attribute'))
       .map(a => a.substring(a.lastIndexOf(' ') + 1, a.length - 1));

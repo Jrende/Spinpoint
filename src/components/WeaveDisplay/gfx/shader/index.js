@@ -1,6 +1,5 @@
 import solidFrag from './glsl/solid.frag';
 import weaveFrag from './glsl/weave.frag';
-import weaveVert from './glsl/weave.vert';
 import textureFrag from './glsl/textureShader.frag';
 import gridFrag from './glsl/grid.frag';
 import tieupFrag from './glsl/tieup.frag';

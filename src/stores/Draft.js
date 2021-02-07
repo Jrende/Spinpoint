@@ -1,4 +1,3 @@
-import tinycolor from 'tinycolor2';
 import { writable } from 'svelte/store'
 import { fromJS, List } from 'immutable';
 window.fromJS = fromJS;
@@ -42,9 +41,6 @@ if(window.localStorage.getItem('draft')) {
     draft.treadling.push((i) % 6);
   }
 }
-  /*
-    */
-
 
 const store = writable(fromJS(draft));
 export default store;
@@ -57,7 +53,6 @@ store.subscribe(value => {
   localStorage.setItem('draft', JSON.stringify(v));
 });
 
-//window.draft = draft;
 window.update = function() {
   localStorage.setItem('draft', JSON.stringify(d));
 }

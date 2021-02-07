@@ -4,8 +4,6 @@
   export let tabId;
   export let open = false;
 
-  let context = getContext('tabs');
-
   let {
     selectedId,
     toggle

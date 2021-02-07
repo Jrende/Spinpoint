@@ -1,7 +1,5 @@
 import VertexArray from '../VertexArray';
-import Texture from '../Texture';
 import { line } from '../../../../util/MathUtil';
-import { fromJS } from 'immutable';
 
 export default class RendererEventTarget {
   clickListeners = [];
@@ -32,7 +30,7 @@ export default class RendererEventTarget {
     ], [2]);
   }
 
-  isWithinGrid(pos) {
+  isWithinGrid() {
     let { cellSize, xCount, yCount } = this.values;
 
     let w = this.gl.canvas.width;
@@ -53,7 +51,7 @@ export default class RendererEventTarget {
   }
 
   getCellAtPos(pos) {
-    let { cellSize, xCount, yCount, scrollPos, warpCount, pickCount } = this.values;
+    let { cellSize, scrollPos} = this.values;
     let scrollX = this.scrollX ? 1.0 : 0.0;
     let scrollY = this.scrollY ? 1.0 : 0.0;
     let w = this.gl.canvas.width;

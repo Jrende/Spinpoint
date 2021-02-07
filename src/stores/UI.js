@@ -1,4 +1,3 @@
-import tinycolor from 'tinycolor2';
 import { writable } from 'svelte/store'
 import { fromJS } from 'immutable';
 

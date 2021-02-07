@@ -18,8 +18,6 @@ init({
   fallbackLocale: 'en',
   initialLocale: getLocaleFromNavigator(),
 });
-let currentLocale;
-locale.subscribe(l => currentLocale = l);
 
 let availableLocales;
 locales.subscribe(l => {

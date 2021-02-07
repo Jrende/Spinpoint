@@ -13,65 +13,68 @@
   import Shader from '../WeaveDisplay/gfx/shader/Shader';
   import Ring from './Ring';
 
-  let canvas = document.createElement("canvas");
+  let canvas = document.createElement('canvas');
   let root = document.body;
   canvas.setAttribute('class', 'color-input-canvas');
   canvas.width = 256;
   canvas.height = 256;
   let gl = canvas.getContext('webgl', {
     premultipliedAlpha: true,
-    preserveDrawingBuffer: true
+    preserveDrawingBuffer: true,
   });
   gl.clearColor(0, 0, 0, 1.0);
 
   let listener;
-  let state = {};
   let mouseDown = false;
   let colorWheelToggle = false;
   let triangleToggle = false;
 
-  let colorWheelShader = new Shader({ frag: colorWheelFrag, vert: colorWheelVert });
+  let colorWheelShader = new Shader({
+    frag: colorWheelFrag,
+    vert: colorWheelVert,
+  });
   colorWheelShader.compile(gl);
   let satValShader = new Shader({ frag: satValFrag, vert: satValVert });
   satValShader.compile(gl);
   let solidShader = new Shader({ frag: solidFrag, vert: solidVert });
   solidShader.compile(gl);
-  
+
   let quad = new VertexArray(
     gl,
-    [
-      1, 1,
-      -1, 1,
-      -1, -1,
-      1, -1
-    ],
-    [1, 0, 2,
-      2, 0, 3],
+    [1, 1, -1, 1, -1, -1, 1, -1],
+    [1, 0, 2, 2, 0, 3],
     [2]
   );
   let t = [
     [0, 1.0],
     [0.8660253882408142, -0.5],
-    [-0.8660253882408142, -0.5]
+    [-0.8660253882408142, -0.5],
   ];
   let triP = t;
-  let triPT = [
-    vec2.create(),
-    vec2.create(),
-    vec2.create()
-  ];
+  let triPT = [vec2.create(), vec2.create(), vec2.create()];
   let uv = [
     [1.0, 0.0, 0.0],
     [0.0, 1.0, 0.0],
     [0.0, 0.0, 1.0],
   ];
-  let triUV = uv;
   let triangle = new VertexArray(
     gl,
     [
-      t[0][0], t[0][1], uv[0][0], uv[0][1], uv[0][2],
-      t[1][0], t[1][1], uv[1][0], uv[1][1], uv[1][2],
-      t[2][0], t[2][1], uv[2][0], uv[2][1], uv[2][2],
+      t[0][0],
+      t[0][1],
+      uv[0][0],
+      uv[0][1],
+      uv[0][2],
+      t[1][0],
+      t[1][1],
+      uv[1][0],
+      uv[1][1],
+      uv[1][2],
+      t[2][0],
+      t[2][1],
+      uv[2][0],
+      uv[2][1],
+      uv[2][2],
     ],
     [1, 0, 2],
     [2, 3]
@@ -79,17 +82,12 @@
   let ring = new Ring(gl, 24, 0.6);
   let triangleModel = mat4.create();
 
-
   function onHexInputChange(event) {
     let str = event.target.value;
     let color = tinycolor(`#${str}`);
-    if(str.length === 6 && color.isValid()) {
+    if (str.length === 6 && color.isValid()) {
       let hsv = color.toHsv();
-      updateColor(
-        hsv.h / 360,
-        hsv.s,
-        hsv.v
-      );
+      updateColor(hsv.h / 360, hsv.s, hsv.v);
     }
   }
 
@@ -100,27 +98,26 @@
     let rect = canvas.getBoundingClientRect();
     let coords = [
       2.0 * ((event.clientX - rect.x) / rect.width - 0.5),
-      2.0 * (-(event.clientY - rect.y) / rect.height + 0.5)
+      2.0 * (-(event.clientY - rect.y) / rect.height + 0.5),
     ];
     let { hue, saturation, value } = handleInput(coords);
     updateColor(hue, saturation, value);
   }
 
-
   function onCanvasMouseMove(event) {
     event.preventDefault();
-    if(mouseDown === true && event.buttons === 0) {
+    if (mouseDown === true && event.buttons === 0) {
       mouseDown = false;
       colorWheelToggle = false;
       triangleToggle = false;
       root.removeEventListener('mousemove', onCanvasMouseMove);
       return;
     }
-    if(mouseDown) {
+    if (mouseDown) {
       let rect = canvas.getBoundingClientRect();
       let coords = [
         2.0 * ((event.clientX - rect.x) / rect.width - 0.5),
-        2.0 * (-(event.clientY - rect.y) / rect.height + 0.5)
+        2.0 * (-(event.clientY - rect.y) / rect.height + 0.5),
       ];
       let { hue, saturation, value } = handleInput(coords);
       updateColor(hue, saturation, value);
@@ -138,21 +135,21 @@
   function handleInput(coords) {
     let { hue, saturation, value } = state;
     let positionInWheel = getPositionInWheel(coords);
-    if(positionInWheel !== undefined) {
+    if (positionInWheel !== undefined) {
       hue = positionInWheel;
       colorWheelToggle = true;
     }
     let positionInTriangle = getPositionInTriangle(coords);
     if (positionInTriangle !== undefined) {
       let pos = positionInTriangle;
-      if(pos.w + pos.v > 1.0 || pos.v < 0 || pos.w < 0) {
+      if (pos.w + pos.v > 1.0 || pos.v < 0 || pos.w < 0) {
         pos = getClosestPointToTriangle(pos, coords);
       }
 
       value = Math.max(0, Math.min(1.0, 1.0 - pos.w));
       saturation = Math.max(0, Math.min(1.0, pos.u / value));
       // Still some weirdness when value is around zero
-      if(Number.isNaN(saturation)) {
+      if (Number.isNaN(saturation)) {
         saturation = 0.0;
       }
       triangleToggle = true;
@@ -164,7 +161,7 @@
     let newColor = tinycolor.fromRatio({
       h: hue,
       s: saturation,
-      v: value
+      v: value,
     });
     setState({
       hue,
@@ -176,10 +173,10 @@
       r: rgb.r / 255,
       g: rgb.g / 255,
       b: rgb.b / 255,
-      a: rgb.a
+      a: rgb.a,
     };
 
-    if(fireEvent) {
+    if (fireEvent) {
       emit(ratio);
     }
   }
@@ -191,16 +188,25 @@
     let c = vec2.sub(vec2.create(), triPT[2], a);
     let p = vec2.sub(vec2.create(), coord, a);
 
-    let d = b[0]*c[1] - c[0]*b[1];
-    let u = (p[0]*(b[1]-c[1]) + p[1]*(c[0]-b[0]) + b[0]*c[1] - c[0]*b[1])/d;
-    let v = (p[0]*c[1] - p[1]*c[0])/d;
-    let w = (p[1]*b[0]-p[0]*b[1])/d;
+    let d = b[0] * c[1] - c[0] * b[1];
+    let u =
+      (p[0] * (b[1] - c[1]) +
+        p[1] * (c[0] - b[0]) +
+        b[0] * c[1] -
+        c[0] * b[1]) /
+      d;
+    let v = (p[0] * c[1] - p[1] * c[0]) / d;
+    let w = (p[1] * b[0] - p[0] * b[1]) / d;
 
-    if(!colorWheelToggle && (triangleToggle || (u > 0.0 && u < 1.0 &&
-      v > 0.0 && v < 1.0 &&
-      w > 0.0 && w < 1.0))) {
+    if (
+      !colorWheelToggle &&
+      (triangleToggle ||
+        (u > 0.0 && u < 1.0 && v > 0.0 && v < 1.0 && w > 0.0 && w < 1.0))
+    ) {
       return {
-        u, v, w
+        u,
+        v,
+        w,
       };
     }
     return undefined;
@@ -227,13 +233,13 @@
   function getClosestPointToTriangle(pos, coords) {
     let from;
     let to;
-    if(pos.w + pos.v > 1.0) {
+    if (pos.w + pos.v > 1.0) {
       from = triPT[1];
       to = triPT[2];
-    } else if(pos.v < 0) {
+    } else if (pos.v < 0) {
       from = triPT[0];
       to = triPT[2];
-    } else if(pos.w < 0) {
+    } else if (pos.w < 0) {
       from = triPT[0];
       to = triPT[1];
     }
@@ -252,7 +258,7 @@
   function getPositionInWheel(p) {
     let center = [0, 0];
     let dist = vec2.distance(p, center);
-    if(!triangleToggle && (colorWheelToggle || dist > 0.8 && dist < 1.0)) {
+    if (!triangleToggle && (colorWheelToggle || (dist > 0.8 && dist < 1.0))) {
       return getAngle([1, 0], p) / (2.0 * Math.PI);
     }
     return undefined;
@@ -262,7 +268,7 @@
     let color = tinycolor.fromRatio({
       h: state.hue,
       s: state.saturation,
-      v: state.value
+      v: state.value,
     });
 
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -270,7 +276,7 @@
 
     let resolution = [
       canvas.getAttribute('width'),
-      canvas.getAttribute('height')
+      canvas.getAttribute('height'),
     ];
     colorWheelShader.bind();
     colorWheelShader.setVec2('resolution', resolution);
@@ -282,18 +288,13 @@
     triangle.bind();
 
     triangleModel = mat4.create();
-    let rot = state.hue * Math.PI * 2.0 - Math.PI/2.0;
-    let hueRot = quat.setAxisAngle(
-      quat.create(),
-      [0, 0, 1],
-      rot
-    );
-    mat4.fromRotationTranslationScale(
-      triangleModel,
-      hueRot,
-      vec3.create(),
-      [0.8, 0.8, 0.8]
-    );
+    let rot = state.hue * Math.PI * 2.0 - Math.PI / 2.0;
+    let hueRot = quat.setAxisAngle(quat.create(), [0, 0, 1], rot);
+    mat4.fromRotationTranslationScale(triangleModel, hueRot, vec3.create(), [
+      0.8,
+      0.8,
+      0.8,
+    ]);
     vec2.transformMat4(triPT[0], triP[0], triangleModel);
     vec2.transformMat4(triPT[1], triP[1], triangleModel);
     vec2.transformMat4(triPT[2], triP[2], triangleModel);
@@ -312,14 +313,19 @@
     solidShader.bind();
     ring.bind();
     let pos = getTriangleCoordinateFromColor(state);
-    let svMarkerColor = color.isLight()? [0.0, 0.0, 0.0, 1.0] : [1.0, 1.0, 1.0, 1.0];
+    let svMarkerColor = color.isLight()
+      ? [0.0, 0.0, 0.0, 1.0]
+      : [1.0, 1.0, 1.0, 1.0];
 
     solidShader.setVec4('color', svMarkerColor);
-    solidShader.setMat4('mvp', mat4.fromRotationTranslationScale(
-      mat4.create(),
-      quat.create(),
-      [pos[0], pos[1], 0],
-      [0.03, 0.03, 1.0])
+    solidShader.setMat4(
+      'mvp',
+      mat4.fromRotationTranslationScale(
+        mat4.create(),
+        quat.create(),
+        [pos[0], pos[1], 0],
+        [0.03, 0.03, 1.0]
+      )
     );
 
     ring.draw();
@@ -328,9 +334,11 @@
     let hue = tinycolor.fromRatio({
       h: state.hue,
       s: 1.0,
-      v: 1.0
+      v: 1.0,
     });
-    let hueMarkerColor = hue.isLight()? [0.0, 0.0, 0.0, 1.0] : [1.0, 1.0, 1.0, 1.0];
+    let hueMarkerColor = hue.isLight()
+      ? [0.0, 0.0, 0.0, 1.0]
+      : [1.0, 1.0, 1.0, 1.0];
     let hueMarkerMatrix = mat4.create();
     let quatMat = mat4.fromQuat(mat4.create(), hueRot);
     mat4.multiply(hueMarkerMatrix, hueMarkerMatrix, quatMat);
@@ -344,17 +352,6 @@
     solidShader.unbind();
   }
 
-  function setColor(color) {
-    let c = tinycolor.fromRatio(color);
-    let hsv = c.toHsv();
-    updateColor(
-      hsv.h / 360,
-      hsv.s,
-      hsv.v,
-      false
-    );
-  }
-
   function emit(color) {
     listener(color);
   }
@@ -364,12 +361,12 @@
     render();
   }
 
-    canvas.addEventListener('mousedown', onCanvasMouseDown);
-    canvas.addEventListener('mouseup', onCanvasMouseUp);
-
+  canvas.addEventListener('mousedown', onCanvasMouseDown);
+  canvas.addEventListener('mouseup', onCanvasMouseUp);
 </script>
+
 <script>
-  import { onMount,onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   export let value;
   export let onChange = () => {};
   export let onBlur = () => {};
@@ -379,14 +376,14 @@
   let realX;
   let realY;
   $: {
-    if(elm !== undefined) {
+    if (elm !== undefined) {
       let rect = elm.parentElement.getBoundingClientRect();
-      if((x + rect.width) > window.innerWidth) {
+      if (x + rect.width > window.innerWidth) {
         realX = x - rect.width - 10;
       } else {
         realX = x - rect.width / 2.0;
       }
-      if((y + rect.height) > window.innerHeight) {
+      if (y + rect.height > window.innerHeight) {
         realY = y - rect.height - 10;
       } else {
         realY = y;
@@ -405,7 +402,6 @@
     value: hsv.v,
     saturation: hsv.s,
   };
-  let c2;
 
   setState(state);
 
@@ -423,42 +419,47 @@
 
   function bodyMouseMove(event) {
     let rect = elm.getBoundingClientRect();
-    let centerX = rect.x + (rect.width / 2);
-    let centerY = rect.y + (rect.height / 2);
-    let distToCenter = vec2.sub(vec2.create(), [event.clientX, event.clientY], [centerX, centerY]);
-    if(Math.abs(distToCenter[0]) > 220 || Math.abs(distToCenter[1]) > 220) {
+    let centerX = rect.x + rect.width / 2;
+    let centerY = rect.y + rect.height / 2;
+    let distToCenter = vec2.sub(
+      vec2.create(),
+      [event.clientX, event.clientY],
+      [centerX, centerY]
+    );
+    if (Math.abs(distToCenter[0]) > 220 || Math.abs(distToCenter[1]) > 220) {
       onBlur();
     }
   }
 
   function bodyMouseDown(event) {
     let container = elm.parentElement;
-    if(!container.contains(event.target)) {
+    if (!container.contains(event.target)) {
       onBlur();
     }
   }
-
 </script>
+
 <svelte:body on:mousemove={bodyMouseMove} on:mousedown={bodyMouseDown} />
 <div class="color-picker-container" style={`left: ${realX}px; top: ${realY}px`}>
   <div class="color-picker" bind:this={elm}>
     <div
       bind:this={beforeElm}
       class="color-input-color"
-      style="{`background-color: #${hexString}`}"
-      >
+      style={`background-color: #${hexString}`}
+    >
       <input
         type="text"
         spellCheck="false"
         maxLength="6"
-        style={`color: ${(color.isLight() ? 'black' : 'white')}`}
+        style={`color: ${color.isLight() ? 'black' : 'white'}`}
         value={hexString}
         on:input={onHexInputChange}
         on:paste={onHexInputChange}
-        />
+      />
     </div>
   </div>
 </div>
+
 <style>
   :global(.color-input-canvas) {
     margin: auto;
@@ -485,5 +486,4 @@
     background-color: var(--color-2);
     border: 1px solid var(--color-4);
   }
-
 </style>

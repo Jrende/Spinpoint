@@ -1,7 +1,5 @@
 import ShaderBuilder from './shader/';
-import VertexArray from './VertexArray';
 import Texture from './Texture';
-import { mat4 } from 'gl-matrix';
 
 import { TieupRenderer} from './renderers/TieupRenderer';
 import { GridRenderer} from './renderers/GridRenderer';
