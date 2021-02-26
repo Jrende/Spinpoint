@@ -4,9 +4,11 @@
   import Grid from '../../../Grid/Grid.svelte';
   import tinycolor from 'tinycolor2';
 
+  export let warpOrWeft;
+  export let disabled;
+
   let length = 1;
   let width = 1;
-  let warpOrWeft = 'warp';
   $: availableColors = $draft
     .get('yarn')
     .map((y) => y.get('color'))
@@ -17,13 +19,17 @@
   let grid;
   let selectedColor;
 
-  function switchDirection() {
+  let xCount;
+  let yCount;
+
+  $: {
     if (warpOrWeft === 'warp') {
-      warpOrWeft = 'weft';
+      xCount = length;
+      yCount = 1;
     } else {
-      warpOrWeft = 'warp';
+      xCount = 1;
+      yCount = length;
     }
-    [length, width] = [width, length];
   }
 
   function updateLength(newLength) {
@@ -66,13 +72,12 @@
     grid.drawForm(length, width, false);
   }
 
-  function apply() {
+  export function apply() {
     let newPattern = draftUtil.applyColor($draft, colors, warpOrWeft);
     draft.set(newPattern);
   }
 </script>
 
-<button on:click={switchDirection}>Switch warp/weft</button>
 <div class="controls">
   <fieldset>
     <label for="length">length</label>
@@ -86,13 +91,7 @@
   </fieldset>
 </div>
 <div class={'grid ' + warpOrWeft}>
-  <Grid
-    bind:this={grid}
-    xCount={length}
-    yCount={width}
-    {toggleCell}
-    {onClick}
-  />
+  <Grid bind:this={grid} {xCount} {yCount} {toggleCell} {onClick} {disabled} />
 </div>
 <ul class="colors">
   {#each availableColors as color, i}
@@ -104,7 +103,6 @@
     </li>
   {/each}
 </ul>
-<button on:click={apply}>Apply</button>
 
 <style>
   .grid {

@@ -96,9 +96,9 @@
     bind:this={canvasContainer}
     class="fixed"
     style={`
-                                   right: ${scrollbarWidth}px;
-                                   bottom: ${scrollbarWidth}px
-                                   `}
+    right: ${scrollbarWidth}px;
+    bottom: ${scrollbarWidth}px
+    `}
   >
     <WeaveDisplay bind:this={weaveDisplay} />
   </div>
@@ -137,14 +137,6 @@
     bottom: 0;
     right: 20px;
     z-index: 1000;
-  }
-
-  .scrollbar-measure {
-    width: 100px;
-    height: 100px;
-    overflow: scroll;
-    position: absolute;
-    top: -9999px;
   }
 
   .scrollpane {

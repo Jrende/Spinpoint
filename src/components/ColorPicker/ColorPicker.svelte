@@ -29,6 +29,7 @@
   let colorWheelToggle = false;
   let triangleToggle = false;
 
+  let state = {};
   let colorWheelShader = new Shader({
     frag: colorWheelFrag,
     vert: colorWheelVert,

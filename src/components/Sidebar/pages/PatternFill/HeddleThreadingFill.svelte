@@ -2,12 +2,13 @@
   import draft from '../../../../stores/Draft';
   import draftUtil from '../../../../util/DraftUtil';
   import Grid from '../../../Grid/Grid.svelte';
-  import gridIcon from 'icons/grid.svg';
   import { _ } from 'svelte-i18n';
+
+  export let warpOrWeft;
+  export let disabled;
 
   let grid;
   let mirroredRepeat = true;
-  let warpOrWeft = 'warp';
 
   let isDragging = false;
   let startPos = undefined;
@@ -52,7 +53,7 @@
     }
   }
 
-  function apply() {
+  export function apply() {
     let c;
     if (warpOrWeft === 'warp') {
       c = xCount;
@@ -153,29 +154,6 @@
 </script>
 
 <div class="pattern-fill">
-  <div class="button-group">
-    <div class="warp">
-      <input
-        type="radio"
-        id="warp"
-        name="warp-or-weft"
-        value="warp"
-        class:notActive={warpOrWeft === undefined}
-        bind:group={warpOrWeft}
-      />
-      <label for="warp">{@html gridIcon}</label>
-    </div>
-    <div class="weft">
-      <input
-        type="radio"
-        id="weft"
-        name="warp-or-weft"
-        value="weft"
-        bind:group={warpOrWeft}
-      />
-      <label for="weft">{@html gridIcon}</label>
-    </div>
-  </div>
   {#if warpOrWeft !== undefined}
     <div class={'canvas ' + warpOrWeft}>
       <Grid
@@ -185,7 +163,7 @@
         {toggleCell}
         onMouseDown={onGridMouseDown}
         onMouseUp={onGridMouseUp}
-        disabled={warpOrWeft === undefined}
+        {disabled}
       />
       <button on:click={decrement}>-</button>
       <button on:click={increment}>+</button>
@@ -203,7 +181,6 @@
         />
       </fieldset>
     </div>
-    <button on:click={apply}>{$_('page.pattern_fill.apply')}</button>
   {/if}
 </div>
 
@@ -212,75 +189,6 @@
     display: flex;
     flex-direction: column;
   }
-
-  .button-group :global(svg) {
-    width: 50px;
-    stroke: var(--color-1);
-    fill: var(--color-1);
-  }
-
-  .button-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin: 12px 0px;
-  }
-
-  .button-group input {
-    display: none;
-  }
-
-  .button-group label {
-    padding: 4px;
-    height: 50px;
-    cursor: pointer;
-    border: 1px solid var(--color-2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--color-2);
-    color: var(--color-1);
-  }
-
-  .button-group input:checked + label {
-    background-color: var(--color-1);
-    color: var(--color-2);
-  }
-
-  .button-group input:checked + label :global(svg) {
-    stroke: var(--color-2);
-    fill: var(--color-2);
-  }
-
-  .button-group div {
-    border-radius: 8px;
-    flex-grow: 1;
-    text-align: center;
-    cursor: pointer;
-    background-color: white;
-  }
-
-  .button-group div:first-child label {
-    border-radius: 8px 0 0 8px;
-    border-right: 2px solid rgba(0, 0, 0, 0.2);
-  }
-
-  .button-group div:last-child label {
-    border-left: 0;
-    border-radius: 0 8px 8px 0;
-  }
-
-  .weft :global(svg) {
-    transform: rotateZ(90deg);
-  }
-
-  .warp :global(svg) {
-    width: 75px;
-  }
-
-  .warp label {
-    flex-direction: column;
-  }
-
   .canvas {
     display: flex;
   }

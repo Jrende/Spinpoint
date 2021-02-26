@@ -101,8 +101,9 @@
   }
 
   export function drawForm(xCount, yCount, disabled) {
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = disabled ? '#ababab' : 'white';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = disabled ? 'gray' : 'black';
     if (disabled) {
       ctx.fillStyle = 'gray';
     } else {
@@ -148,6 +149,10 @@
   on:pointerdown={onCanvasMouseDown}
   on:pointermove={onCanvasMouseMove}
   bind:this={canvas}
+  style={`
+     max-width: ${xCount * cellSize}px;
+     max-height: ${yCount * cellSize}px;
+  `}
   width="1"
   height="1"
   class:disabled
