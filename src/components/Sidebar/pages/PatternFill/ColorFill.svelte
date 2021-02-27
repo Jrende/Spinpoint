@@ -17,20 +17,14 @@
   let grid;
   let selectedColor;
 
-  let xCount;
-  let yCount;
+  let xCount = 1;
+  let yCount = 1;
   let oldWarpOfWeft;
   let oldLength;
 
   $: {
     if (oldWarpOfWeft !== warpOrWeft) {
-      if (warpOrWeft === 'warp') {
-        xCount = 1;
-        yCount = 1;
-      } else {
-        xCount = 1;
-        yCount = 1;
-      }
+      [xCount, yCount] = [yCount, xCount];
       oldWarpOfWeft = warpOrWeft;
     }
   }
