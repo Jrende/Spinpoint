@@ -28,6 +28,7 @@
       }
     }
   }
+
   $: {
     let scroll = $ui.get('scrollPos').toJS();
     if (
@@ -48,6 +49,7 @@
   }
 
   let oldScroll = [];
+  let dragMaybe;
 
   onMount(() => {
     renderer = new Renderer(canvas);
@@ -56,6 +58,7 @@
     renderer.addEventListener('pointerdown', (e) => {
       startPos = [e.offsetX, e.offsetY];
       startScroll = $ui.get('scrollPos').toJS();
+      dragMaybe = true;
     });
 
     renderer.addEventListener('pointermove', (e) => {
@@ -67,14 +70,16 @@
       if (
         drag === undefined &&
         e.buttons & (1 !== 0) &&
-        (e.movementX !== 0 || e.movementY !== 0)
+        (e.movementX !== 0 || e.movementY !== 0) &&
+        dragMaybe
       ) {
         let r = renderer.renderers.find((r) =>
           r.renderer.isWithinGrid(startPos)
         );
-        if (r !== undefined) {
+        if (r !== undefined && r.name !== 'weave') {
           drag = r.name;
         }
+        dragMaybe = false;
       }
 
       if (drag !== undefined && drag !== 'weave') {

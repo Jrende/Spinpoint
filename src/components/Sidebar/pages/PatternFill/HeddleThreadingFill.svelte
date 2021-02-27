@@ -5,28 +5,32 @@
   import { _ } from 'svelte-i18n';
 
   export let warpOrWeft;
-  export let disabled;
+  export let disabled = false;
 
   let grid;
   let mirroredRepeat = true;
+  let oldWarpOfWeft;
 
   let isDragging = false;
   let startPos = undefined;
   let linePoints = [];
 
-  let xCount;
-  let yCount;
+  let xCount = 0;
+  let yCount = 0;
   let cellData = [];
 
   $: {
-    let treadleCount = $draft.get('treadleCount');
-    let shaftCount = $draft.get('shaftCount');
-    if (warpOrWeft === 'warp') {
-      xCount = shaftCount;
-      yCount = shaftCount;
-    } else {
-      xCount = treadleCount;
-      yCount = treadleCount;
+    if (oldWarpOfWeft !== warpOrWeft) {
+      let treadleCount = $draft.get('treadleCount');
+      let shaftCount = $draft.get('shaftCount');
+      if (warpOrWeft === 'warp') {
+        xCount = shaftCount;
+        yCount = shaftCount;
+      } else {
+        xCount = treadleCount;
+        yCount = treadleCount;
+      }
+      oldWarpOfWeft = warpOrWeft;
     }
 
     normalizeCellData();
@@ -35,22 +39,6 @@
   function normalizeCellData() {
     cellData.splice(yCount, cellData.length);
     cellData = cellData.map((v) => (v > xCount - 1 ? undefined : v));
-  }
-
-  function increment() {
-    if (warpOrWeft === 'warp') {
-      xCount++;
-    } else if (warpOrWeft === 'weft') {
-      yCount++;
-    }
-  }
-
-  function decrement() {
-    if (warpOrWeft === 'warp') {
-      xCount--;
-    } else if (warpOrWeft === 'weft') {
-      yCount--;
-    }
   }
 
   export function apply() {
@@ -158,15 +146,15 @@
     <div class={'canvas ' + warpOrWeft}>
       <Grid
         bind:this={grid}
-        {xCount}
-        {yCount}
+        bind:xCount
+        bind:yCount
+        resizeX={warpOrWeft === 'warp'}
+        resizeY={warpOrWeft === 'weft'}
         {toggleCell}
         onMouseDown={onGridMouseDown}
         onMouseUp={onGridMouseUp}
         {disabled}
       />
-      <button on:click={decrement}>-</button>
-      <button on:click={increment}>+</button>
     </div>
     <div class="controls">
       <fieldset>
@@ -191,14 +179,6 @@
   }
   .canvas {
     display: flex;
-  }
-
-  .canvas button {
-    margin: 0;
-    background-color: gray;
-    border: 1px solid black;
-    min-width: 30px;
-    min-height: 30px;
   }
 
   .canvas.weft {

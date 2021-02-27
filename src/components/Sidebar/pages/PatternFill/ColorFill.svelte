@@ -7,8 +7,6 @@
   export let warpOrWeft;
   export let disabled;
 
-  let length = 1;
-  let width = 1;
   $: availableColors = $draft
     .get('yarn')
     .map((y) => y.get('color'))
@@ -21,29 +19,33 @@
 
   let xCount;
   let yCount;
+  let oldWarpOfWeft;
+  let oldLength;
 
   $: {
-    if (warpOrWeft === 'warp') {
-      xCount = length;
-      yCount = 1;
-    } else {
-      xCount = 1;
-      yCount = length;
+    if (oldWarpOfWeft !== warpOrWeft) {
+      if (warpOrWeft === 'warp') {
+        xCount = 1;
+        yCount = 1;
+      } else {
+        xCount = 1;
+        yCount = 1;
+      }
+      oldWarpOfWeft = warpOrWeft;
     }
   }
 
-  function updateLength(newLength) {
-    if (warpOrWeft === 'warp') {
-      length = newLength;
-    } else {
-      width = newLength;
-    }
-    for (let i = 0; i < newLength; i++) {
-      if (colors[i] === undefined) {
-        colors[i] = 0;
+  $: {
+    let length = warpOrWeft === 'warp' ? xCount : yCount;
+    if (oldLength !== length) {
+      for (let i = 0; i < length; i++) {
+        if (colors[i] === undefined) {
+          colors[i] = 0;
+        }
       }
+      colors.splice(length, colors.length);
+      oldLength = length;
     }
-    colors.splice(newLength, colors.length);
   }
 
   function getIndex(event) {
@@ -69,7 +71,8 @@
   function onClick(event) {
     let index = getIndex(event);
     colors[index] = selectedColor;
-    grid.drawForm(length, width, false);
+    let length = warpOrWeft === 'warp' ? xCount : yCount;
+    grid.drawForm(length, 1, false);
   }
 
   export function apply() {
@@ -78,20 +81,17 @@
   }
 </script>
 
-<div class="controls">
-  <fieldset>
-    <label for="length">length</label>
-    <input
-      type="number"
-      id="length"
-      value="1"
-      size="2"
-      on:input={(e) => updateLength(e.target.value)}
-    />
-  </fieldset>
-</div>
 <div class={'grid ' + warpOrWeft}>
-  <Grid bind:this={grid} {xCount} {yCount} {toggleCell} {onClick} {disabled} />
+  <Grid
+    bind:this={grid}
+    bind:xCount
+    bind:yCount
+    resizeX={warpOrWeft === 'warp'}
+    resizeY={warpOrWeft === 'weft'}
+    {toggleCell}
+    {onClick}
+    {disabled}
+  />
 </div>
 <ul class="colors">
   {#each availableColors as color, i}

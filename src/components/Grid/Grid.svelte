@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { line } from '../../util/MathUtil';
   import tinycolor from 'tinycolor2';
+  import { vec2 } from 'gl-matrix';
 
   export let xCount;
   export let yCount;
@@ -11,6 +12,8 @@
   export let onMouseUp = () => {};
   export let onMouseMove = () => {};
   export let disabled = false;
+  export let resizeX = false;
+  export let resizeY = false;
 
   let canvas;
   let ctx;
@@ -20,6 +23,8 @@
   let resizeObserver = new ResizeObserver(() => {
     rect = canvas.getBoundingClientRect();
   });
+  let resizeStartPos;
+  let isResizing = false;
 
   $: {
     if (ctx) {
@@ -49,25 +54,25 @@
   }
 
   function onCanvasMouseDown(event) {
-    if (!disabled) {
+    if (!disabled && !isResizing) {
       onMouseDown(event);
     }
   }
 
   function onCanvasMouseMove(event) {
-    if (!disabled) {
+    if (!disabled && !isResizing) {
       onMouseMove(event);
     }
   }
 
   function onCanvasMouseUp() {
-    if (!disabled) {
+    if (!disabled && !isResizing) {
       onMouseUp(event);
     }
   }
 
   function onCanvasClick() {
-    if (!disabled) {
+    if (!disabled && !isResizing) {
       onClick(event);
     }
   }
@@ -141,29 +146,145 @@
       }
     }
   }
+
+  function onResizeMouseDown(e) {
+    resizeStartPos = [e.pageX, e.pageY];
+    isResizing = true;
+    document.body.addEventListener('pointermove', onResizeMouseMove);
+    document.body.addEventListener('pointerup', onBodyMouseUp);
+    if (resizeX) {
+      document.body.style.cursor = 'col-resize';
+    } else if (resizeY) {
+      document.body.style.cursor = 'row-resize';
+    }
+  }
+
+  function onResizeMouseMove(e) {
+    if (e.buttons === 0) {
+      stopDrag();
+      return;
+    }
+    let endPos = [e.pageX, e.pageY];
+    let diff = vec2.sub(vec2.create(), endPos, resizeStartPos);
+    let d = diff[resizeX ? 0 : 1] / cellSize;
+    let numCells;
+    if (d > 0.0) {
+      numCells = Math.floor(d);
+    } else {
+      numCells = -Math.floor(Math.abs(d));
+    }
+    if (numCells !== 0) {
+      if (resizeX && xCount + numCells > 0) {
+        xCount += numCells;
+        resizeStartPos = [
+          resizeStartPos[0] + numCells * cellSize,
+          resizeStartPos[1],
+        ];
+      } else if (resizeY && yCount + numCells > 0) {
+        yCount += numCells;
+        resizeStartPos = [
+          resizeStartPos[0],
+          resizeStartPos[1] + numCells * cellSize,
+        ];
+      }
+    }
+  }
+
+  function onBodyMouseUp() {
+    stopDrag();
+  }
+
+  function stopDrag() {
+    document.body.removeEventListener('pointermove', onResizeMouseMove);
+    document.body.removeEventListener('pointerup', onBodyMouseUp);
+    document.body.style.cursor = '';
+    isResizing = false;
+  }
 </script>
 
-<canvas
-  on:click={onCanvasClick}
-  on:pointerup={onCanvasMouseUp}
-  on:pointerdown={onCanvasMouseDown}
-  on:pointermove={onCanvasMouseMove}
-  bind:this={canvas}
-  style={`
-     max-width: ${xCount * cellSize}px;
-     max-height: ${yCount * cellSize}px;
-  `}
-  width="1"
-  height="1"
-  class:disabled
-/>
+<div class:resizeX class:resizeY>
+  <canvas
+    on:click={onCanvasClick}
+    on:pointerup={onCanvasMouseUp}
+    on:pointerdown={onCanvasMouseDown}
+    on:pointermove={onCanvasMouseMove}
+    bind:this={canvas}
+    style={`
+    max-width: ${xCount * cellSize + 2.0 * borderSize}px;
+    max-height: ${yCount * cellSize + 2.0 * borderSize}px;
+    `}
+    width="1"
+    height="1"
+    class:disabled
+  />
+  {#if !disabled && (resizeX === true || resizeY === true)}
+    <button
+      class="resize-btn"
+      class:disabled
+      class:resizeX
+      class:resizeY
+      on:pointerdown={onResizeMouseDown}
+    />
+  {/if}
+</div>
 
 <style>
+  div {
+    display: flex;
+    align-items: stretch;
+    background-color: black;
+    margin: auto;
+  }
+
+  div.resizeY {
+    flex-direction: column;
+  }
+
   canvas {
     image-rendering: crisp-edges;
   }
 
   canvas:not(.disabled) {
     cursor: pointer;
+  }
+
+  .resize-btn {
+    border-radius: 15px;
+    border: 1px solid black;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .resize-btn.resizeX {
+    width: 8px;
+    margin-right: 2px;
+    cursor: col-resize;
+  }
+
+  .resize-btn.resizeY {
+    height: 8px;
+    margin: 2px;
+    cursor: row-resize;
+  }
+
+  .resize-btn:after {
+    content: '';
+    display: block;
+    background-color: white;
+    border-radius: 12px;
+    flex-grow: 1;
+  }
+
+  .resize-btn.resizeX:after {
+  }
+
+  .resize-btn.resizeY:after {
+  }
+
+  .disabled.resize-btn {
+    background-color: #ababab;
   }
 </style>

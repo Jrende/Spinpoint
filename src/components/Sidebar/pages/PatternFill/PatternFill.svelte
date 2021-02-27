@@ -4,8 +4,6 @@
   import HeddleThreadingFill from './HeddleThreadingFill.svelte';
   import ColorFill from './ColorFill.svelte';
   import gridIcon from 'icons/grid.svg';
-  import draft from '../../../../stores/Draft';
-  import draftUtil from '../../../../util/DraftUtil';
 
   let warpOrWeft = 'warp';
   let gridEnabled = false;
@@ -57,13 +55,11 @@
       />
       <span>Warp/weft</span>
     </div>
-    <div>
-      <HeddleThreadingFill
-        disabled={!gridEnabled}
-        {warpOrWeft}
-        bind:this={heddleThreadFill}
-      />
-    </div>
+    <HeddleThreadingFill
+      disabled={!gridEnabled}
+      {warpOrWeft}
+      bind:this={heddleThreadFill}
+    />
   </AccordionItem>
   <AccordionItem>
     <div class="accordion-title" slot="title">

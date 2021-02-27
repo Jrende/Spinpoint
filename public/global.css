@@ -26,6 +26,10 @@ body {
   overflow: hidden;
 }
 
+body.dragging {
+  cursor: grabbing !important;
+}
+
 a {
   color: rgb(0,100,200);
   text-decoration: none;
