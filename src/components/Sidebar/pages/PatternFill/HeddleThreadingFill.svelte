@@ -31,9 +31,11 @@
         yCount = treadleCount;
       }
       oldWarpOfWeft = warpOrWeft;
+      normalizeCellData();
     }
-
-    normalizeCellData();
+  }
+  $: {
+    //TODO: enforce array length here
   }
 
   function normalizeCellData() {
@@ -42,15 +44,9 @@
   }
 
   export function apply() {
-    let c;
-    if (warpOrWeft === 'warp') {
-      c = xCount;
-    } else if (warpOrWeft === 'weft') {
-      c = yCount;
-    }
     let newPattern = draftUtil.applyPattern(
       $draft,
-      cellData.map((v) => c - 1 - v),
+      cellData,
       warpOrWeft,
       mirroredRepeat
     );

@@ -3,13 +3,17 @@
   import { fromJS } from 'immutable';
   import draft from '../../../stores/Draft';
   import ColorPicker from '../../ColorPicker/ColorPicker.svelte';
-  import { _ } from 'svelte-i18n'
+  import { _ } from 'svelte-i18n';
 
   let colors;
   $: {
-    colors = $draft.get('yarn').map(y => y.get('color')).toJS().map(c => tinycolor.fromRatio(c));
+    colors = $draft
+      .get('yarn')
+      .map((y) => y.get('color'))
+      .toJS()
+      .map((c) => tinycolor.fromRatio(c));
   }
-  let color = {r: 1.0, g: 0.0, b: 0.0};
+  let color = { r: 1.0, g: 0.0, b: 0.0 };
 
   let newYarnColor = color;
   let yarnUnderModification = 0;
@@ -21,36 +25,38 @@
   $: selectedYarn = $draft.getIn(['yarn', yarnUnderModification]).toJS();
   $: selectedColor = tinycolor.fromRatio(selectedYarn.color);
 
-  function focus(elm){
-    elm.focus()
+  function focus(elm) {
+    elm.focus();
   }
 
   function createNewYarn(event) {
     event.preventDefault();
     draft.update((value) =>
-      value.update('yarn', y =>
-        y.push(fromJS({ name: 'Yarn', color: { r: 1.0, g: 1.0, b: 1.0 } }))));
+      value.update('yarn', (y) =>
+        y.push(fromJS({ name: 'Yarn', color: { r: 1.0, g: 1.0, b: 1.0 } }))
+      )
+    );
     yarnUnderModification = $draft.get('yarn').size - 1;
   }
 
   function selectYarnForModification(event, i) {
     yarnUnderModification = i;
-    if(i !== $draft.get('yarn').size) {
+    if (i !== $draft.get('yarn').size) {
       newYarnColor = $draft.getIn(['yarn', i, 'color']).toJS();
     }
   }
 
   function changeName(newName, yarnId) {
-    draft.update(d => d.setIn(['yarn', yarnId, 'name'], newName));
+    draft.update((d) => d.setIn(['yarn', yarnId, 'name'], newName));
   }
 
   function changeColor(newColor, yarnId) {
-    draft.update(d => d.setIn(['yarn', yarnId, 'color'], fromJS(newColor)));
+    draft.update((d) => d.setIn(['yarn', yarnId, 'color'], fromJS(newColor)));
   }
 
   function deleteColor(index) {
     draft.update((value) => {
-      return value.update('yarn', list => list.splice(index, 1));
+      return value.update('yarn', (list) => list.splice(index, 1));
     });
     yarnUnderModification = index - 1;
   }
@@ -61,21 +67,27 @@
     colorPickerX = event.clientX;
     colorPickerY = event.clientY;
   }
-
 </script>
+
 <div class="yarn-settings">
   <div class="container">
     <div class="add-or-remove">
       <button class="add" on:click={createNewYarn}>+</button>
-      <button class="remove" on:click={() => deleteColor(yarnUnderModification)}>-</button>
+      <button class="remove" on:click={() => deleteColor(yarnUnderModification)}
+        >-</button
+      >
     </div>
     <div class="yarns">
       {#each $draft.get('yarn').toJS() as yarn, i}
         <button
           class:selected={yarnUnderModification === i}
           class="yarn"
-          on:click={(e) => selectYarnForModification(e, i)}>
-          <div class="color" style={`background-color: ${colors[i].toHexString()};`}></div> 
+          on:click={(e) => selectYarnForModification(e, i)}
+        >
+          <div
+            class="color"
+            style={`background-color: ${colors[i].toHexString()};`}
+          />
           <div class="name">{yarn.name}</div>
         </button>
       {/each}
@@ -84,17 +96,34 @@
   <div class="controls">
     <fieldset>
       <label for="newYarnName">{$_('page.yarn_settings.name')}</label>
-      <input type="text" id="newYarnName" value={selectedYarn.name} on:input={(e) => changeName(e.target.value, yarnUnderModification)} use:focus />
+      <input
+        type="text"
+        id="newYarnName"
+        value={selectedYarn.name}
+        on:input={(e) => changeName(e.target.value, yarnUnderModification)}
+        use:focus
+      />
     </fieldset>
     <fieldset>
       <label for="newYarnColor">{$_('terms.color')}</label>
-      <button class="yarn-color-change" style={`background-color: ${selectedColor.toHexString()};`} on:click={showColorPicker}></button>
+      <button
+        class="yarn-color-change"
+        style={`background-color: ${selectedColor.toHexString()};`}
+        on:click={showColorPicker}
+      />
     </fieldset>
   </div>
 </div>
 {#if colorPickerVisible === true}
-  <ColorPicker onChange={(value) => changeColor(value, yarnUnderModification)} value={selectedYarn.color} x={colorPickerX} y={colorPickerY} onBlur={() => colorPickerVisible = false}/>
+  <ColorPicker
+    onChange={(value) => changeColor(value, yarnUnderModification)}
+    value={selectedYarn.color}
+    x={colorPickerX}
+    y={colorPickerY}
+    onBlur={() => (colorPickerVisible = false)}
+  />
 {/if}
+
 <style>
   .container {
     display: flex;
@@ -174,5 +203,4 @@
     margin: 0;
     padding: 8px;
   }
-
 </style>

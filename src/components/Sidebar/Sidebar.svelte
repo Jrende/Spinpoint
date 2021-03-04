@@ -121,6 +121,7 @@
   }
 
   .settings-sidebar {
+    position: absolute;
     max-height: 100vh;
     overflow: auto;
   }

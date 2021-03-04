@@ -482,7 +482,9 @@
   }
 
   .color-picker-container {
-    position: absolute;
+    /*
+      position: absolute;
+    */
     padding: 12px;
     background-color: var(--color-2);
     border: 1px solid var(--color-4);

@@ -90,7 +90,6 @@
   class="container"
   tabindex="0"
 >
-  <YarnSelector />
   <div class="scrollpane" style={`left: ${width}px; top: ${height}px;`} />
   <div
     bind:this={canvasContainer}
@@ -100,17 +99,21 @@
     bottom: ${scrollbarWidth}px
     `}
   >
+    <div class="tool-bar">
+      <YarnSelector />
+      <div class="ok-zoomer">
+        <input
+          type="range"
+          min="5"
+          max="70"
+          on:input={changeCellSize}
+          bind:value={newCellSize}
+        />
+      </div>
+    </div>
     <WeaveDisplay bind:this={weaveDisplay} />
+    <div class="info-bar" />
   </div>
-</div>
-<div class="ok-zoomer">
-  <input
-    type="range"
-    min="5"
-    max="70"
-    on:input={changeCellSize}
-    bind:value={newCellSize}
-  />
 </div>
 
 <style>
@@ -118,10 +121,28 @@
     overflow: auto;
   }
 
+  .info-bar,
+  .tool-bar {
+    display: flex;
+    min-height: 20px;
+    width: 100%;
+    background-color: white;
+    pointer-events: all;
+  }
+
+  .tool-bar {
+    border-bottom: 1px solid black;
+  }
+
+  .info-bar {
+    border-top: 1px solid black;
+  }
+
   .fixed {
     display: flex;
     justify-content: stretch;
     align-items: stretch;
+    flex-direction: column;
 
     position: absolute;
     right: 0;
@@ -133,8 +154,6 @@
   }
 
   .ok-zoomer {
-    position: fixed;
-    bottom: 0;
     right: 20px;
     z-index: 1000;
   }

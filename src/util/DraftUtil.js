@@ -61,7 +61,7 @@ class DraftUtil {
     let array = new Array(length);
     let p = [...pattern];
     if(warpOrWeft === 'warp') {
-      p.reverse();
+      //p.reverse();
     }
 
     let offset = 0;
