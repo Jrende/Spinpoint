@@ -370,27 +370,6 @@
   import { onMount } from 'svelte';
   export let value;
   export let onChange = () => {};
-  export let onBlur = () => {};
-  export let x;
-  export let y;
-
-  let realX;
-  let realY;
-  $: {
-    if (elm !== undefined) {
-      let rect = elm.parentElement.getBoundingClientRect();
-      if (x + rect.width > window.innerWidth) {
-        realX = x - rect.width - 10;
-      } else {
-        realX = x - rect.width / 2.0;
-      }
-      if (y + rect.height > window.innerHeight) {
-        realY = y - rect.height - 10;
-      } else {
-        realY = y;
-      }
-    }
-  }
 
   let elm;
   let beforeElm;
@@ -417,31 +396,9 @@
     listener = canvasColorChange;
     render(state);
   });
-
-  function bodyMouseMove(event) {
-    let rect = elm.getBoundingClientRect();
-    let centerX = rect.x + rect.width / 2;
-    let centerY = rect.y + rect.height / 2;
-    let distToCenter = vec2.sub(
-      vec2.create(),
-      [event.clientX, event.clientY],
-      [centerX, centerY]
-    );
-    if (Math.abs(distToCenter[0]) > 220 || Math.abs(distToCenter[1]) > 220) {
-      onBlur();
-    }
-  }
-
-  function bodyMouseDown(event) {
-    let container = elm.parentElement;
-    if (!container.contains(event.target)) {
-      onBlur();
-    }
-  }
 </script>
 
-<svelte:body on:mousemove={bodyMouseMove} on:mousedown={bodyMouseDown} />
-<div class="color-picker-container" style={`left: ${realX}px; top: ${realY}px`}>
+<div class="color-picker-container">
   <div class="color-picker" bind:this={elm}>
     <div
       bind:this={beforeElm}
@@ -479,14 +436,5 @@
     text-align: center;
     font-size: 14pt;
     margin: 0;
-  }
-
-  .color-picker-container {
-    /*
-      position: absolute;
-    */
-    padding: 12px;
-    background-color: var(--color-2);
-    border: 1px solid var(--color-4);
   }
 </style>

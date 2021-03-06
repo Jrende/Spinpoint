@@ -2,7 +2,7 @@
   import tinycolor from 'tinycolor2';
   import { fromJS } from 'immutable';
   import draft from '../../../stores/Draft';
-  import ColorPicker from '../../ColorPicker/ColorPicker.svelte';
+  import ui from '../../../stores/UI';
   import { _ } from 'svelte-i18n';
 
   let colors;
@@ -16,11 +16,7 @@
   let color = { r: 1.0, g: 0.0, b: 0.0 };
 
   let newYarnColor = color;
-  let yarnUnderModification = 0;
-
-  let colorPickerVisible = false;
-  let colorPickerX;
-  let colorPickerY;
+  let yarnUnderModification = -1;
 
   $: selectedYarn = $draft.getIn(['yarn', yarnUnderModification]).toJS();
   $: selectedColor = tinycolor.fromRatio(selectedYarn.color);
@@ -50,8 +46,17 @@
     draft.update((d) => d.setIn(['yarn', yarnId, 'name'], newName));
   }
 
-  function changeColor(newColor, yarnId) {
-    draft.update((d) => d.setIn(['yarn', yarnId, 'color'], fromJS(newColor)));
+  $: {
+    console.log('yarnUnderModification|.| |', yarnUnderModification);
+    if (yarnUnderModification !== -1) {
+      console.log('modifdcolor');
+      draft.update((d) =>
+        d.setIn(
+          ['yarn', yarnUnderModification, 'color'],
+          fromJS($ui.get('colorPickerColor'))
+        )
+      );
+    }
   }
 
   function deleteColor(index) {
@@ -63,9 +68,14 @@
 
   function showColorPicker(event) {
     event.preventDefault();
-    colorPickerVisible = true;
-    colorPickerX = event.clientX;
-    colorPickerY = event.clientY;
+    ui.update((ui) =>
+      fromJS({
+        ...ui.toJS(),
+        colorPickerVisible: true,
+        colorPickerX: event.pageX,
+        colorPickerY: event.pageY,
+      })
+    );
   }
 </script>
 
@@ -114,15 +124,6 @@
     </fieldset>
   </div>
 </div>
-{#if colorPickerVisible === true}
-  <ColorPicker
-    onChange={(value) => changeColor(value, yarnUnderModification)}
-    value={selectedYarn.color}
-    x={colorPickerX}
-    y={colorPickerY}
-    onBlur={() => (colorPickerVisible = false)}
-  />
-{/if}
 
 <style>
   .container {

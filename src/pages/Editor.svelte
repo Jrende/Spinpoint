@@ -128,6 +128,7 @@
     width: 100%;
     background-color: white;
     pointer-events: all;
+    z-index: 0;
   }
 
   .tool-bar {

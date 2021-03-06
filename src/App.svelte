@@ -10,6 +10,7 @@
   import { Router, Route } from 'svelte-navigator';
   import { isLoading } from 'svelte-i18n';
   import { Sidebar } from './components';
+  import ColorPickerDialog from './components/ColorPickerDialog/ColorPickerDialog.svelte';
   import Editor from './pages/Editor.svelte';
   import Help from './pages/Help.svelte';
 
@@ -25,6 +26,7 @@
     </div>
   </Router>
 {/if}
+<ColorPickerDialog />
 
 <style>
   .application {
