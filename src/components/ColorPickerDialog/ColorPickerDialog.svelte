@@ -1,17 +1,25 @@
 <script>
+  import { afterUpdate } from 'svelte';
   import { vec2 } from 'gl-matrix';
   import ui from './stores/UI';
-  import { fromJS } from 'immutable';
   import ColorPicker from '../ColorPicker/ColorPicker.svelte';
+  import { colorPickerStore } from './ColorPickerStore';
   let elm;
   let realX;
   let realY;
 
-  $: isVisible = $ui.get('colorPickerVisible');
-  $: {
+  let position = colorPickerStore.position;
+  let isVisible = colorPickerStore.isVisible;
+
+  afterUpdate(() => {
+    let pos = $position;
+    if ($isVisible) {
+      setPosition(pos[0], pos[1]);
+    }
+  });
+
+  function setPosition(x, y) {
     if (elm !== undefined && elm !== null) {
-      let x = $ui.get('colorPickerX');
-      let y = $ui.get('colorPickerY');
       let rect = elm.getBoundingClientRect();
       if (x + rect.width > window.innerWidth) {
         realX = x - rect.width - 10;
@@ -27,7 +35,7 @@
   }
 
   function bodyMouseMove(event) {
-    if (isVisible) {
+    if ($isVisible) {
       let rect = elm.getBoundingClientRect();
       let centerX = rect.x + rect.width / 2;
       let centerY = rect.y + rect.height / 2;
@@ -37,28 +45,27 @@
         [centerX, centerY]
       );
       if (Math.abs(distToCenter[0]) > 220 || Math.abs(distToCenter[1]) > 220) {
-        ui.update((ui) => ui.set('colorPickerVisible', false));
+        $isVisible = false;
       }
     }
   }
 
   function bodyMouseDown(event) {
-    if (isVisible) {
+    if ($isVisible) {
       let container = elm.parentElement;
       if (!container.contains(event.target)) {
-        ui.update((ui) => ui.set('colorPickerVisible', false));
+        $isVisible = false;
       }
     }
   }
 
   function onColorChange(newColor) {
-    console.log('set colorPickerColor', newColor);
-    ui.update((ui) => ui.set('colorPickerColor', fromJS(newColor)));
+    colorPickerStore.emit(newColor);
   }
 </script>
 
 <svelte:body on:mousemove={bodyMouseMove} on:mousedown={bodyMouseDown} />
-{#if $ui.get('colorPickerVisible')}
+{#if $isVisible}
   <div
     bind:this={elm}
     class="dialog"

@@ -4,6 +4,7 @@
   import draft from '../../../stores/Draft';
   import ui from '../../../stores/UI';
   import { _ } from 'svelte-i18n';
+  import { colorPickerStore } from '../../ColorPickerDialog/ColorPickerStore.js';
 
   let colors;
   $: {
@@ -24,6 +25,14 @@
   function focus(elm) {
     elm.focus();
   }
+
+  colorPickerStore.onColorChange((color) => {
+    if (yarnUnderModification !== -1) {
+      draft.update((d) =>
+        d.setIn(['yarn', yarnUnderModification, 'color'], fromJS(color))
+      );
+    }
+  });
 
   function createNewYarn(event) {
     event.preventDefault();
@@ -46,19 +55,6 @@
     draft.update((d) => d.setIn(['yarn', yarnId, 'name'], newName));
   }
 
-  $: {
-    console.log('yarnUnderModification|.| |', yarnUnderModification);
-    if (yarnUnderModification !== -1) {
-      console.log('modifdcolor');
-      draft.update((d) =>
-        d.setIn(
-          ['yarn', yarnUnderModification, 'color'],
-          fromJS($ui.get('colorPickerColor'))
-        )
-      );
-    }
-  }
-
   function deleteColor(index) {
     draft.update((value) => {
       return value.update('yarn', (list) => list.splice(index, 1));
@@ -68,14 +64,7 @@
 
   function showColorPicker(event) {
     event.preventDefault();
-    ui.update((ui) =>
-      fromJS({
-        ...ui.toJS(),
-        colorPickerVisible: true,
-        colorPickerX: event.pageX,
-        colorPickerY: event.pageY,
-      })
-    );
+    colorPickerStore.showColorPicker(event.pageX, event.pageY);
   }
 </script>
 
@@ -103,26 +92,28 @@
       {/each}
     </div>
   </div>
-  <div class="controls">
-    <fieldset>
-      <label for="newYarnName">{$_('page.yarn_settings.name')}</label>
-      <input
-        type="text"
-        id="newYarnName"
-        value={selectedYarn.name}
-        on:input={(e) => changeName(e.target.value, yarnUnderModification)}
-        use:focus
-      />
-    </fieldset>
-    <fieldset>
-      <label for="newYarnColor">{$_('terms.color')}</label>
-      <button
-        class="yarn-color-change"
-        style={`background-color: ${selectedColor.toHexString()};`}
-        on:click={showColorPicker}
-      />
-    </fieldset>
-  </div>
+  {#if yarnUnderModification !== -1}
+    <div class="controls">
+      <fieldset>
+        <label for="newYarnName">{$_('page.yarn_settings.name')}</label>
+        <input
+          type="text"
+          id="newYarnName"
+          value={selectedYarn.name}
+          on:input={(e) => changeName(e.target.value, yarnUnderModification)}
+          use:focus
+        />
+      </fieldset>
+      <fieldset>
+        <label for="newYarnColor">{$_('terms.color')}</label>
+        <button
+          class="yarn-color-change"
+          style={`background-color: ${selectedColor.toHexString()};`}
+          on:click={showColorPicker}
+        />
+      </fieldset>
+    </div>
+  {/if}
 </div>
 
 <style>
