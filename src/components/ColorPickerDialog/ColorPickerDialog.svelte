@@ -52,8 +52,7 @@
 
   function bodyMouseDown(event) {
     if ($isVisible) {
-      let container = elm.parentElement;
-      if (!container.contains(event.target)) {
+      if (!elm.contains(event.target)) {
         $isVisible = false;
       }
     }
@@ -64,7 +63,7 @@
   }
 </script>
 
-<svelte:body on:mousemove={bodyMouseMove} on:mousedown={bodyMouseDown} />
+<svelte:body on:pointermove={bodyMouseMove} on:pointerdown={bodyMouseDown} />
 {#if $isVisible}
   <div
     bind:this={elm}

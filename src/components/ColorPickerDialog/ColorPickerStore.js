@@ -6,20 +6,20 @@ let listeners = writable({});
 let isVisible = writable(false);
 let position = writable([0, 0]);
 
-listeners.subscribe(s => listenersSnapshot = s);
+listeners.subscribe((s) => (listenersSnapshot = s));
 
 let colorPickerStore = {
   onColorChange: (listener) => {
     let id = lastListenerId++;
     listeners.update((l) => ({
       ...l,
-      [id]: listener
+      [id]: listener,
     }));
     return id;
   },
   removeListener: (id) => {
     listeners.update((s) => {
-      let ls = {...s};
+      let ls = { ...s };
       delete ls[id];
       return { ls };
     });
@@ -27,10 +27,10 @@ let colorPickerStore = {
   showColorPicker: (x, y) => {
     position.set([x, y]);
     isVisible.set(true);
-  }, 
-  emit: (color) => Object.values(listenersSnapshot).forEach(l => l(color)),
+  },
+  emit: (color) => Object.values(listenersSnapshot).forEach((l) => l(color)),
   listeners,
   isVisible,
-  position
+  position,
 };
-export {colorPickerStore};
+export { colorPickerStore };
