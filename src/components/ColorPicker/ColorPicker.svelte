@@ -1,4 +1,5 @@
-<script context="module">
+<script>
+  import { onMount } from 'svelte';
   import { mat4, vec2, vec3, quat } from 'gl-matrix';
   import tinycolor from 'tinycolor2';
 
@@ -13,75 +14,86 @@
   import Shader from '../WeaveDisplay/gfx/shader/Shader';
   import Ring from './Ring';
 
-  let canvas = document.createElement('canvas');
+  let canvas;
   let root = document.body;
-  canvas.setAttribute('class', 'color-input-canvas');
-  canvas.width = 256;
-  canvas.height = 256;
-  let gl = canvas.getContext('webgl', {
-    premultipliedAlpha: true,
-    preserveDrawingBuffer: true,
-  });
-  gl.clearColor(0, 0, 0, 1.0);
+  let gl;
+  let colorWheelShader;
+  let satValShader;
+  let solidShader;
+  let quad;
+  let triP;
+  let triPT;
+  let triangle;
+  let ring;
+  let triangleModel;
 
-  let listener;
+  function initCanvas() {
+    gl = canvas.getContext('webgl', {
+      premultipliedAlpha: true,
+      preserveDrawingBuffer: true,
+    });
+    gl.clearColor(0, 0, 0, 1.0);
+    colorWheelShader = new Shader({
+      frag: colorWheelFrag,
+      vert: colorWheelVert,
+    });
+    colorWheelShader.compile(gl);
+    satValShader = new Shader({ frag: satValFrag, vert: satValVert });
+    satValShader.compile(gl);
+    solidShader = new Shader({ frag: solidFrag, vert: solidVert });
+    solidShader.compile(gl);
+
+    quad = new VertexArray(
+      gl,
+      [1, 1, -1, 1, -1, -1, 1, -1],
+      [1, 0, 2, 2, 0, 3],
+      [2]
+    );
+    let t = [
+      [0, 1.0],
+      [0.8660253882408142, -0.5],
+      [-0.8660253882408142, -0.5],
+    ];
+    triP = t;
+    triPT = [vec2.create(), vec2.create(), vec2.create()];
+    let uv = [
+      [1.0, 0.0, 0.0],
+      [0.0, 1.0, 0.0],
+      [0.0, 0.0, 1.0],
+    ];
+    triangle = new VertexArray(
+      gl,
+      [
+        t[0][0],
+        t[0][1],
+        uv[0][0],
+        uv[0][1],
+        uv[0][2],
+        t[1][0],
+        t[1][1],
+        uv[1][0],
+        uv[1][1],
+        uv[1][2],
+        t[2][0],
+        t[2][1],
+        uv[2][0],
+        uv[2][1],
+        uv[2][2],
+      ],
+      [1, 0, 2],
+      [2, 3]
+    );
+    ring = new Ring(gl, 24, 0.6);
+    triangleModel = mat4.create();
+    canvas.addEventListener('mousedown', onCanvasMouseDown);
+    canvas.addEventListener('mouseup', onCanvasMouseUp);
+  }
+
   let mouseDown = false;
   let colorWheelToggle = false;
   let triangleToggle = false;
 
   let state = {};
-  let colorWheelShader = new Shader({
-    frag: colorWheelFrag,
-    vert: colorWheelVert,
-  });
-  colorWheelShader.compile(gl);
-  let satValShader = new Shader({ frag: satValFrag, vert: satValVert });
-  satValShader.compile(gl);
-  let solidShader = new Shader({ frag: solidFrag, vert: solidVert });
-  solidShader.compile(gl);
-
-  let quad = new VertexArray(
-    gl,
-    [1, 1, -1, 1, -1, -1, 1, -1],
-    [1, 0, 2, 2, 0, 3],
-    [2]
-  );
-  let t = [
-    [0, 1.0],
-    [0.8660253882408142, -0.5],
-    [-0.8660253882408142, -0.5],
-  ];
-  let triP = t;
-  let triPT = [vec2.create(), vec2.create(), vec2.create()];
-  let uv = [
-    [1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-    [0.0, 0.0, 1.0],
-  ];
-  let triangle = new VertexArray(
-    gl,
-    [
-      t[0][0],
-      t[0][1],
-      uv[0][0],
-      uv[0][1],
-      uv[0][2],
-      t[1][0],
-      t[1][1],
-      uv[1][0],
-      uv[1][1],
-      uv[1][2],
-      t[2][0],
-      t[2][1],
-      uv[2][0],
-      uv[2][1],
-      uv[2][2],
-    ],
-    [1, 0, 2],
-    [2, 3]
-  );
-  let ring = new Ring(gl, 24, 0.6);
-  let triangleModel = mat4.create();
 
   function onHexInputChange(event) {
     let str = event.target.value;
@@ -101,8 +113,13 @@
       2.0 * ((event.clientX - rect.x) / rect.width - 0.5),
       2.0 * (-(event.clientY - rect.y) / rect.height + 0.5),
     ];
-    let { hue, saturation, value } = handleInput(coords);
-    updateColor(hue, saturation, value);
+    let hsv = handleInput(coords);
+    if (hsv === undefined) {
+      return;
+    } else {
+      let { hue, saturation, value } = hsv;
+      updateColor(hue, saturation, value);
+    }
   }
 
   function onCanvasMouseMove(event) {
@@ -120,8 +137,13 @@
         2.0 * ((event.clientX - rect.x) / rect.width - 0.5),
         2.0 * (-(event.clientY - rect.y) / rect.height + 0.5),
       ];
-      let { hue, saturation, value } = handleInput(coords);
-      updateColor(hue, saturation, value);
+      let hsv = handleInput(coords);
+      if (hsv === undefined) {
+        return;
+      } else {
+        let { hue, saturation, value } = hsv;
+        updateColor(hue, saturation, value);
+      }
     }
   }
 
@@ -136,12 +158,12 @@
   function handleInput(coords) {
     let { hue, saturation, value } = state;
     let positionInWheel = getPositionInWheel(coords);
+    let positionInTriangle = getPositionInTriangle(coords);
     if (positionInWheel !== undefined) {
       hue = positionInWheel;
       colorWheelToggle = true;
-    }
-    let positionInTriangle = getPositionInTriangle(coords);
-    if (positionInTriangle !== undefined) {
+      return { hue, saturation, value };
+    } else if (positionInTriangle !== undefined) {
       let pos = positionInTriangle;
       if (pos.w + pos.v > 1.0 || pos.v < 0 || pos.w < 0) {
         pos = getClosestPointToTriangle(pos, coords);
@@ -154,8 +176,10 @@
         saturation = 0.0;
       }
       triangleToggle = true;
+      return { hue, saturation, value };
+    } else {
+      return undefined;
     }
-    return { hue, saturation, value };
   }
 
   function updateColor(hue, saturation, value, fireEvent = true) {
@@ -353,8 +377,10 @@
     solidShader.unbind();
   }
 
-  function emit(color) {
-    listener(color);
+  function emit(inColor) {
+    color = tinycolor.fromRatio(inColor);
+    hexString = color.toHex();
+    onChange(inColor);
   }
 
   function setState(newState) {
@@ -362,69 +388,56 @@
     render();
   }
 
-  canvas.addEventListener('mousedown', onCanvasMouseDown);
-  canvas.addEventListener('mouseup', onCanvasMouseUp);
-</script>
-
-<script>
-  import { onMount } from 'svelte';
   export let value;
   export let onChange = () => {};
 
   let elm;
-  let beforeElm;
 
   let color = tinycolor.fromRatio(value);
   let hsv = color.toHsv();
   let hexString = color.toHex();
-  let state = {
+  state = {
     hue: hsv.h / 360,
     value: hsv.v,
     saturation: hsv.s,
   };
 
-  setState(state);
-
-  function canvasColorChange(inColor) {
-    color = tinycolor.fromRatio(inColor);
-    hexString = color.toHex();
-    onChange(inColor);
-  }
-
   onMount(() => {
-    elm.insertBefore(canvas, beforeElm);
-    listener = canvasColorChange;
-    render(state);
+    initCanvas();
+    setState(state);
   });
 </script>
 
-<div class="color-picker-container">
-  <div class="color-picker" bind:this={elm}>
-    <div
-      bind:this={beforeElm}
-      class="color-input-color"
-      style={`background-color: #${hexString}`}
-    >
-      <input
-        type="text"
-        spellCheck="false"
-        maxLength="6"
-        style={`color: ${color.isLight() ? 'black' : 'white'}`}
-        value={hexString}
-        on:input={onHexInputChange}
-        on:paste={onHexInputChange}
-      />
-    </div>
+<div class="color-picker" bind:this={elm}>
+  <div class="color-input-color">
+    <canvas
+      bind:this={canvas}
+      class="color-input-canvas"
+      width="256"
+      height="256"
+    />
+    <input
+      type="text"
+      spellCheck="false"
+      maxLength="6"
+      style={`color: ${
+        color.isLight() ? 'black' : 'white'
+      }; background-color: #${hexString}`}
+      value={hexString}
+      on:input={onHexInputChange}
+      on:paste={onHexInputChange}
+    />
   </div>
 </div>
 
 <style>
-  :global(.color-input-canvas) {
+  .color-input-canvas {
+    padding: 10px;
     margin: auto;
     display: flex;
   }
 
-  .color-picker .color-input-color {
+  .color-picker {
     margin: 0.2em;
     margin-top: 0.5em;
     border-radius: 4px;
