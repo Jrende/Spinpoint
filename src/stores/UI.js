@@ -2,7 +2,6 @@ import { writable } from 'svelte/store'
 import { fromJS } from 'immutable';
 
 let ui = {
-  borderSize: 2,
   selectedMenu: -1,
   selectedColor: 0,
   cellSize: 60,

@@ -161,7 +161,6 @@ export class Renderer {
         xCount: draft.get('treadleCount'),
         yCount: draft.get('shaftCount'),
         cellSize: ui.get('cellSize'),
-        borderSize: ui.get('borderSize'),
         scrollPos: ui.get('scrollPos'),
       });
       this.renderers[0].dirty = true;
@@ -174,7 +173,6 @@ export class Renderer {
         prevDraft,
         'warpCount',
         'shaftCount',
-        'pickCount',
         'threading'
       ) ||
       ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
@@ -198,7 +196,6 @@ export class Renderer {
         prevDraft,
         'treadleCount',
         'pickCount',
-        'warpCount',
         'treadling'
       ) ||
       ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
@@ -210,7 +207,6 @@ export class Renderer {
         pickCount: draft.get('pickCount'),
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
-        borderSize: ui.get('borderSize'),
         scrollPos: ui.get('scrollPos'),
       });
       this.renderers[2].dirty = true;
@@ -235,7 +231,6 @@ export class Renderer {
         pickCount: draft.get('pickCount'),
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
-        borderSize: ui.get('borderSize'),
         scrollPos: ui.get('scrollPos'),
       });
       this.renderers[3].dirty = true;
@@ -260,7 +255,6 @@ export class Renderer {
         pickCount: draft.get('pickCount'),
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
-        borderSize: ui.get('borderSize'),
         scrollPos: ui.get('scrollPos'),
       });
       this.renderers[4].dirty = true;
@@ -273,8 +267,14 @@ export class Renderer {
         prevDraft,
         'warpCount',
         'pickCount',
+        'yarn',
+        'threading',
+        'treadling',
+        'warpColors',
         'weftColors',
-        'treadleCount'
+        'treadleCount',
+        'shaftCount',
+        'tieup'
       ) ||
       ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
       ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||

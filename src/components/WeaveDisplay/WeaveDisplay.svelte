@@ -176,6 +176,12 @@
         }
       }
     });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        renderer.clear();
+      }
+    });
   });
 
   function updateGrid(name, index, value) {
@@ -250,7 +256,7 @@
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     renderer.resizeCanvas();
-    renderer.render();
+    renderer.clear();
   }
 
   export function dispatchEvent(e) {
