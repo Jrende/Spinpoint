@@ -111,6 +111,7 @@ export class TieupRenderer extends RendererEventTarget {
   }
 
   render() {
+    this.prerender();
     if(this.values === undefined) return;
     let {xCount, yCount, cellSize} = this.values;
 

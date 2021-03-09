@@ -39,7 +39,7 @@ export class WeaveRenderer extends RendererEventTarget {
   }
 
   render() {
-    console.log("render weave");
+    this.prerender();
     if(this.values === undefined) return;
     let { xCount, yCount, scrollPos, cellSize, shaftCount, treadleCount } = this.values;
 
