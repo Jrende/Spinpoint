@@ -100,11 +100,13 @@ export class Renderer {
           for (let i = 0; i < this.renderers.length; i++) {
             let r = this.renderers[i];
             if (r.dirty) {
+              //console.log('render', r.name);
               r.dirty = false;
               r.renderer.render();
             }
           }
           this.renderNextFrame = false;
+          //console.log(' ');
         }
         requestAnimationFrame(render);
       };
@@ -275,7 +277,7 @@ export class Renderer {
         'treadleCount'
       ) ||
       ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
-      ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 1]) ||
+      ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
       this.isDifferent(ui, prevUI, 'cellSize')
     ) {
       this.weave.updateValues({
@@ -373,6 +375,9 @@ export class Renderer {
   }
 
   clear() {
+    let w = this.gl.canvas.width;
+    let h = this.gl.canvas.height;
+    this.gl.scissor(0, 0, w, h);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.renderers.forEach((r) => (r.dirty = true));
     this.render();

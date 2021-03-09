@@ -73,6 +73,9 @@
     let x = scrollLeftMax - scrollContainer.scrollLeft;
     let y = scrollTopMax - scrollContainer.scrollTop;
 
+    x = Math.floor(x / 2) * 2;
+    y = Math.floor(y / 2) * 2;
+
     ui.update((u) => {
       return u.set('scrollPos', List([x, y]));
     });
