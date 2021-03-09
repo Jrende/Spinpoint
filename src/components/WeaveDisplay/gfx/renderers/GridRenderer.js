@@ -130,7 +130,6 @@ export class GridRenderer extends RendererEventTarget {
 
     this.shader.setFloat('vert', yCount > xCount ? 1.0 : 0.0);
 
-    this.shader.setFloat('gap', 0.04);
     this.shader.setVec2('cellSize', [cw / (cw * xCount), ch / (ch * yCount)]);
 
     this.shader.setMat4('mvp', mvp);

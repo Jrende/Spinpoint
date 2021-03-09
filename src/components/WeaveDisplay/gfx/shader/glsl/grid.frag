@@ -4,16 +4,35 @@ uniform sampler2D cellToggleSampler;
 uniform vec2 cellSize;
 uniform vec2 scrollPos;
 uniform float vert;
-uniform float gap;
 
 varying vec2 uv;
 
 const float cellMargin = 0.15;
+const float gap = 0.04;
+const float steps = 8.0;
 
 float getBorder(float x, float y, float margin) {
   vec2 b = vec2(
       (mod(x, cellSize.x) / cellSize.x),
       (mod(y, cellSize.y) / cellSize.y));
+
+  vec2 bv = 1.0 - vec2(
+      b.x * (1.0 - b.x),
+      b.y * (1.0 - b.y)
+      );
+
+  float f = step(1.0 - margin, bv.x) + step(1.0 - margin, bv.y);
+
+  return 1.0 - f;
+}
+
+float getSteps(float x, float y) {
+  float horiz = 1.0 - vert;
+
+  float margin = 0.012;
+  vec2 b = vec2(
+      (mod(x, cellSize.x * steps) / (cellSize.x * steps)) / horiz,
+      (mod(y, cellSize.y * steps) / (cellSize.y * steps)) / vert);
 
   vec2 bv = 1.0 - vec2(
       b.x * (1.0 - b.x),
@@ -33,7 +52,7 @@ void main(void) {
   vec2 tv = texture2D(cellToggleSampler, vec2(x * horiz + y * vert, 0)).rg;
   float toggleValue = tv.r + tv.g - 1.0;
 
-  float border = getBorder(x, y, gap);
+  float border = getBorder(x, y, gap) * getSteps(x, y);
   float squareBorder = 1.0 - getBorder(x, y, cellMargin);
 
   float nx = x * vert + y * horiz;
