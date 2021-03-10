@@ -29,17 +29,17 @@ float getBorder(float x, float y, float margin) {
 float getSteps(float x, float y) {
   float horiz = 1.0 - vert;
 
-  float margin = 0.012;
   vec2 b = vec2(
-      (mod(x, cellSize.x * steps) / (cellSize.x * steps)) / horiz,
-      (mod(y, cellSize.y * steps) / (cellSize.y * steps)) / vert);
+      (mod(x, cellSize.x * steps) / (cellSize.x * steps)),
+      (mod(y, cellSize.y * steps) / (cellSize.y * steps)));
 
   vec2 bv = 1.0 - vec2(
       b.x * (1.0 - b.x),
       b.y * (1.0 - b.y)
       );
 
-  float f = step(1.0 - margin, bv.x) + step(1.0 - margin, bv.y);
+  float margin = 0.012;
+  float f = step(1.0 - margin, bv.x) * horiz + step(1.0 - margin, bv.y) * vert;
 
   return 1.0 - f;
 }
