@@ -21,6 +21,10 @@
   let width = $draft.get('warpCount') * $ui.get('cellSize');
   let height = $draft.get('pickCount') * $ui.get('cellSize');
 
+  function reducePrecision(num) {
+    return Math.floor(num / 2) * 2;
+  }
+
   onMount(() => {
     scrollbarWidth = scrollContainer.offsetWidth - scrollContainer.clientWidth;
     scrollContainer.addEventListener('scroll', updatePosition);
@@ -56,7 +60,6 @@
     let rect = canvasContainer.getBoundingClientRect();
     canvasWidth = rect.width;
     canvasHeight = rect.height;
-    //xStepsContainerWidth = (40 * $ui.get('cellSize')) / 2.0;
   });
 
   function createMouseEvent(name, e) {
@@ -78,11 +81,8 @@
       scrollContainer.scrollWidth - scrollContainer.clientWidth;
     let scrollTopMax =
       scrollContainer.scrollHeight - scrollContainer.clientHeight;
-    let x = scrollLeftMax - scrollContainer.scrollLeft;
-    let y = scrollTopMax - scrollContainer.scrollTop;
-
-    x = Math.floor(x / 2) * 2;
-    y = Math.floor(y / 2) * 2;
+    let x = reducePrecision(scrollLeftMax - scrollContainer.scrollLeft);
+    let y = reducePrecision(scrollTopMax - scrollContainer.scrollTop);
 
     ui.update((u) => {
       return u.set('scrollPos', List([x, y]));
@@ -90,8 +90,7 @@
   }
 
   function changeCellSize() {
-    // let scroll = $ui.get('scrollPos');
-    ui.update((u) => u.set('cellSize', newCellSize));
+    ui.update((u) => u.set('cellSize', reducePrecision(newCellSize)));
   }
 </script>
 

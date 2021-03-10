@@ -21,9 +21,6 @@
   }px)`;
 
   $: {
-    console.log('width', width);
-    console.log('height', height);
-    console.log('vert', vertical);
     if (vertical) {
       stepsContainerHeight = height - ch * ($draft.get('shaftCount') + 6) - 4;
       stepsContainerWidth = ch;
@@ -65,6 +62,7 @@
     class="steps"
     style={`
     height: ${$ui.get('cellSize') / 2}px;
+    font-size: ${$ui.get('cellSize') / 5}pt;
     transform: ${transform};
     `}
   >
@@ -97,7 +95,7 @@
   }
 
   .vertical .steps {
-    right: 11px;
+    right: 0.6em;
     bottom: 0px;
   }
 
