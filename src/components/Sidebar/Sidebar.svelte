@@ -12,6 +12,7 @@
   import YarnSettings from './pages/YarnSettings.svelte';
   import PatternFill from './pages/PatternFill/PatternFill.svelte';
 
+  $: selectedMenu = $ui.get('selectedMenu');
   let items = [
     {
       icon: ScarfIcon,
@@ -71,10 +72,10 @@
       </div>
     </div>
 
-    {#if $ui.get('selectedMenu') !== -1}
+    {#if selectedMenu !== -1}
       <div class="settings-sidebar" style={`left: ${sidebarWidth}px`}>
         <div class="settings">
-          <svelte:component this={items[$ui.get('selectedMenu')].component} />
+          <svelte:component this={items[selectedMenu].component} />
         </div>
         <div class="overlay" on:click={() => selectMenu(-1)} />
       </div>

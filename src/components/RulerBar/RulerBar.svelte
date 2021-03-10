@@ -13,20 +13,23 @@
   let guideContainer;
   let steps = [];
   $: vertical = height > width;
-  $: ch = $ui.get('cellSize') / 2.0;
+  $: cellSize = $ui.get('cellSize');
+  $: ch = cellSize / 2.0;
   $: containerPos = [position[0] * ch, position[1] * ch];
 
-  $: transform = `translate${vertical ? 'Y' : 'X'}(${
-    $ui.getIn(['scrollPos', vertical ? 1 : 0]) / 2.0
-  }px)`;
+  $: scrollPos = $ui.getIn(['scrollPos', vertical ? 1 : 0]);
+  $: transform = `translate${vertical ? 'Y' : 'X'}(${scrollPos / 2.0}px)`;
+  $: shaftCount = $draft.get('shaftCount');
+  $: treadleCount = $draft.get('treadleCount');
+  $: cellSize = $ui.get('cellSize');
 
   $: {
     if (vertical) {
-      stepsContainerHeight = height - ch * ($draft.get('shaftCount') + 6) - 4;
+      stepsContainerHeight = height - ch * (shaftCount + 6) - 4;
       stepsContainerWidth = ch;
     } else {
       stepsContainerHeight = ch;
-      stepsContainerWidth = width - ch * ($draft.get('treadleCount') + 4) + 4;
+      stepsContainerWidth = width - ch * (treadleCount + 4) + 4;
     }
   }
 
@@ -34,7 +37,7 @@
     steps = [];
     for (let i = 0; i < stepCount / distance; i++) {
       let step = i * distance;
-      let right = `${(step * $ui.get('cellSize')) / 2}px`;
+      let right = `${(step * cellSize) / 2}px`;
       if (step > 10) {
         right += ` - ${Math.floor(Math.log10(step))}em / 2`;
       } else if (step > 0) {
@@ -61,8 +64,8 @@
   <div
     class="steps"
     style={`
-    height: ${$ui.get('cellSize') / 2}px;
-    font-size: ${$ui.get('cellSize') / 5}pt;
+    height: ${ch}px;
+    font-size: ${cellSize / 5}pt;
     transform: ${transform};
     `}
   >

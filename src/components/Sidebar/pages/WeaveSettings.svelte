@@ -8,6 +8,7 @@
   let treadleCount = $draft.get('treadleCount');
   let warpCount = $draft.get('warpCount');
   let pickCount = $draft.get('pickCount');
+
   function submit(event) {
     event.preventDefault();
     let newDraft = $draft;

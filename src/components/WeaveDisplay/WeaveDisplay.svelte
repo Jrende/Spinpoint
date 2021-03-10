@@ -16,6 +16,9 @@
   let startPos;
   let endPos;
   let startScroll;
+  $: scroll = $ui.get('scrollPos').toJS();
+  $: selectedColor = $ui.get('selectedColor');
+  $: cellSize = $ui.get('cellSize');
 
   $: {
     if (renderer) {
@@ -30,16 +33,13 @@
   }
 
   $: {
-    let scroll = $ui.get('scrollPos').toJS();
     if (
       renderer !== undefined &&
       drag !== undefined &&
       (scroll[0] !== oldScroll[0] || scroll[1] !== oldScroll[1])
     ) {
       if (drag.includes('Color')) {
-        let color = $draft
-          .getIn(['yarn', $ui.get('selectedColor'), 'color'])
-          .toJS();
+        let color = $draft.getIn(['yarn', selectedColor, 'color']).toJS();
         renderer[drag].renderPoints(...linePoints, color);
       } else {
         renderer[drag].renderPoints(linePoints);
@@ -56,7 +56,7 @@
     syncCanvasDimensions();
     renderer.addEventListener('pointerdown', (e) => {
       startPos = [e.offsetX, e.offsetY];
-      startScroll = $ui.get('scrollPos').toJS();
+      startScroll = [ ...scroll ];
       dragMaybe = true;
     });
 
@@ -82,8 +82,6 @@
       }
 
       if (drag !== undefined && drag !== 'weave') {
-        let cellSize = $ui.get('cellSize');
-        let scroll = $ui.get('scrollPos').toJS();
         endPos = [
           e.offsetX - scroll[0] / cellSize,
           e.offsetY - scroll[1] / cellSize,
@@ -113,7 +111,7 @@
         } else {
           if (linePointsChanged(linePoints, oldLinePoints)) {
             let color = $draft
-              .getIn(['yarn', $ui.get('selectedColor'), 'color'])
+              .getIn(['yarn', selectedColor, 'color'])
               .toJS();
             renderer[drag].renderPoints(...linePoints, color);
           }
@@ -158,10 +156,10 @@
         let cell = renderer[name].getCellAtPos(pos);
         switch (name) {
           case 'warpColors':
-            updateColor(name, cell[0], cell[0], $ui.get('selectedColor'));
+            updateColor(name, cell[0], cell[0], selectedColor);
             break;
           case 'weftColors':
-            updateColor(name, cell[1], cell[1], $ui.get('selectedColor'));
+            updateColor(name, cell[1], cell[1], selectedColor);
             break;
           case 'threading':
             updateGrid(name, cell[0], cell[1]);

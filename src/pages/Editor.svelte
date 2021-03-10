@@ -18,8 +18,11 @@
 
   let resizeObserver;
 
-  let width = $draft.get('warpCount') * $ui.get('cellSize');
-  let height = $draft.get('pickCount') * $ui.get('cellSize');
+  $: warpCount = $draft.get('warpCount');
+  $: pickCount = $draft.get('pickCount');
+  $: cellSize = $ui.get('cellSize');
+  $: width = warpCount * cellSize;
+  $: height = pickCount * cellSize;
 
   function reducePrecision(num) {
     return Math.floor(num / 2) * 2;

@@ -6,12 +6,12 @@
   import upArrow from 'icons/up-arrow.svg';
 
   let isToggled = false;
-  let color = tinycolor('black');
-  $: {
-    let selectedColor = $ui.get('selectedColor');
-    let c = $draft.getIn(['yarn', selectedColor, 'color']).toJS();
-    color = tinycolor.fromRatio(c);
-  }
+
+  $: selectedColorIndex = $ui.get('selectedColor');
+  $: selectedColor = tinycolor.fromRatio(
+    $draft.getIn(['yarn', selectedColorIndex, 'color']).toJS()
+  );
+  $: yarns = $draft.get('yarn').toJS();
 
   function setColor(index) {
     ui.update((u) => u.set('selectedColor', index));
@@ -23,13 +23,13 @@
   <button
     class="color-display"
     on:click={() => (isToggled = !isToggled)}
-    style={`background-color: ${color.toHexString()};`}
+    style={`background-color: ${selectedColor.toHexString()};`}
   >
     <span
       class="arrow"
       style={`
-        stroke: ${color.isDark() ? 'black' : 'white'};
-        fill: ${color.isLight() ? 'black' : 'white'};
+        stroke: ${selectedColor.isDark() ? 'black' : 'white'};
+        fill: ${selectedColor.isLight() ? 'black' : 'white'};
         `}
     >
       {#if isToggled === true}
@@ -41,7 +41,7 @@
   </button>
   {#if isToggled === true}
     <ul>
-      {#each $draft.get('yarn').toJS() as yarn, i}
+      {#each yarns as yarn, i}
         <li
           style={`background-color: ${tinycolor
             .fromRatio(yarn.color)
