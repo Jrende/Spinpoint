@@ -1,0 +1,108 @@
+<script>
+  import ui from '../../stores/UI';
+  import draft from '../../stores/Draft';
+
+  export let width = 0;
+  export let height = 0;
+  export let position;
+  export let stepCount;
+  export let distance;
+
+  let stepsContainerHeight;
+  let stepsContainerWidth;
+  let guideContainer;
+  let steps = [];
+  $: vertical = height > width;
+  $: ch = $ui.get('cellSize') / 2.0;
+  $: containerPos = [position[0] * ch, position[1] * ch];
+
+  $: transform = `translate${vertical ? 'Y' : 'X'}(${
+    $ui.getIn(['scrollPos', vertical ? 1 : 0]) / 2.0
+  }px)`;
+
+  $: {
+    console.log('width', width);
+    console.log('height', height);
+    console.log('vert', vertical);
+    if (vertical) {
+      stepsContainerHeight = height - ch * ($draft.get('shaftCount') + 6) - 4;
+      stepsContainerWidth = ch;
+    } else {
+      stepsContainerHeight = ch;
+      stepsContainerWidth = width - ch * ($draft.get('treadleCount') + 4) + 4;
+    }
+  }
+
+  $: {
+    steps = [];
+    for (let i = 0; i < stepCount / distance; i++) {
+      let step = i * distance;
+      let right = `${(step * $ui.get('cellSize')) / 2}px`;
+      if (step > 10) {
+        right += ` - ${Math.floor(Math.log10(step))}em / 2`;
+      } else if (step > 0) {
+        right += ` - 0.5ex`;
+      }
+      right = `calc(${right})`;
+
+      steps.push([step, right]);
+    }
+  }
+</script>
+
+<div
+  bind:this={guideContainer}
+  class="steps-container"
+  class:vertical
+  style={`
+  right: ${containerPos[0]}px;
+  bottom: ${containerPos[1]}px;
+  height: ${stepsContainerHeight}px;
+  width: ${stepsContainerWidth}px
+  `}
+>
+  <div
+    class="steps"
+    style={`
+    height: ${$ui.get('cellSize') / 2}px;
+    transform: ${transform};
+    `}
+  >
+    {#each steps as step}
+      <span style={`${vertical ? 'bottom' : 'right'}: ${step[1]}`}
+        >{step[0]}</span
+      >
+    {/each}
+  </div>
+</div>
+
+<style>
+  .steps-container {
+    position: absolute;
+    z-index: 10;
+    overflow: hidden;
+  }
+
+  .steps {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: 0px;
+    bottom: 4px;
+  }
+
+  .vertical {
+    right: calc(1em - 8px);
+    writing-mode: vertical-lr;
+  }
+
+  .vertical .steps {
+    right: 11px;
+    bottom: 0px;
+  }
+
+  .steps span {
+    position: absolute;
+    right: 0;
+  }
+</style>

@@ -4,10 +4,13 @@
   import ui from '../stores/UI';
   import draft from '../stores/Draft';
   import WeaveDisplay from '../components/WeaveDisplay/WeaveDisplay.svelte';
+  import RulerBar from '../components/RulerBar/RulerBar.svelte';
   import YarnSelector from '../components/YarnSelector/YarnSelector.svelte';
 
   let scrollContainer;
   let canvasContainer;
+  let canvasWidth;
+  let canvasHeight;
   let newCellSize = $ui.get('cellSize');
 
   let scrollbarWidth = 15;
@@ -49,6 +52,11 @@
       let evt = createMouseEvent('click', e);
       weaveDisplay.dispatchEvent(evt);
     });
+
+    let rect = canvasContainer.getBoundingClientRect();
+    canvasWidth = rect.width;
+    canvasHeight = rect.height;
+    //xStepsContainerWidth = (40 * $ui.get('cellSize')) / 2.0;
   });
 
   function createMouseEvent(name, e) {
@@ -114,7 +122,21 @@
         />
       </div>
     </div>
-    <WeaveDisplay bind:this={weaveDisplay} />
+    <div class="weave-container">
+      <WeaveDisplay bind:this={weaveDisplay} />
+      <RulerBar
+        width={canvasWidth}
+        stepCount={$draft.get('warpCount')}
+        distance={$ui.get('xStepDistance')}
+        position={[$draft.get('treadleCount') + 4, 2]}
+      />
+      <RulerBar
+        height={canvasHeight}
+        stepCount={$draft.get('pickCount')}
+        distance={$ui.get('yStepDistance')}
+        position={[2, $draft.get('shaftCount') + 4]}
+      />
+    </div>
     <div class="info-bar" />
   </div>
 </div>
@@ -123,7 +145,6 @@
   .container {
     overflow: auto;
   }
-
   .info-bar,
   .tool-bar {
     display: flex;
@@ -168,5 +189,11 @@
     position: relative;
     width: 10px;
     height: 10px;
+  }
+
+  .weave-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
   }
 </style>

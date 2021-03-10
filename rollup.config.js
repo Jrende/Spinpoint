@@ -44,7 +44,8 @@ export default {
     svelte({
       compilerOptions: {
         // enable run-time checks when not in production
-        dev: !production
+        dev: !production,
+        immutable: true
       }
     }),
 

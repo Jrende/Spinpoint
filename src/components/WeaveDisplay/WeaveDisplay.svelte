@@ -54,7 +54,6 @@
   onMount(() => {
     renderer = new Renderer(canvas);
     syncCanvasDimensions();
-
     renderer.addEventListener('pointerdown', (e) => {
       startPos = [e.offsetX, e.offsetY];
       startScroll = $ui.get('scrollPos').toJS();
@@ -268,6 +267,7 @@
 
 <style>
   .weave-display {
+    position: relative;
     image-rendering: crisp-edges;
     width: 100%;
     height: 100%;
