@@ -55,9 +55,32 @@
 
 <style>
   .yarn-selector {
+    padding: 4px;
+    border: 1px solid black;
+    position: relative;
+  }
+
+  .arrow {
+    position: absolute;
+    bottom: 2px;
+    right: 6px;
   }
 
   .yarn-selector :global(svg) {
     width: 12px;
+  }
+
+  .color-display {
+    width: 2em;
+    margin: 0;
+    height: 100%;
+  }
+
+  ul {
+    background-color: white;
+  }
+
+  li {
+    width: 20px;
   }
 </style>
