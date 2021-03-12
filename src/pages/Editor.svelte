@@ -147,14 +147,16 @@
   .container {
     overflow: auto;
   }
+
   .info-bar,
   .tool-bar {
+    justify-content: space-around;
     display: flex;
     min-height: 20px;
     width: 100%;
     background-color: white;
     pointer-events: all;
-    z-index: 0;
+    z-index: 5;
   }
 
   .tool-bar {

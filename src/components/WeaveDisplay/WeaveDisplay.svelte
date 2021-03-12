@@ -56,7 +56,7 @@
     syncCanvasDimensions();
     renderer.addEventListener('pointerdown', (e) => {
       startPos = [e.offsetX, e.offsetY];
-      startScroll = [ ...scroll ];
+      startScroll = [...scroll];
       dragMaybe = true;
     });
 
@@ -82,10 +82,7 @@
       }
 
       if (drag !== undefined && drag !== 'weave') {
-        endPos = [
-          e.offsetX - scroll[0] / cellSize,
-          e.offsetY - scroll[1] / cellSize,
-        ];
+        endPos = [e.offsetX, e.offsetY];
         let startPosScroll = [
           startPos[0] + (scroll[0] - startScroll[0]) / 2.0,
           startPos[1] + (scroll[1] - startScroll[1]) / 2.0,
@@ -110,9 +107,7 @@
           }
         } else {
           if (linePointsChanged(linePoints, oldLinePoints)) {
-            let color = $draft
-              .getIn(['yarn', selectedColor, 'color'])
-              .toJS();
+            let color = $draft.getIn(['yarn', selectedColor, 'color']).toJS();
             renderer[drag].renderPoints(...linePoints, color);
           }
           oldLinePoints = linePoints;

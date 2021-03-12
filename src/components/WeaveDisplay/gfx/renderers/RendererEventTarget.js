@@ -33,19 +33,21 @@ export default class RendererEventTarget {
     this.gl.scissor(w - (rX + xCount) * cH, rY * cH, cH * xCount, cH * yCount);
   }
 
-  isWithinGrid() {
+  isWithinGrid(pos) {
+    console.log('pos', pos);
     let { cellSize, xCount, yCount } = this.values;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
 
-    let x = ((w - event.offsetX) / w) * 2.0;
-    let y = ((h - event.offsetY) / h) * 2.0;
+    let x = ((w - pos[0]) / w) * 2.0;
+    let y = ((h - pos[1]) / h) * 2.0;
     let gridX = this.rendererPos[0] * (cellSize / w);
     let gridY = this.rendererPos[1] * (cellSize / h);
     let gridW = (xCount * cellSize) / w;
     let gridH = (yCount * cellSize) / h;
-    return x > gridX && y > gridY && x < gridX + gridW && y < gridY + gridH;
+    let ret = x > gridX && y > gridY && x < gridX + gridW && y < gridY + gridH;
+    return ret;
   }
 
   getCellAtPos(pos) {

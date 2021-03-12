@@ -40,16 +40,17 @@
     </span>
   </button>
   {#if isToggled === true}
-    <ul>
+    <div class="color-dropdown">
       {#each yarns as yarn, i}
-        <li
+        <button
+          class="item"
           style={`background-color: ${tinycolor
             .fromRatio(yarn.color)
             .toHexString()}`}
           on:click={() => setColor(i)}
         />
       {/each}
-    </ul>
+    </div>
   {/if}
 </div>
 
@@ -76,11 +77,27 @@
     height: 100%;
   }
 
-  ul {
+  .color-dropdown {
+    list-style: none;
     background-color: white;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid black;
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
   }
 
-  li {
-    width: 20px;
+  .color-dropdown .item:not(:first-child) {
+    margin-top: 4px;
+  }
+
+  .color-dropdown .item {
+    display: block;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    margin-top: 4px;
+    border: 1px solid black;
   }
 </style>
