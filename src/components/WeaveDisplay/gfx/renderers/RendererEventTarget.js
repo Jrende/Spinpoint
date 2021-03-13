@@ -34,7 +34,6 @@ export default class RendererEventTarget {
   }
 
   isWithinGrid(pos) {
-    console.log('pos', pos);
     let { cellSize, xCount, yCount } = this.values;
 
     let w = this.gl.canvas.width;

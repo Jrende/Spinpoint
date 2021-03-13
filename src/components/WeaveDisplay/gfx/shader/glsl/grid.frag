@@ -4,12 +4,12 @@ uniform sampler2D cellToggleSampler;
 uniform vec2 cellSize;
 uniform vec2 scrollPos;
 uniform float vert;
+uniform float steps;
 
 varying vec2 uv;
 
 const float cellMargin = 0.15;
 const float gap = 0.04;
-const float steps = 8.0;
 
 float getBorder(float x, float y, float margin) {
   vec2 b = vec2(

@@ -118,6 +118,8 @@ export class ColorRowRenderer extends RendererEventTarget {
       cellSize,
       warpCount,
       pickCount,
+      xStepDistance,
+      yStepDistance,
     } = this.values;
     let scrollX = this.scrollX ? 1.0 : 0.0;
     let scrollY = this.scrollY ? 1.0 : 0.0;
@@ -150,6 +152,10 @@ export class ColorRowRenderer extends RendererEventTarget {
     ]);
 
     this.shader.setFloat('vert', yCount > xCount ? 1.0 : 0.0);
+    this.shader.setFloat(
+      'steps',
+      yCount > xCount ? yStepDistance : xStepDistance
+    );
 
     this.shader.setVec2('cellSize', [cw / (cw * xCount), ch / (ch * yCount)]);
 

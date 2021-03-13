@@ -6,6 +6,7 @@
   import WeaveDisplay from '../components/WeaveDisplay/WeaveDisplay.svelte';
   import RulerBar from '../components/RulerBar/RulerBar.svelte';
   import YarnSelector from '../components/YarnSelector/YarnSelector.svelte';
+  import InfoBar from '../components/InfoBar/InfoBar.svelte';
 
   let scrollContainer;
   let canvasContainer;
@@ -139,7 +140,7 @@
         position={[2, $draft.get('shaftCount') + 4]}
       />
     </div>
-    <div class="info-bar" />
+    <InfoBar />
   </div>
 </div>
 
@@ -148,7 +149,6 @@
     overflow: auto;
   }
 
-  .info-bar,
   .tool-bar {
     justify-content: space-around;
     display: flex;
@@ -161,10 +161,6 @@
 
   .tool-bar {
     border-bottom: 1px solid black;
-  }
-
-  .info-bar {
-    border-top: 1px solid black;
   }
 
   .fixed {

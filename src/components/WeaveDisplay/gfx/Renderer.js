@@ -176,7 +176,7 @@ export class Renderer {
         'threading'
       ) ||
       ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
-      this.isDifferent(ui, prevUI, 'cellSize')
+      this.isDifferent(ui, prevUI, 'cellSize', 'xStepDistance', 'yStepDistance')
     ) {
       this.threading.updateValues({
         xCount: draft.get('warpCount'),
@@ -185,6 +185,7 @@ export class Renderer {
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
         scrollPos: ui.get('scrollPos'),
+        xStepDistance: ui.get('xStepDistance'),
       });
       this.renderers[1].dirty = true;
       this.threading.setCellToggleTexture(this.threadingTexture);
@@ -199,7 +200,7 @@ export class Renderer {
         'treadling'
       ) ||
       ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
-      this.isDifferent(ui, prevUI, 'cellSize')
+      this.isDifferent(ui, prevUI, 'cellSize', 'xStepDistance', 'yStepDistance')
     ) {
       this.treadling.updateValues({
         xCount: draft.get('treadleCount'),
@@ -208,6 +209,7 @@ export class Renderer {
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
         scrollPos: ui.get('scrollPos'),
+        yStepDistance: ui.get('yStepDistance'),
       });
       this.renderers[2].dirty = true;
       this.treadling.setCellToggleTexture(this.treadlingTexture);
@@ -223,7 +225,7 @@ export class Renderer {
         'warpColors'
       ) ||
       ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
-      this.isDifferent(ui, prevUI, 'cellSize')
+      this.isDifferent(ui, prevUI, 'cellSize', 'xStepDistance', 'yStepDistance')
     ) {
       this.warpColors.updateValues({
         xCount: draft.get('pickCount'),
@@ -232,6 +234,7 @@ export class Renderer {
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
         scrollPos: ui.get('scrollPos'),
+        xStepDistance: ui.get('xStepDistance'),
       });
       this.renderers[3].dirty = true;
       this.warpColors.setColorTexture(this.warpTexture);
@@ -247,7 +250,7 @@ export class Renderer {
         'weftColors'
       ) ||
       ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
-      this.isDifferent(ui, prevUI, 'cellSize')
+      this.isDifferent(ui, prevUI, 'cellSize', 'xStepDistance', 'yStepDistance')
     ) {
       this.weftColors.updateValues({
         xCount: 1,
@@ -256,6 +259,7 @@ export class Renderer {
         warpCount: draft.get('warpCount'),
         cellSize: ui.get('cellSize'),
         scrollPos: ui.get('scrollPos'),
+        yStepDistance: ui.get('yStepDistance'),
       });
       this.renderers[4].dirty = true;
       this.weftColors.setColorTexture(this.weftTexture);

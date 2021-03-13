@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
 
+  import { fromJS } from 'immutable';
   import draft from '../../stores/Draft';
   import ui from '../../stores/UI';
   import { Renderer } from './gfx/Renderer';
@@ -11,6 +12,7 @@
   let drag;
   let linePoints;
   let oldLinePoints = [];
+  let cancelled = false;
   let oldP = [];
 
   let startPos;
@@ -62,9 +64,10 @@
 
     renderer.addEventListener('pointermove', (e) => {
       if (drag !== undefined && e.buttons === 0) {
-        renderer[drag].render();
-        drag = undefined;
+        stopDrag();
       }
+
+      setHover(e);
 
       if (
         drag === undefined &&
@@ -77,7 +80,14 @@
         );
         if (r !== undefined && r.name !== 'weave') {
           drag = r.name;
+          ui.set(
+            fromJS({
+              ...$ui.toJS(),
+              isDragging: true,
+            })
+          );
         }
+
         dragMaybe = false;
       }
 
@@ -110,6 +120,13 @@
             let color = $draft.getIn(['yarn', selectedColor, 'color']).toJS();
             renderer[drag].renderPoints(...linePoints, color);
           }
+          ui.set(
+            fromJS({
+              ...$ui.toJS(),
+              selectFrom: linePoints[0],
+              selectTo: linePoints[1],
+            })
+          );
           oldLinePoints = linePoints;
         }
       }
@@ -138,10 +155,8 @@
             updateTieupWithPoints(linePoints);
             break;
         }
-
-        renderer[drag].render();
-        drag = undefined;
-      } else {
+      } else if (cancelled === false) {
+        // Regular click without drag
         let pos = [e.offsetX, e.offsetY];
         let r = renderer.renderers.find((r) => r.renderer.isWithinGrid(pos));
         if (r === undefined) {
@@ -167,8 +182,16 @@
             break;
         }
       }
+      stopDrag();
+      cancelled = false;
     });
 
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drag !== undefined) {
+        event.stopPropagation();
+        stopDrag();
+      }
+    });
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
         renderer.clear();
@@ -242,6 +265,35 @@
       }
     });
     return ret;
+  }
+
+  function stopDrag() {
+    if (drag !== undefined) {
+      console.log('stop drag');
+      renderer[drag].render();
+      drag = undefined;
+      cancelled = true;
+      ui.set(
+        fromJS({
+          ...$ui.toJS(),
+          isDragging: false,
+        })
+      );
+    }
+  }
+
+  function setHover(event) {
+    let pos = [event.offsetX, event.offsetY];
+    let r = renderer.renderers.find((r) => r.renderer.isWithinGrid(pos));
+    if (r) {
+      let cell = r.renderer.getCellAtPos(pos);
+      ui.set(
+        fromJS({
+          ...$ui.toJS(),
+          hoverCell: cell,
+        })
+      );
+    }
   }
 
   export function syncCanvasDimensions() {
