@@ -64,7 +64,11 @@
 
   function showColorPicker(event) {
     event.preventDefault();
-    colorPickerStore.showColorPicker(event.pageX, event.pageY);
+    colorPickerStore.showColorPicker(
+      event.pageX,
+      event.pageY,
+      selectedYarn.color
+    );
   }
 </script>
 

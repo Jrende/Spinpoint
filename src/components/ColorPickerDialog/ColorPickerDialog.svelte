@@ -1,7 +1,6 @@
 <script>
   import { afterUpdate } from 'svelte';
   import { vec2 } from 'gl-matrix';
-  import ui from './stores/UI';
   import ColorPicker from '../ColorPicker/ColorPicker.svelte';
   import { colorPickerStore } from './ColorPickerStore';
   let elm;
@@ -10,6 +9,7 @@
 
   let position = colorPickerStore.position;
   let isVisible = colorPickerStore.isVisible;
+  let colorPickerColor = colorPickerStore.color;
 
   afterUpdate(() => {
     let pos = $position;
@@ -70,7 +70,7 @@
     class="dialog"
     style={`left: ${realX}px; top: ${realY}px`}
   >
-    <ColorPicker value={$ui.get('colorPickerColor')} onChange={onColorChange} />
+    <ColorPicker value={$colorPickerColor} onChange={onColorChange} />
   </div>
 {/if}
 
