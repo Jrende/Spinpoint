@@ -6,10 +6,12 @@
   import ScarfIcon from 'icons/scarf.svg';
   import YarnIcon from 'icons/yarn.svg';
   import PatternBucket from 'icons/pattern-bucket.svg';
+  import Repeat from 'icons/repeat.svg';
 
   import ui from '../../stores/UI';
   import WeaveSettings from './pages/WeaveSettings.svelte';
   import YarnSettings from './pages/YarnSettings.svelte';
+  import RepeatComponent from './pages/Repeat.svelte';
   import PatternFill from './pages/PatternFill/PatternFill.svelte';
 
   $: selectedMenu = $ui.get('selectedMenu');
@@ -28,6 +30,11 @@
       icon: PatternBucket,
       title: 'Fill with pattern',
       component: PatternFill,
+    },
+    {
+      icon: Repeat,
+      title: 'Repeat',
+      component: RepeatComponent,
     },
   ];
   let sidebarWidth;

@@ -1,19 +1,19 @@
 <script>
-  import { useFocus } from "svelte-navigator";
+  import { useFocus } from 'svelte-navigator';
 
   const registerFocus = useFocus();
 </script>
 
 <div class="application">
-  <h1 use:registerFocus >Halp plix!!!</h1>
-  <h2>Oh man i am not good with computer plz to help</h2>
-
+  <h1 use:registerFocus>Attribution</h1>
+  <h2>From the <a href="https://thenounproject.com">Noun Project</a></h2>
   <ul>
-    <li>help by Baboon designs from the Noun Project</li>
-    <li>back by David from the Noun Project</li>
-    <li>Scarf by Sergey Demushkin from the Noun Project</li>
-    <li>Yarn by Sergey Demushkin from the Noun Project</li>
-    <li>add by Johan Ronsse from the Noun Project</li>
+    <li>help by Baboon designs</li>
+    <li>back by David</li>
+    <li>Scarf by Sergey Demushkin</li>
+    <li>Yarn by Sergey Demushkin</li>
+    <li>add by Johan Ronsse</li>
+    <li>Repeat by Adrien Coquet</li>
   </ul>
 </div>
 
