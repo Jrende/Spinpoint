@@ -4,6 +4,7 @@
   import draft from '../../../stores/Draft';
   import ui from '../../../stores/UI';
   import { _ } from 'svelte-i18n';
+  import { onMount, onDestroy } from 'svelte';
   import { colorPickerStore } from '../../ColorPickerDialog/ColorPickerStore.js';
 
   let colors;
@@ -18,6 +19,7 @@
 
   let newYarnColor = color;
   let yarnUnderModification = -1;
+  let colorListener;
 
   $: selectedYarn = $draft.getIn(['yarn', yarnUnderModification]).toJS();
   $: selectedColor = tinycolor.fromRatio(selectedYarn.color);
@@ -26,12 +28,18 @@
     elm.focus();
   }
 
-  colorPickerStore.onColorChange((color) => {
-    if (yarnUnderModification !== -1) {
-      draft.update((d) =>
-        d.setIn(['yarn', yarnUnderModification, 'color'], fromJS(color))
-      );
-    }
+  onMount(() => {
+    colorListener = colorPickerStore.onColorChange((color) => {
+      if (yarnUnderModification !== -1) {
+        draft.update((d) =>
+          d.setIn(['yarn', yarnUnderModification, 'color'], fromJS(color))
+        );
+      }
+    });
+  });
+
+  onDestroy(() => {
+    colorPickerStore.removeListener(colorListener);
   });
 
   function createNewYarn(event) {
@@ -46,6 +54,7 @@
 
   function selectYarnForModification(event, i) {
     yarnUnderModification = i;
+    ui.update((u) => u.set('selectedColor', yarnUnderModification));
     if (i !== $draft.get('yarn').size) {
       newYarnColor = $draft.getIn(['yarn', i, 'color']).toJS();
     }

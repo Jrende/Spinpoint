@@ -22,7 +22,7 @@ let colorPickerStore = {
     listeners.update((s) => {
       let ls = { ...s };
       delete ls[id];
-      return { ls };
+      return { ...ls };
     });
   },
   showColorPicker: (x, y, startColor) => {
@@ -30,7 +30,10 @@ let colorPickerStore = {
     isVisible.set(true);
     color.set(startColor);
   },
-  emit: (color) => Object.values(listenersSnapshot).forEach((l) => l(color)),
+  emit: (color) => {
+    console.log('emit');
+    Object.values(listenersSnapshot).forEach((l) => l(color));
+  },
   listeners,
   isVisible,
   position,
