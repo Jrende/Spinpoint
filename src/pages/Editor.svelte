@@ -44,21 +44,24 @@
     });
     resizeObserver.observe(canvasContainer);
 
-    scrollContainer.addEventListener('pointermove', (e) => {
-      let evt = createMouseEvent('pointermove', e);
-      weaveDisplay.dispatchEvent(evt);
+    scrollContainer.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      return false;
     });
-    scrollContainer.addEventListener('pointerup', (e) => {
-      let evt = createMouseEvent('pointerup', e);
-      weaveDisplay.dispatchEvent(evt);
-    });
-    scrollContainer.addEventListener('pointerdown', (e) => {
-      let evt = createMouseEvent('pointerdown', e);
-      weaveDisplay.dispatchEvent(evt);
-    });
-    scrollContainer.addEventListener('click', (e) => {
-      let evt = createMouseEvent('click', e);
-      weaveDisplay.dispatchEvent(evt);
+
+    [
+      'mousemove',
+      'mouseup',
+      'mousedown',
+      'pointermove',
+      'pointerup',
+      'pointerdown',
+      'click',
+    ].forEach((eventName) => {
+      scrollContainer.addEventListener(eventName, (e) => {
+        let evt = createMouseEvent(eventName, e);
+        weaveDisplay.dispatchEvent(evt);
+      });
     });
 
     let rect = canvasContainer.getBoundingClientRect();
@@ -71,6 +74,7 @@
       clientX: e.clientX,
       clientY: e.clientY,
       buttons: e.buttons,
+      button: e.button,
       movementX: e.movementX,
       movementY: e.movementY,
     });

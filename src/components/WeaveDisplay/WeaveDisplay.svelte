@@ -56,10 +56,17 @@
   onMount(() => {
     renderer = new Renderer(canvas);
     syncCanvasDimensions();
+
     renderer.addEventListener('pointerdown', (e) => {
-      startPos = [e.offsetX, e.offsetY];
-      startScroll = [...scroll];
-      dragMaybe = true;
+      if (e.button === 2) {
+        e.preventDefault();
+        cancelled = true;
+        handleRightclick(e);
+      } else {
+        startPos = [e.offsetX, e.offsetY];
+        startScroll = [...scroll];
+        dragMaybe = true;
+      }
     });
 
     renderer.addEventListener('pointermove', (e) => {
@@ -269,7 +276,6 @@
 
   function stopDrag() {
     if (drag !== undefined) {
-      console.log('stop drag');
       renderer[drag].render();
       drag = undefined;
       cancelled = true;
@@ -293,6 +299,43 @@
           hoverCell: cell,
         })
       );
+    }
+  }
+
+  function handleRightclick(event) {
+    let pos = [event.offsetX, event.offsetY];
+    let r = renderer.renderers.find((r) => r.renderer.isWithinGrid(pos));
+    if (r) {
+      switch (r.name) {
+        case 'warpColors': {
+          let cell = r.renderer.getCellAtPos(pos);
+          let c = $draft.getIn([r.name, cell[0]]);
+          ui.set(
+            fromJS({
+              ...$ui.toJS(),
+              selectedColor: c,
+            })
+          );
+          break;
+        }
+        case 'weftColors': {
+          let cell = r.renderer.getCellAtPos(pos);
+          let c = $draft.getIn([r.name, cell[1]]);
+          ui.set(
+            fromJS({
+              ...$ui.toJS(),
+              selectedColor: c,
+            })
+          );
+          break;
+        }
+        case 'threading':
+          break;
+        case 'treadling':
+          break;
+        case 'tieup':
+          break;
+      }
     }
   }
 
