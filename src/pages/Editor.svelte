@@ -69,7 +69,7 @@
       'pointerdown',
       'click',
     ].forEach((eventName) => {
-      scrollContainer.addEventListener(eventName, (e) => {
+      canvasContainer.addEventListener(eventName, (e) => {
         let evt = createMouseEvent(eventName, e);
         weaveDisplay.dispatchEvent(evt);
       });

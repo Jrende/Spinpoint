@@ -14,6 +14,7 @@
   let oldLinePoints = [];
   let cancelled = false;
   let oldP = [];
+  let mouseDownOriginator;
 
   let startPos;
   let endPos;
@@ -53,6 +54,10 @@
   let oldScroll = [];
   let dragMaybe;
 
+  function getRenderer(pos) {
+    return renderer.renderers.find((r) => r.renderer.isWithinGrid(pos));
+  }
+
   onMount(() => {
     renderer = new Renderer(canvas);
     syncCanvasDimensions();
@@ -66,6 +71,7 @@
         startPos = [e.offsetX, e.offsetY];
         startScroll = [...scroll];
         dragMaybe = true;
+        mouseDownOriginator = getRenderer(startPos)?.name;
       }
     });
 
@@ -82,11 +88,9 @@
         (e.movementX !== 0 || e.movementY !== 0) &&
         dragMaybe
       ) {
-        let r = renderer.renderers.find((r) =>
-          r.renderer.isWithinGrid(startPos)
-        );
-        if (r !== undefined && r.name !== 'weave') {
-          drag = r.name;
+        let rendererName = getRenderer(startPos)?.name;
+        if (rendererName !== undefined && rendererName !== 'weave') {
+          drag = rendererName;
           ui.set(
             fromJS({
               ...$ui.toJS(),
@@ -165,11 +169,10 @@
       } else if (cancelled === false) {
         // Regular click without drag
         let pos = [e.offsetX, e.offsetY];
-        let r = renderer.renderers.find((r) => r.renderer.isWithinGrid(pos));
-        if (r === undefined) {
+        let name = getRenderer(pos)?.name;
+        if (name === undefined || name !== mouseDownOriginator) {
           return;
         }
-        let name = r.name;
         let cell = renderer[name].getCellAtPos(pos);
         switch (name) {
           case 'warpColors':
@@ -290,7 +293,7 @@
 
   function setHover(event) {
     let pos = [event.offsetX, event.offsetY];
-    let r = renderer.renderers.find((r) => r.renderer.isWithinGrid(pos));
+    let r = getRenderer(pos);
     if (r) {
       let cell = r.renderer.getCellAtPos(pos);
       ui.set(
@@ -304,7 +307,7 @@
 
   function handleRightclick(event) {
     let pos = [event.offsetX, event.offsetY];
-    let r = renderer.renderers.find((r) => r.renderer.isWithinGrid(pos));
+    let r = getRenderer(pos);
     if (r) {
       switch (r.name) {
         case 'warpColors': {
