@@ -8,6 +8,8 @@
   import YarnSelector from '../components/YarnSelector/YarnSelector.svelte';
   import InfoBar from '../components/InfoBar/InfoBar.svelte';
 
+  let infobarContainer;
+  let toolbarContainer;
   let scrollContainer;
   let canvasContainer;
   let canvasWidth;
@@ -16,7 +18,10 @@
   let hasChangedCellSize;
   let scrollPercentage = [];
 
+  let infobarHeight = 0;
+  let toolbarHeight = 0;
   let scrollbarWidth = 15;
+  let scrollbarHeight = 15;
   let weaveDisplay;
 
   let resizeObserver;
@@ -43,6 +48,11 @@
 
   onMount(() => {
     scrollbarWidth = scrollContainer.offsetWidth - scrollContainer.clientWidth;
+    scrollbarHeight =
+      scrollContainer.offsetHeight - scrollContainer.clientHeight;
+    toolbarHeight = toolbarContainer.clientHeight;
+    infobarHeight = infobarContainer.clientHeight;
+
     let scrollLeftMax =
       scrollContainer.scrollWidth - scrollContainer.clientWidth;
     let scrollTopMax =
@@ -134,25 +144,30 @@
 >
   <div class="scrollpane" style={`left: ${width}px; top: ${height}px;`} />
   <div
+    class="tool-bar"
+    bind:this={toolbarContainer}
+    style={`right: ${scrollbarWidth}px`}
+  >
+    <YarnSelector />
+    <div class="ok-zoomer">
+      <input
+        type="range"
+        min="5"
+        max="70"
+        on:input={changeCellSize}
+        bind:value={cellSizeInput}
+      />
+    </div>
+  </div>
+  <div
     bind:this={canvasContainer}
     class="fixed"
     style={`
+    top: ${toolbarHeight}px;
     right: ${scrollbarWidth}px;
-    bottom: ${scrollbarWidth}px
+    bottom: ${scrollbarWidth + infobarHeight}px
     `}
   >
-    <div class="tool-bar">
-      <YarnSelector />
-      <div class="ok-zoomer">
-        <input
-          type="range"
-          min="5"
-          max="70"
-          on:input={changeCellSize}
-          bind:value={cellSizeInput}
-        />
-      </div>
-    </div>
     <div class="weave-container">
       <WeaveDisplay bind:this={weaveDisplay} />
       <RulerBar
@@ -168,16 +183,36 @@
         position={[2, $draft.get('shaftCount') + 4]}
       />
     </div>
-    <InfoBar />
+  </div>
+  <div
+    class="infobarContainer-container"
+    bind:this={infobarContainer}
+    style={`bottom: ${scrollbarHeight}px; right: ${scrollbarWidth}px`}
+  >
+    <InfoBar
+      bind:this={infobarContainer}
+      style="background-color: black !important"
+    />
   </div>
 </div>
 
 <style>
   .container {
     overflow: auto;
+    --left-menu-width: 90px;
+  }
+
+  .infobarContainer-container {
+    position: absolute;
+    bottom: 0;
+    left: var(--left-menu-width);
   }
 
   .tool-bar {
+    position: absolute;
+    top: 0;
+    left: var(--left-menu-width);
+
     justify-content: space-around;
     display: flex;
     min-height: 20px;
@@ -185,9 +220,6 @@
     background-color: white;
     pointer-events: all;
     z-index: 5;
-  }
-
-  .tool-bar {
     border-bottom: 1px solid black;
   }
 
@@ -199,7 +231,7 @@
 
     position: absolute;
     right: 0;
-    left: 90px;
+    left: var(--left-menu-width);
     bottom: 0;
     top: 0;
 
