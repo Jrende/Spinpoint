@@ -228,7 +228,7 @@ export class Renderer {
       this.isDifferent(ui, prevUI, 'cellSize', 'xStepDistance', 'yStepDistance')
     ) {
       this.warpColors.updateValues({
-        xCount: draft.get('pickCount'),
+        xCount: draft.get('warpCount'),
         yCount: 1,
         pickCount: draft.get('pickCount'),
         warpCount: draft.get('warpCount'),
