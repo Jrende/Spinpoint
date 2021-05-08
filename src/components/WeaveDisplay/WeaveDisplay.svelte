@@ -171,29 +171,31 @@
         let pos = [e.offsetX, e.offsetY];
         let name = getRenderer(pos)?.name;
         if (name === undefined || name !== mouseDownOriginator) {
-          return;
-        }
-        let cell = renderer[name].getCellAtPos(pos);
-        switch (name) {
-          case 'warpColors':
-            updateColor(name, cell[0], cell[0], selectedColor);
-            break;
-          case 'weftColors':
-            updateColor(name, cell[1], cell[1], selectedColor);
-            break;
-          case 'threading':
-            updateGrid(name, cell[0], cell[1]);
-            break;
-          case 'treadling':
-            updateGrid(name, cell[1], cell[0]);
-            break;
-          case 'tieup':
-            toggleTieup(cell[1], cell[0]);
-            break;
+          mouseDownOriginator = undefined;
+        } else {
+          let cell = renderer[name].getCellAtPos(pos);
+          switch (name) {
+            case 'warpColors':
+              updateColor(name, cell[0], cell[0], selectedColor);
+              break;
+            case 'weftColors':
+              updateColor(name, cell[1], cell[1], selectedColor);
+              break;
+            case 'threading':
+              updateGrid(name, cell[0], cell[1]);
+              break;
+            case 'treadling':
+              updateGrid(name, cell[1], cell[0]);
+              break;
+            case 'tieup':
+              toggleTieup(cell[1], cell[0]);
+              break;
+          }
         }
       }
       stopDrag();
       cancelled = false;
+      mouseDownOriginator = undefined;
     });
 
     document.addEventListener('keydown', (e) => {
