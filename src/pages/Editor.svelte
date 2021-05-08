@@ -1,5 +1,5 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, afterUpdate } from 'svelte';
   import { List } from 'immutable';
   import ui from '../stores/UI';
   import draft from '../stores/Draft';
@@ -12,7 +12,9 @@
   let canvasContainer;
   let canvasWidth;
   let canvasHeight;
-  let newCellSize = $ui.get('cellSize');
+  let cellSizeInput = $ui.get('cellSize');
+  let hasChangedCellSize;
+  let scrollPercentage = [];
 
   let scrollbarWidth = 15;
   let weaveDisplay;
@@ -29,9 +31,18 @@
     return Math.floor(num / 2) * 2;
   }
 
+  afterUpdate(() => {
+    if (hasChangedCellSize) {
+      hasChangedCellSize = false;
+      let [scrollLeftMax, scrollTopMax] = getBounds();
+      let x = (1.0 - scrollPercentage[0]) * scrollLeftMax;
+      let y = (1.0 - scrollPercentage[1]) * scrollTopMax;
+      scrollContainer.scrollTo(x, y);
+    }
+  });
+
   onMount(() => {
     scrollbarWidth = scrollContainer.offsetWidth - scrollContainer.clientWidth;
-    scrollContainer.addEventListener('scroll', updatePosition);
     let scrollLeftMax =
       scrollContainer.scrollWidth - scrollContainer.clientWidth;
     let scrollTopMax =
@@ -80,25 +91,38 @@
     });
   }
 
-  onDestroy(() => {
-    scrollContainer.removeEventListener('scroll', updatePosition);
-  });
-
-  function updatePosition() {
+  function getBounds() {
     let scrollLeftMax =
       scrollContainer.scrollWidth - scrollContainer.clientWidth;
     let scrollTopMax =
       scrollContainer.scrollHeight - scrollContainer.clientHeight;
+    return [scrollLeftMax, scrollTopMax];
+  }
+
+  function getPosition() {
+    let [scrollLeftMax, scrollTopMax] = getBounds();
     let x = reducePrecision(scrollLeftMax - scrollContainer.scrollLeft);
     let y = reducePrecision(scrollTopMax - scrollContainer.scrollTop);
+    return [x, y];
+  }
 
+  function updatePosition() {
+    let pos = getPosition();
     ui.update((u) => {
-      return u.set('scrollPos', List([x, y]));
+      return u.set('scrollPos', List(pos));
     });
   }
 
   function changeCellSize() {
-    ui.update((u) => u.set('cellSize', reducePrecision(newCellSize)));
+    let newCellSize = reducePrecision(cellSizeInput);
+    let oldCellSize = $ui.get('cellSize');
+    if (newCellSize !== oldCellSize) {
+      hasChangedCellSize = true;
+      let [x, y] = getPosition();
+      let [scrollLeftMax, scrollTopMax] = getBounds();
+      scrollPercentage = [x / scrollLeftMax, y / scrollTopMax];
+      ui.update((u) => u.set('cellSize', newCellSize));
+    }
   }
 </script>
 
@@ -125,7 +149,7 @@
           min="5"
           max="70"
           on:input={changeCellSize}
-          bind:value={newCellSize}
+          bind:value={cellSizeInput}
         />
       </div>
     </div>
@@ -185,6 +209,10 @@
   .ok-zoomer {
     right: 20px;
     z-index: 1000;
+  }
+
+  .ok-zoomer input {
+    padding: 0;
   }
 
   .scrollpane {
