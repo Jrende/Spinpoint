@@ -69,6 +69,15 @@
       return false;
     });
 
+    scrollContainer.addEventListener('wheel', (event) => {
+      if (event.ctrlKey) {
+        event.preventDefault();
+        cellSizeInput += event.deltaY * -0.03;
+        cellSizeInput = Math.max(5, Math.min(70, cellSizeInput));
+        changeCellSize();
+      }
+    });
+
     [
       'mousemove',
       'mouseup',
