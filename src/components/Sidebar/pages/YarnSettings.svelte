@@ -9,11 +9,7 @@
 
   let colors;
   $: {
-    colors = $draft
-      .get('yarn')
-      .map((y) => y.get('color'))
-      .toJS()
-      .map((c) => tinycolor.fromRatio(c));
+    colors = $draft.yarn.map((y) => y.color).map((c) => tinycolor.fromRatio(c));
   }
   let color = { r: 1.0, g: 0.0, b: 0.0 };
 
@@ -21,7 +17,7 @@
   let yarnUnderModification = -1;
   let colorListener;
 
-  $: selectedYarn = $draft.getIn(['yarn', yarnUnderModification]).toJS();
+  $: selectedYarn = $draft.yarn[yarnUnderModification];
   $: selectedColor = tinycolor.fromRatio(selectedYarn.color);
 
   function focus(elm) {
@@ -31,9 +27,9 @@
   onMount(() => {
     colorListener = colorPickerStore.onColorChange((color) => {
       if (yarnUnderModification !== -1) {
-        draft.update((d) =>
-          d.setIn(['yarn', yarnUnderModification, 'color'], fromJS(color))
-        );
+        draft.update((temp) => {
+          temp.yarn[yarnUnderModification].color = fromJS(color);
+        });
       }
     });
   });
@@ -44,30 +40,28 @@
 
   function createNewYarn(event) {
     event.preventDefault();
-    draft.update((value) =>
-      value.update('yarn', (y) =>
-        y.push(fromJS({ name: 'Yarn', color: { r: 1.0, g: 1.0, b: 1.0 } }))
+    draft.update((temp) =>
+      temp.yarn.push(
+        fromJS({ name: 'Yarn', color: { r: 1.0, g: 1.0, b: 1.0 } })
       )
     );
-    yarnUnderModification = $draft.get('yarn').size - 1;
+    yarnUnderModification = $draft.yarn.size - 1;
   }
 
   function selectYarnForModification(event, i) {
     yarnUnderModification = i;
-    ui.update((u) => u.set('selectedColor', yarnUnderModification));
-    if (i !== $draft.get('yarn').size) {
-      newYarnColor = $draft.getIn(['yarn', i, 'color']).toJS();
+    ui.update((temp) => (temp.selectedColor = yarnUnderModification));
+    if (i !== $draft.yarn.size) {
+      newYarnColor = $draft.yarn[i].color;
     }
   }
 
   function changeName(newName, yarnId) {
-    draft.update((d) => d.setIn(['yarn', yarnId, 'name'], newName));
+    draft.update((temp) => (temp.yarn[yarnId].name = newName));
   }
 
   function deleteColor(index) {
-    draft.update((value) => {
-      return value.update('yarn', (list) => list.splice(index, 1));
-    });
+    draft.update((temp) => temp.yarn.splice(index, 1));
     yarnUnderModification = index - 1;
   }
 
@@ -90,7 +84,7 @@
       >
     </div>
     <div class="yarns">
-      {#each $draft.get('yarn').toJS() as yarn, i}
+      {#each $draft.yarn as yarn, i}
         <button
           class:selected={yarnUnderModification === i}
           class="yarn"

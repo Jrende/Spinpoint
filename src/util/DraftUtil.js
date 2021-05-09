@@ -10,11 +10,8 @@ class DraftUtil {
 
     for (let i = 0; i < shaftCount; i++) {
       for (let j = 0; j < treadleCount; j++) {
-        if (
-          draft.getIn(['tieup', i]) !== undefined &&
-          draft.getIn(['tieup', i, j]) !== undefined
-        ) {
-          tieup[i][j] = draft.getIn(['tieup', i, j]);
+        if (draft.tieup[i] !== undefined && draft.tieup[i][j] !== undefined) {
+          tieup[i][j] = draft.tieup[i][j];
         } else {
           tieup[i][j] = 0;
         }
@@ -30,28 +27,28 @@ class DraftUtil {
   }
 
   updateWarpCount(draft, warpCount) {
-    let amountToAdd = warpCount - draft.get('warpCount');
+    let amountToAdd = warpCount - draft.warpCount;
     if (amountToAdd === 0) {
       return draft;
     }
     return draft.withMutations((d) => {
       d.set('warpCount', warpCount);
-      let warpColors = this.changeArraySize(d.get('warpColors'), amountToAdd);
+      let warpColors = this.changeArraySize(d.warpColors, amountToAdd);
       d.set('warpColors', warpColors);
-      let threading = this.changeArraySize(d.get('threading'), amountToAdd);
+      let threading = this.changeArraySize(d.threading, amountToAdd);
       d.set('threading', threading);
     });
   }
 
   updatePickCount(draft, pickCount) {
-    let amountToAdd = pickCount - draft.get('pickCount');
+    let amountToAdd = pickCount - draft.pickCount;
     if (amountToAdd === 0) {
       return draft;
     }
 
     return draft.withMutations((d) => {
       d.set('pickCount', pickCount);
-      let weftColors = this.changeArraySize(d.get('weftColors'), amountToAdd);
+      let weftColors = this.changeArraySize(d.weftColors, amountToAdd);
       d.set('weftColors', weftColors);
     });
   }
@@ -62,15 +59,11 @@ class DraftUtil {
     warpOrWeft,
     mirroredRepeat,
     start = 0,
-    length = warpOrWeft === 'warp'
-      ? draft.get('warpCount')
-      : draft.get('pickCount')
+    length = warpOrWeft === 'warp' ? draft.warpCount : draft.pickCount
   ) {
-    let newDraft = draft.toJS();
+    let newDraft = draft;
 
-    let array = draft
-      .get(warpOrWeft === 'warp' ? 'threading' : 'treadling')
-      .toJS();
+    let array = draft.get(warpOrWeft === 'warp' ? 'threading' : 'treadling');
     let p = [...pattern];
 
     let offset = 0;
@@ -113,14 +106,11 @@ class DraftUtil {
     colors,
     warpOrWeft,
     start = 0,
-    length = warpOrWeft === 'warp'
-      ? draft.get('warpCount')
-      : draft.get('pickCount')
+    length = warpOrWeft === 'warp' ? draft.warpCount : draft.pickCount
   ) {
-    let newColors = draft
-      .get(warpOrWeft === 'warp' ? 'warpColors' : 'weftColors')
-      .toJS();
-
+    let newColors = draft.get(
+      warpOrWeft === 'warp' ? 'warpColors' : 'weftColors'
+    );
     for (let i = start; i < length; i++) {
       newColors[i] = colors[i % colors.length];
     }

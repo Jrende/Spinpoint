@@ -19,7 +19,7 @@
     if (useThreading) {
       newPattern = DraftUtil.applyPattern(
         newPattern,
-        $draft.get('threading').slice(from, to).toJS(),
+        $draft.threading.slice(from, to),
         'warp',
         false
       );
@@ -28,7 +28,7 @@
     if (useWarpColors) {
       newPattern = DraftUtil.applyColor(
         newPattern,
-        $draft.get('warpColors').slice(from, to).toJS(),
+        $draft.warpColors.slice(from, to),
         'warp'
       );
     }
@@ -36,7 +36,7 @@
     if (useTreadling) {
       newPattern = DraftUtil.applyPattern(
         newPattern,
-        $draft.get('treadling').slice(from, to).toJS(),
+        $draft.treadling.slice(from, to),
         'weft',
         false
       );
@@ -45,7 +45,7 @@
     if (useWeftColors) {
       newPattern = DraftUtil.applyColor(
         newPattern,
-        $draft.get('weftColors').slice(from, to).toJS(),
+        $draft.weftColors.slice(from, to),
         'weft'
       );
     }

@@ -7,14 +7,15 @@
 
   let isToggled = false;
 
-  $: selectedColorIndex = $ui.get('selectedColor');
-  $: selectedColor = tinycolor.fromRatio(
-    $draft.getIn(['yarn', selectedColorIndex, 'color']).toJS()
-  );
-  $: yarns = $draft.get('yarn').toJS();
+  $: selectedColorIndex = $ui.selectedColor;
+  let selectedColor;
+  $: selectedColor = tinycolor.fromRatio($draft.yarn[selectedColorIndex].color);
+  $: yarns = $draft.yarn;
 
   function setColor(index) {
-    ui.update((u) => u.set('selectedColor', index));
+    ui.update((draft) => {
+      draft.selectedColor = index;
+    });
     isToggled = false;
   }
 </script>

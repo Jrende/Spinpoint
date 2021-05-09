@@ -19,8 +19,8 @@
   let yCount = 0;
   let cellData = [];
 
-  $: treadleCount = $draft.get('treadleCount');
-  $: shaftCount = $draft.get('shaftCount');
+  $: treadleCount = $draft.treadleCount;
+  $: shaftCount = $draft.shaftCount;
 
   $: {
     if (oldWarpOfWeft !== warpOrWeft) {

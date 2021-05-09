@@ -1,4 +1,4 @@
-import { mat4} from 'gl-matrix';
+import { mat4 } from 'gl-matrix';
 import RendererEventTarget from './RendererEventTarget';
 
 export class WeaveRenderer extends RendererEventTarget {
@@ -8,16 +8,8 @@ export class WeaveRenderer extends RendererEventTarget {
     this.weaveShader = shaders.getShader('weave');
 
     this.initialView = mat4.create();
-    mat4.scale(this.initialView, this.initialView, [
-        -1.0,
-        1.0,
-        1.0
-      ]);
-    mat4.translate(this.initialView, this.initialView, [
-      -1.0,
-      -1.0,
-      0.0
-      ]);
+    mat4.scale(this.initialView, this.initialView, [-1.0, 1.0, 1.0]);
+    mat4.translate(this.initialView, this.initialView, [-1.0, -1.0, 0.0]);
     this.view = mat4.create();
     this.mvp = mat4.create();
   }
@@ -40,28 +32,32 @@ export class WeaveRenderer extends RendererEventTarget {
 
   render() {
     this.prerender();
-    if(this.values === undefined) return;
-    let { xCount, yCount, scrollPos, cellSize, shaftCount, treadleCount } = this.values;
+    if (this.values === undefined) return;
+    let {
+      xCount,
+      yCount,
+      scrollPos,
+      cellSize,
+      shaftCount,
+      treadleCount,
+    } = this.values;
 
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
-
 
     let cw = cellSize / w;
     let ch = cellSize / h;
     let mvp = mat4.identity(this.mvp);
     let view = mat4.translate(mat4.identity(this.view), this.initialView, [
-        this.rendererPos[0] * cw,
-        this.rendererPos[1] * ch,
-        0.0
+      this.rendererPos[0] * cw,
+      this.rendererPos[1] * ch,
+      0.0,
     ]);
-    mat4.scale(mvp, view, 
-      [
-        (cellSize * xCount) / w,
-        (cellSize * yCount) / h,
-        1.0
-      ]
-    );
+    mat4.scale(mvp, view, [
+      (cellSize * xCount) / w,
+      (cellSize * yCount) / h,
+      1.0,
+    ]);
 
     this.weaveShader.bind();
     this.quad.bind();
@@ -91,8 +87,8 @@ export class WeaveRenderer extends RendererEventTarget {
     ]);
 
     this.weaveShader.setVec2('scrollPos', [
-      scrollPos.get(0) / (xCount * cellSize),
-      scrollPos.get(1) / (yCount * cellSize)
+      scrollPos[0] / (xCount * cellSize),
+      scrollPos[1] / (yCount * cellSize),
     ]);
 
     this.quad.draw();

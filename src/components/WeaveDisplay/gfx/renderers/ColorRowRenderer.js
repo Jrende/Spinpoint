@@ -61,8 +61,8 @@ export class ColorRowRenderer extends RendererEventTarget {
       }
       this.solidShader.setVec4('color', [color.r, color.g, color.b, 1.0]);
       mat4.translate(mvp, view, [
-        (-scrollPos.get(0) / cellSize) * scrollX,
-        (-scrollPos.get(1) / cellSize) * scrollY,
+        (-scrollPos[0] / cellSize) * scrollX,
+        (-scrollPos[1] / cellSize) * scrollY,
         0.0,
       ]);
       mat4.translate(mvp, mvp, [x, y, 0.0]);
@@ -86,10 +86,10 @@ export class ColorRowRenderer extends RendererEventTarget {
     let gridH = (yCount * cellSize) / h;
     if (x > gridX && y > gridY && x < gridX + gridW && y < gridY + gridH) {
       let i = Math.floor(
-        ((x - gridX) / gridW) * xCount + scrollPos.get(0) / cellSize
+        ((x - gridX) / gridW) * xCount + scrollPos[0] / cellSize
       );
       let j = Math.floor(
-        ((y - gridY) / gridH) * yCount + scrollPos.get(1) / cellSize
+        ((y - gridY) / gridH) * yCount + scrollPos[1] / cellSize
       );
       return [i, j, event];
     }
@@ -147,8 +147,8 @@ export class ColorRowRenderer extends RendererEventTarget {
     this.colorTexture.bind(0);
     this.shader.setSampler2D('colorSampler', 0);
     this.shader.setVec2('scrollPos', [
-      (scrollPos.get(0) / (warpCount * cellSize)) * scrollX,
-      (scrollPos.get(1) / (pickCount * cellSize)) * scrollY,
+      (scrollPos[0] / (warpCount * cellSize)) * scrollX,
+      (scrollPos[1] / (pickCount * cellSize)) * scrollY,
     ]);
 
     this.shader.setFloat('vert', yCount > xCount ? 1.0 : 0.0);

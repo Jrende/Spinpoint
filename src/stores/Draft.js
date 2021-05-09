@@ -1,9 +1,9 @@
-import { writable } from 'svelte/store'
-import { fromJS, List } from 'immutable';
-window.fromJS = fromJS;
-window.List = List;
+import { writable } from 'svelte/store';
+import { produce, applyPatches } from 'immer';
+import * as undo from './undo';
+
 let draft = {};
-if(window.localStorage.getItem('draft')) {
+if (window.localStorage.getItem('draft')) {
   draft = JSON.parse(localStorage.getItem('draft'));
 } else {
   draft = {
@@ -24,39 +24,66 @@ if(window.localStorage.getItem('draft')) {
     yarn: [
       {
         name: 'White yarn',
-        color: { r: 0.8, g: 0.8, b: 0.8}
+        color: { r: 0.8, g: 0.8, b: 0.8 },
       },
       {
         name: 'Black yarn',
-        color: { r: 0.7, g: 0.0, b: 0.0}
-      }
-    ]
+        color: { r: 0.7, g: 0.0, b: 0.0 },
+      },
+    ],
   };
 
-  for(let i = 0; i < draft.warpCount; i++) {
+  for (let i = 0; i < draft.warpCount; i++) {
     draft.threading.push(i % 4);
   }
 
-  for(let i = 0; i < draft.pickCount; i++) {
-    draft.treadling.push((i) % 6);
+  for (let i = 0; i < draft.pickCount; i++) {
+    draft.treadling.push(i % 6);
   }
 }
 
-const store = writable(fromJS(draft));
-export default store;
+const store = writable(draft);
+export default {
+  draft: store,
+  update: function (func) {
+    store.set(
+      produce(draftSnapshot, func, (patches, inversePatches) => {
+        undo.push({ patches, inversePatches });
+      })
+    );
+  },
+  subscribe: function (subscription) {
+    return store.subscribe(subscription);
+  },
+};
 
-let d;
-store.subscribe(value => {
-  let v = value.toJS();
-  window.data = v;
-  d = v;
-  localStorage.setItem('draft', JSON.stringify(v));
+let draftSnapshot;
+store.subscribe((value) => {
+  draftSnapshot = value;
+  window.data = draftSnapshot;
+  localStorage.setItem('draft', JSON.stringify(draftSnapshot));
 });
+window.update = function () {
+  localStorage.setItem('draft', JSON.stringify(draftSnapshot));
+};
 
-window.update = function() {
-  localStorage.setItem('draft', JSON.stringify(d));
-}
-
-window.drop = function() {
+window.drop = function () {
   localStorage.removeItem('draft');
-}
+};
+
+document.body.addEventListener('keydown', (e) => {
+  if (e.ctrlKey === true && e.key === 'z') {
+    let changes = undo.undo();
+    if (changes) {
+      let newDraft = applyPatches(draftSnapshot, changes);
+      store.set(newDraft);
+    }
+    //undo.redo();
+  } else if (e.ctrlKey === true && e.key === 'y') {
+    let changes = undo.redo();
+    if (changes) {
+      let newDraft = applyPatches(draftSnapshot, changes);
+      store.set(newDraft);
+    }
+  }
+});

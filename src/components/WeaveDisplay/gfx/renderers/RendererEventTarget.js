@@ -55,8 +55,8 @@ export default class RendererEventTarget {
     let scrollY = this.scrollY ? 1.0 : 0.0;
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
-    let xOffset = scrollX * (scrollPos.get(0) / cellSize);
-    let yOffset = scrollY * (scrollPos.get(1) / cellSize);
+    let xOffset = scrollX * (scrollPos[0] / cellSize);
+    let yOffset = scrollY * (scrollPos[1] / cellSize);
     let cellX = Math.floor((w - pos[0]) / (cellSize / 2.0) + xOffset);
     let cellY = Math.floor((h - pos[1]) / (cellSize / 2.0) + yOffset);
     let i = cellX - this.rendererPos[0];

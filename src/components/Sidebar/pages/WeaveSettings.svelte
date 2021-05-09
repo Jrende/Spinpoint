@@ -4,18 +4,18 @@
   import DraftUtil from '../../../util/DraftUtil';
   import { _ } from 'svelte-i18n';
 
-  let shaftCount = $draft.get('shaftCount');
-  let treadleCount = $draft.get('treadleCount');
-  let warpCount = $draft.get('warpCount');
-  let pickCount = $draft.get('pickCount');
+  let shaftCount = $draft.shaftCount;
+  let treadleCount = $draft.treadleCount;
+  let warpCount = $draft.warpCount;
+  let pickCount = $draft.pickCount;
 
   function submit(event) {
     event.preventDefault();
     let newDraft = $draft;
     let changed = false;
     if (
-      $draft.get('shaftCount') !== shaftCount ||
-      $draft.get('treadleCount') !== treadleCount
+      $draft.shaftCount !== shaftCount ||
+      $draft.treadleCount !== treadleCount
     ) {
       changed = true;
       newDraft = DraftUtil.updateShaftOrTreadleCounts(
@@ -24,11 +24,11 @@
         treadleCount
       );
     }
-    if ($draft.get('warpCount') !== warpCount) {
+    if ($draft.warpCount !== warpCount) {
       changed = true;
       newDraft = DraftUtil.updateWarpCount(newDraft, warpCount);
     }
-    if ($draft.get('pickCount') !== pickCount) {
+    if ($draft.pickCount !== pickCount) {
       changed = true;
       newDraft = DraftUtil.updatePickCount(newDraft, pickCount);
     }

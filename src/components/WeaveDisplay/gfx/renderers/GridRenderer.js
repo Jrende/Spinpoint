@@ -65,8 +65,8 @@ export class GridRenderer extends RendererEventTarget {
         }
 
         mat4.translate(mvp, view, [
-          (-scrollPos.get(0) / cellSize) * scrollX,
-          (-scrollPos.get(1) / cellSize) * scrollY,
+          (-scrollPos[0] / cellSize) * scrollX,
+          (-scrollPos[1] / cellSize) * scrollY,
           0.0,
         ]);
         mat4.translate(mvp, mvp, [x, y, 0.0]);
@@ -126,8 +126,8 @@ export class GridRenderer extends RendererEventTarget {
     this.cellToggleTexture.bind(0);
     this.shader.setSampler2D('cellToggleSampler', 0);
     this.shader.setVec2('scrollPos', [
-      (scrollPos.get(0) / (warpCount * cellSize)) * scrollX,
-      (scrollPos.get(1) / (pickCount * cellSize)) * scrollY,
+      (scrollPos[0] / (warpCount * cellSize)) * scrollX,
+      (scrollPos[1] / (pickCount * cellSize)) * scrollY,
     ]);
 
     this.shader.setFloat('vert', yCount > xCount ? 1.0 : 0.0);

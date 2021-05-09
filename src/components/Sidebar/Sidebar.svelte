@@ -9,12 +9,13 @@
   import Repeat from 'icons/repeat.svg';
 
   import ui from '../../stores/UI';
+  import draft from '../../stores/Draft';
   import WeaveSettings from './pages/WeaveSettings.svelte';
   import YarnSettings from './pages/YarnSettings.svelte';
   import RepeatComponent from './pages/Repeat.svelte';
   import PatternFill from './pages/PatternFill/PatternFill.svelte';
 
-  $: selectedMenu = $ui.get('selectedMenu');
+  $: selectedMenu = $ui.selectedMenu;
   let items = [
     {
       icon: ScarfIcon,
@@ -44,8 +45,9 @@
   });
 
   function selectMenu(index) {
-    ui.update((u) =>
-      u.update('selectedMenu', (s) => (s === index ? -1 : index))
+    ui.update(
+      (draft) =>
+        (draft.selectedMenu = draft.selectedMenu === index ? -1 : index)
     );
   }
 </script>

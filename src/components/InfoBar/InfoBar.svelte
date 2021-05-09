@@ -1,10 +1,10 @@
 <script>
   import ui from '../../stores/UI';
-  $: from = $ui.get('selectFrom');
-  $: to = $ui.get('selectTo');
+  $: from = $ui.selectFrom;
+  $: to = $ui.selectTo;
   $: length = to - from + 1;
-  $: isDragging = $ui.get('isDragging');
-  $: hoverCell = $ui.get('hoverCell').toJS();
+  $: isDragging = $ui.isDragging;
+  $: hoverCell = $ui.hoverCell;
 </script>
 
 <div class="info-bar">

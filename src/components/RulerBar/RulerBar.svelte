@@ -13,15 +13,15 @@
   let guideContainer;
   let steps = [];
   $: vertical = height > width;
-  $: cellSize = $ui.get('cellSize');
+  $: cellSize = $ui.cellSize;
   $: ch = cellSize / 2.0;
   $: containerPos = [position[0] * ch, position[1] * ch];
 
-  $: scrollPos = $ui.getIn(['scrollPos', vertical ? 1 : 0]);
+  $: scrollPos = $ui.scrollPos[vertical ? 1 : 0];
   $: transform = `translate${vertical ? 'Y' : 'X'}(${scrollPos / 2.0}px)`;
-  $: shaftCount = $draft.get('shaftCount');
-  $: treadleCount = $draft.get('treadleCount');
-  $: cellSize = $ui.get('cellSize');
+  $: shaftCount = $draft.shaftCount;
+  $: treadleCount = $draft.treadleCount;
+  $: cellSize = $ui.cellSize;
 
   $: {
     if (vertical) {

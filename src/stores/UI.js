@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
-import { fromJS } from 'immutable';
+import { produce } from 'immer';
 
 let ui = {
-  selectedMenu: 3,
+  selectedMenu: -1,
   selectedColor: 0,
   cellSize: 60,
   scrollPos: [0, 0],
@@ -11,10 +11,22 @@ let ui = {
   selectTo: 0,
   selectFrom: 0,
   isDragging: false,
-  hoverCell: [0, 0]
+  hoverCell: [0, 0],
 };
 
-const store = writable(fromJS(ui));
+const store = writable(ui);
+let prevStore = ui;
+store.subscribe((s) => {
+  prevStore = s;
+});
 
 window.dataUI = ui;
-export default store;
+export default {
+  ui: store,
+  update: function (func) {
+    store.set(produce(prevStore, func));
+  },
+  subscribe: function (subscription) {
+    return store.subscribe(subscription);
+  },
+};

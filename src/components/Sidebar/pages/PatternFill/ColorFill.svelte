@@ -7,10 +7,8 @@
   export let warpOrWeft;
   export let disabled;
 
-  $: availableColors = $draft
-    .get('yarn')
-    .map((y) => y.get('color'))
-    .toJS()
+  $: availableColors = $draft.yarn
+    .map((y) => y.color)
     .map((c) => tinycolor.fromRatio(c));
 
   let colors = [0];
@@ -58,7 +56,7 @@
   function toggleCell(i, j) {
     let index = warpOrWeft === 'warp' ? j : i;
     let c = colors[index];
-    let ret = $draft.getIn(['yarn', c, 'color']).toJS();
+    let ret = $draft.yarn[c].color;
     return ret;
   }
 

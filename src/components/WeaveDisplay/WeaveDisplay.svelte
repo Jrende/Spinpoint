@@ -1,7 +1,6 @@
 <script>
   import { onMount } from 'svelte';
 
-  import { fromJS } from 'immutable';
   import draft from '../../stores/Draft';
   import ui from '../../stores/UI';
   import { Renderer } from './gfx/Renderer';
@@ -19,9 +18,9 @@
   let startPos;
   let endPos;
   let startScroll;
-  $: scroll = $ui.get('scrollPos').toJS();
-  $: selectedColor = $ui.get('selectedColor');
-  $: cellSize = $ui.get('cellSize');
+  $: scroll = $ui.scrollPos;
+  $: selectedColor = $ui.selectedColor;
+  $: cellSize = $ui.cellSize;
 
   $: {
     if (renderer) {
@@ -42,7 +41,7 @@
       (scroll[0] !== oldScroll[0] || scroll[1] !== oldScroll[1])
     ) {
       if (drag.includes('Color')) {
-        let color = $draft.getIn(['yarn', selectedColor, 'color']).toJS();
+        let color = $draft.yarn[selectedColor].color;
         renderer[drag].renderPoints(...linePoints, color);
       } else {
         renderer[drag].renderPoints(linePoints);
@@ -91,12 +90,9 @@
         let rendererName = getRenderer(startPos)?.name;
         if (rendererName !== undefined && rendererName !== 'weave') {
           drag = rendererName;
-          ui.set(
-            fromJS({
-              ...$ui.toJS(),
-              isDragging: true,
-            })
-          );
+          ui.update((draft) => {
+            draft.isDragging = true;
+          });
         }
 
         dragMaybe = false;
@@ -128,16 +124,13 @@
           }
         } else {
           if (linePointsChanged(linePoints, oldLinePoints)) {
-            let color = $draft.getIn(['yarn', selectedColor, 'color']).toJS();
+            let color = $draft.yarn[selectedColor].color;
             renderer[drag].renderPoints(...linePoints, color);
           }
-          ui.set(
-            fromJS({
-              ...$ui.toJS(),
-              selectFrom: linePoints[0],
-              selectTo: linePoints[1],
-            })
-          );
+          ui.update((draft) => {
+            draft.selectFrom = linePoints[0];
+            draft.selectTo = linePoints[1];
+          });
           oldLinePoints = linePoints;
         }
       }
@@ -148,12 +141,7 @@
         switch (drag) {
           case 'warpColors':
           case 'weftColors':
-            updateColor(
-              drag,
-              linePoints[0],
-              linePoints[1],
-              $ui.get('selectedColor')
-            );
+            updateColor(drag, linePoints[0], linePoints[1], $ui.selectedColor);
             renderer.clear();
             break;
           case 'treadling':
@@ -212,18 +200,16 @@
   });
 
   function updateGrid(name, index, value) {
-    draft.update((d) =>
-      d.updateIn([name, index], (c) => (c === value ? -1 : value))
-    );
+    draft.update((temp) => {
+      temp[name][index] = temp[name][index] === value ? -1 : value;
+    });
   }
 
   function updateTieupWithPoints(linePoints) {
-    draft.update((d) => {
-      let draft = d;
+    draft.update((temp) => {
       linePoints.forEach((p) => {
-        draft = draft.setIn(['tieup', p[1], p[0]], 1);
+        temp.tieup[p[1]][p[0]] = 1;
       });
-      return draft;
     });
   }
 
@@ -232,27 +218,23 @@
       [colorStart, colorEnd] = [colorEnd, colorStart];
     }
 
-    let newList = $draft.get(name).withMutations((l) => {
+    draft.update((temp) => {
       for (let i = 0; i < colorEnd - colorStart + 1; i++) {
-        l.set(colorStart + i, selectedColor);
+        temp[name][colorStart + i] = selectedColor;
       }
     });
-
-    draft.update((d) => d.set(name, newList));
   }
 
   function updateListWithLine(name, lp) {
-    draft.update((d) =>
-      d.update(name, (list) =>
-        list.withMutations((l) => {
-          lp.forEach((p, i) => l.set(i, p));
-        })
-      )
-    );
+    draft.update((temp) => {
+      lp.forEach((p, i) => (temp[name][i] = p));
+    });
   }
 
   function toggleTieup(x, y) {
-    draft.update((d) => d.updateIn(['tieup', x, y], (v) => (v === 1 ? 0 : 1)));
+    draft.update((temp) => {
+      temp.tieup[x][y] = temp.tieup[x][y] === 1 ? 0 : 1;
+    });
   }
 
   function linePointsChanged(left, right) {
@@ -284,12 +266,9 @@
       renderer[drag].render();
       drag = undefined;
       cancelled = true;
-      ui.set(
-        fromJS({
-          ...$ui.toJS(),
-          isDragging: false,
-        })
-      );
+      ui.update((draft) => {
+        draft.isDragging = false;
+      });
     }
   }
 
@@ -298,12 +277,11 @@
     let r = getRenderer(pos);
     if (r) {
       let cell = r.renderer.getCellAtPos(pos);
-      ui.set(
-        fromJS({
-          ...$ui.toJS(),
-          hoverCell: cell,
-        })
-      );
+      if (cell[0] !== $ui.hoverCell[0] && cell[1] !== $ui.hoverCell[1]) {
+        ui.update((draft) => {
+          draft.hoverCell = cell;
+        });
+      }
     }
   }
 
@@ -314,24 +292,18 @@
       switch (r.name) {
         case 'warpColors': {
           let cell = r.renderer.getCellAtPos(pos);
-          let c = $draft.getIn([r.name, cell[0]]);
-          ui.set(
-            fromJS({
-              ...$ui.toJS(),
-              selectedColor: c,
-            })
-          );
+          let c = $draft[r.name][cell[0]];
+          ui.update((draft) => {
+            draft.selectedColor = c;
+          });
           break;
         }
         case 'weftColors': {
           let cell = r.renderer.getCellAtPos(pos);
-          let c = $draft.getIn([r.name, cell[1]]);
-          ui.set(
-            fromJS({
-              ...$ui.toJS(),
-              selectedColor: c,
-            })
-          );
+          let c = $draft[r.name][cell[1]];
+          ui.update((draft) => {
+            draft.selectedColor = c;
+          });
           break;
         }
         case 'threading':

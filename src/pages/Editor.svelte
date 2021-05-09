@@ -14,7 +14,7 @@
   let canvasContainer;
   let canvasWidth;
   let canvasHeight;
-  let cellSizeInput = $ui.get('cellSize');
+  let cellSizeInput = $ui.cellSize;
   let hasChangedCellSize;
   let scrollPercentage = [];
 
@@ -26,9 +26,9 @@
 
   let resizeObserver;
 
-  $: warpCount = $draft.get('warpCount');
-  $: pickCount = $draft.get('pickCount');
-  $: cellSize = $ui.get('cellSize');
+  $: warpCount = $draft.warpCount;
+  $: pickCount = $draft.pickCount;
+  $: cellSize = $ui.cellSize;
   $: width = warpCount * cellSize;
   $: height = pickCount * cellSize;
 
@@ -120,20 +120,22 @@
 
   function updatePosition() {
     let pos = getPosition();
-    ui.update((u) => {
-      return u.set('scrollPos', List(pos));
+    ui.update((draft) => {
+      draft.scrollPos = pos;
     });
   }
 
   function changeCellSize() {
     let newCellSize = reducePrecision(cellSizeInput);
-    let oldCellSize = $ui.get('cellSize');
+    let oldCellSize = $ui.cellSize;
     if (newCellSize !== oldCellSize) {
       hasChangedCellSize = true;
       let [x, y] = getPosition();
       let [scrollLeftMax, scrollTopMax] = getBounds();
       scrollPercentage = [x / scrollLeftMax, y / scrollTopMax];
-      ui.update((u) => u.set('cellSize', newCellSize));
+      ui.update((draft) => {
+        draft.cellSize = newCellSize;
+      });
     }
   }
 </script>
@@ -174,15 +176,15 @@
       <WeaveDisplay bind:this={weaveDisplay} />
       <RulerBar
         width={canvasWidth}
-        stepCount={$draft.get('warpCount')}
-        distance={$ui.get('xStepDistance')}
-        position={[$draft.get('treadleCount') + 4, 2]}
+        stepCount={$draft.warpCount}
+        distance={$ui.xStepDistance}
+        position={[$draft.treadleCount + 4, 2]}
       />
       <RulerBar
         height={canvasHeight}
-        stepCount={$draft.get('pickCount')}
-        distance={$ui.get('yStepDistance')}
-        position={[2, $draft.get('shaftCount') + 4]}
+        stepCount={$draft.pickCount}
+        distance={$ui.yStepDistance}
+        position={[2, $draft.shaftCount + 4]}
       />
     </div>
   </div>

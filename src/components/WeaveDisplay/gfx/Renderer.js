@@ -11,12 +11,11 @@ import {
   createGridTexture,
   createColorTexture,
 } from './TextureUtil';
-import { fromJS } from 'immutable';
 
 export class Renderer {
   renderNextFrame = false;
-  prevDraft = fromJS({});
-  prevUI = fromJS({});
+  prevDraft = {};
+  prevUI = {};
 
   constructor(canvas) {
     this.gl = canvas.getContext('webgl', {
@@ -115,8 +114,8 @@ export class Renderer {
   }
 
   setRendererPosition(draft) {
-    let treadleCount = draft.get('treadleCount');
-    let shaftCount = draft.get('shaftCount');
+    let treadleCount = draft.treadleCount;
+    let shaftCount = draft.shaftCount;
     this.tieup.setRendererPosition([3, 3]);
     this.threading.setRendererPosition([treadleCount + 4, 3]);
     this.treadling.setRendererPosition([3, shaftCount + 4]);
@@ -127,7 +126,7 @@ export class Renderer {
 
   isDifferent(draft, prevDraft, ...args) {
     return args.some((a) => {
-      return draft.get(a) !== prevDraft.get(a);
+      return draft[a] !== prevDraft[a];
     });
   }
 
@@ -158,10 +157,10 @@ export class Renderer {
       this.isDifferent(ui, prevUI, 'cellSize')
     ) {
       this.tieup.updateValues({
-        xCount: draft.get('treadleCount'),
-        yCount: draft.get('shaftCount'),
-        cellSize: ui.get('cellSize'),
-        scrollPos: ui.get('scrollPos'),
+        xCount: draft.treadleCount,
+        yCount: draft.shaftCount,
+        cellSize: ui.cellSize,
+        scrollPos: ui.scrollPos,
       });
       this.renderers[0].dirty = true;
       this.tieup.setCellToggleTexture(this.tieupTexture);
@@ -175,17 +174,17 @@ export class Renderer {
         'shaftCount',
         'threading'
       ) ||
-      ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
+      ui.scrollPos[0] !== prevUI.scrollPos[0] ||
       this.isDifferent(ui, prevUI, 'cellSize', 'xStepDistance', 'yStepDistance')
     ) {
       this.threading.updateValues({
-        xCount: draft.get('warpCount'),
-        yCount: draft.get('shaftCount'),
-        pickCount: draft.get('pickCount'),
-        warpCount: draft.get('warpCount'),
-        cellSize: ui.get('cellSize'),
-        scrollPos: ui.get('scrollPos'),
-        xStepDistance: ui.get('xStepDistance'),
+        xCount: draft.warpCount,
+        yCount: draft.shaftCount,
+        pickCount: draft.pickCount,
+        warpCount: draft.warpCount,
+        cellSize: ui.cellSize,
+        scrollPos: ui.scrollPos,
+        xStepDistance: ui.xStepDistance,
       });
       this.renderers[1].dirty = true;
       this.threading.setCellToggleTexture(this.threadingTexture);
@@ -199,17 +198,17 @@ export class Renderer {
         'pickCount',
         'treadling'
       ) ||
-      ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
+      ui.scrollPos[1] !== prevUI.scrollPos[1] ||
       this.isDifferent(ui, prevUI, 'cellSize', 'xStepDistance', 'yStepDistance')
     ) {
       this.treadling.updateValues({
-        xCount: draft.get('treadleCount'),
-        yCount: draft.get('pickCount'),
-        pickCount: draft.get('pickCount'),
-        warpCount: draft.get('warpCount'),
-        cellSize: ui.get('cellSize'),
-        scrollPos: ui.get('scrollPos'),
-        yStepDistance: ui.get('yStepDistance'),
+        xCount: draft.treadleCount,
+        yCount: draft.pickCount,
+        pickCount: draft.pickCount,
+        warpCount: draft.warpCount,
+        cellSize: ui.cellSize,
+        scrollPos: ui.scrollPos,
+        yStepDistance: ui.yStepDistance,
       });
       this.renderers[2].dirty = true;
       this.treadling.setCellToggleTexture(this.treadlingTexture);
@@ -224,17 +223,17 @@ export class Renderer {
         'yarn',
         'warpColors'
       ) ||
-      ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
+      ui.scrollPos[0] !== prevUI.scrollPos[0] ||
       this.isDifferent(ui, prevUI, 'cellSize', 'xStepDistance', 'yStepDistance')
     ) {
       this.warpColors.updateValues({
-        xCount: draft.get('warpCount'),
+        xCount: draft.warpCount,
         yCount: 1,
-        pickCount: draft.get('pickCount'),
-        warpCount: draft.get('warpCount'),
-        cellSize: ui.get('cellSize'),
-        scrollPos: ui.get('scrollPos'),
-        xStepDistance: ui.get('xStepDistance'),
+        pickCount: draft.pickCount,
+        warpCount: draft.warpCount,
+        cellSize: ui.cellSize,
+        scrollPos: ui.scrollPos,
+        xStepDistance: ui.xStepDistance,
       });
       this.renderers[3].dirty = true;
       this.warpColors.setColorTexture(this.warpTexture);
@@ -249,17 +248,17 @@ export class Renderer {
         'yarn',
         'weftColors'
       ) ||
-      ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
+      ui.scrollPos[1] !== prevUI.scrollPos[1] ||
       this.isDifferent(ui, prevUI, 'cellSize', 'xStepDistance', 'yStepDistance')
     ) {
       this.weftColors.updateValues({
         xCount: 1,
-        yCount: draft.get('pickCount'),
-        pickCount: draft.get('pickCount'),
-        warpCount: draft.get('warpCount'),
-        cellSize: ui.get('cellSize'),
-        scrollPos: ui.get('scrollPos'),
-        yStepDistance: ui.get('yStepDistance'),
+        yCount: draft.pickCount,
+        pickCount: draft.pickCount,
+        warpCount: draft.warpCount,
+        cellSize: ui.cellSize,
+        scrollPos: ui.scrollPos,
+        yStepDistance: ui.yStepDistance,
       });
       this.renderers[4].dirty = true;
       this.weftColors.setColorTexture(this.weftTexture);
@@ -280,17 +279,17 @@ export class Renderer {
         'shaftCount',
         'tieup'
       ) ||
-      ui.getIn(['scrollPos', 0]) !== prevUI.getIn(['scrollPos', 0]) ||
-      ui.getIn(['scrollPos', 1]) !== prevUI.getIn(['scrollPos', 1]) ||
+      ui.scrollPos[0] !== prevUI.scrollPos[0] ||
+      ui.scrollPos[1] !== prevUI.scrollPos[1] ||
       this.isDifferent(ui, prevUI, 'cellSize')
     ) {
       this.weave.updateValues({
-        xCount: draft.get('warpCount'),
-        yCount: draft.get('pickCount'),
-        shaftCount: draft.get('shaftCount'),
-        treadleCount: draft.get('treadleCount'),
-        cellSize: ui.get('cellSize'),
-        scrollPos: ui.get('scrollPos'),
+        xCount: draft.warpCount,
+        yCount: draft.pickCount,
+        shaftCount: draft.shaftCount,
+        treadleCount: draft.treadleCount,
+        cellSize: ui.cellSize,
+        scrollPos: ui.scrollPos,
       });
       this.renderers[5].dirty = true;
     }
@@ -307,9 +306,9 @@ export class Renderer {
       this.threadingTexture.delete();
       this.threadingTexture = create1DGridTexture(
         this.gl,
-        draft.get('threading'),
-        draft.get('shaftCount'),
-        draft.get('warpCount')
+        draft.threading,
+        draft.shaftCount,
+        draft.warpCount
       );
     }
 
@@ -325,9 +324,9 @@ export class Renderer {
       this.treadlingTexture.delete();
       this.treadlingTexture = create1DGridTexture(
         this.gl,
-        draft.get('treadling'),
-        draft.get('treadleCount'),
-        draft.get('pickCount')
+        draft.treadling,
+        draft.treadleCount,
+        draft.pickCount
       );
     }
 
@@ -335,9 +334,9 @@ export class Renderer {
       this.tieupTexture.delete();
       this.tieupTexture = createGridTexture(
         this.gl,
-        draft.get('tieup'),
-        draft.get('treadleCount'),
-        draft.get('shaftCount')
+        draft.tieup,
+        draft.treadleCount,
+        draft.shaftCount
       );
     }
 
@@ -345,10 +344,10 @@ export class Renderer {
       this.warpTexture.delete();
       this.warpTexture = createColorTexture(
         this.gl,
-        draft.get('warpColors'),
-        draft.get('warpColors').size,
+        draft.warpColors,
+        draft.warpColors.length,
         1,
-        draft.get('yarn')
+        draft.yarn
       );
     }
 
@@ -356,10 +355,10 @@ export class Renderer {
       this.weftTexture.delete();
       this.weftTexture = createColorTexture(
         this.gl,
-        draft.get('weftColors'),
+        draft.weftColors,
         1,
-        draft.get('weftColors').size,
-        draft.get('yarn')
+        draft.weftColors.length,
+        draft.yarn
       );
     }
   }

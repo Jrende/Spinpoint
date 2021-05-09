@@ -4,18 +4,23 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public --host 0.0.0.0"
+    "start": "sirv public --host 0.0.0.0",
+    "test": "jest",
+    "debug": "node --inspect-brk node_modules/.bin/jest --runInBand"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^16.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^10.0.0",
     "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.6.3",
     "eslint": "^7.19.0",
     "eslint-plugin-svelte3": "^3.0.0",
+    "jest": "^26.6.3",
     "prettier": "^2.2.1",
     "prettier-plugin-svelte": "^2.1.2",
     "rollup": "^2.3.4",
+    "rollup-jest": "^1.1.1",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-includepaths": "^0.2.4",
     "rollup-plugin-livereload": "^2.0.0",
@@ -27,7 +32,7 @@
   },
   "dependencies": {
     "gl-matrix": "^3.3.0",
-    "immutable": "^4.0.0-rc.12",
+    "immer": "^9.0.2",
     "query-string": "^6.13.8",
     "sirv-cli": "^1.0.0",
     "svelte-i18n": "^3.3.0",
