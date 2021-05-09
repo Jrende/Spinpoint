@@ -71,7 +71,22 @@
     link.dispatchEvent(evt);
   }
 
-  function importFromFile(e) {}
+  function importFromFile(e) {
+    let files = e.target.files;
+    if (files.length > 0) {
+      let file = files[0];
+      let reader = new FileReader();
+      reader.onload = (readFile) => {
+        try {
+          let newDraft = JSON.parse(readFile.target.result);
+          draft.set(newDraft);
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      reader.readAsText(file);
+    }
+  }
 </script>
 
 <Router primary={false}>
@@ -88,6 +103,15 @@
         <span>S</span>
       </button>
 
+      <div>
+        <input
+          type="file"
+          name="upload"
+          id="upload"
+          on:input={importFromFile}
+        />
+        <label class="button" for="upload">Upload</label>
+      </div>
       <div class="help">
         <Route path="/">
           <a href="weaver/about" use:link>
@@ -118,6 +142,10 @@
 </Router>
 
 <style>
+  input[type='file'] {
+    display: none;
+  }
+
   .icon {
     fill: var(--color-1);
     stroke: var(--color-1);
