@@ -80,7 +80,6 @@
 <style>
   .steps-container {
     position: absolute;
-    z-index: 10;
     overflow: hidden;
   }
 
