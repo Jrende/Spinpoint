@@ -45,11 +45,33 @@
   });
 
   function selectMenu(index) {
-    ui.update(
-      (draft) =>
-        (draft.selectedMenu = draft.selectedMenu === index ? -1 : index)
-    );
+    ui.update((draft) => {
+      draft.selectedMenu = draft.selectedMenu === index ? -1 : index;
+    });
   }
+
+  function exportToFile() {
+    const blob = new Blob([JSON.stringify($draft)], {
+      type: 'text/json',
+    });
+    const link = document.createElement('a');
+
+    link.download = 'weave.json';
+    link.href = window.URL.createObjectURL(blob);
+    link.dataset.downloadurl = ['text/json', link.download, link.href].join(
+      ':'
+    );
+
+    const evt = new MouseEvent('click', {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+
+    link.dispatchEvent(evt);
+  }
+
+  function importFromFile(e) {}
 </script>
 
 <Router primary={false}>
@@ -62,6 +84,9 @@
           </div>
         </button>
       {/each}
+      <button class="icon-button save-load" on:click={exportToFile}>
+        <span>S</span>
+      </button>
 
       <div class="help">
         <Route path="/">
@@ -146,5 +171,11 @@
   .overlay {
     background-color: rgba(0, 0, 0, 0.4);
     flex-grow: 1;
+  }
+
+  .save-load {
+    width: 50px;
+    height: 50px;
+    color: var(--color-1);
   }
 </style>

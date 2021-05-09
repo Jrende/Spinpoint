@@ -1,6 +1,5 @@
 <script>
   import { onMount, afterUpdate } from 'svelte';
-  import { List } from 'immutable';
   import ui from '../stores/UI';
   import draft from '../stores/Draft';
   import WeaveDisplay from '../components/WeaveDisplay/WeaveDisplay.svelte';

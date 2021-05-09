@@ -1,6 +1,5 @@
 <script>
   import draft from '../../../stores/Draft';
-  import ui from '../../../stores/UI';
   import DraftUtil from '../../../util/DraftUtil';
   import { _ } from 'svelte-i18n';
   import RightArrow from 'icons/right-arrow.svg';
@@ -15,41 +14,39 @@
 
   function submit(event) {
     event.preventDefault();
-    let newPattern = $draft;
     if (useThreading) {
-      newPattern = DraftUtil.applyPattern(
-        newPattern,
-        $draft.threading.slice(from, to),
-        'warp',
-        false
-      );
+      draft.update((temp) => {
+        DraftUtil.applyPattern(
+          temp,
+          $draft.threading.slice(from, to),
+          'warp',
+          false
+        );
+      });
     }
 
     if (useWarpColors) {
-      newPattern = DraftUtil.applyColor(
-        newPattern,
-        $draft.warpColors.slice(from, to),
-        'warp'
-      );
+      draft.update((temp) => {
+        DraftUtil.applyColor(temp, $draft.warpColors.slice(from, to), 'warp');
+      });
     }
 
     if (useTreadling) {
-      newPattern = DraftUtil.applyPattern(
-        newPattern,
-        $draft.treadling.slice(from, to),
-        'weft',
-        false
-      );
+      draft.update((temp) => {
+        DraftUtil.applyPattern(
+          temp,
+          $draft.treadling.slice(from, to),
+          'weft',
+          false
+        );
+      });
     }
 
     if (useWeftColors) {
-      newPattern = DraftUtil.applyColor(
-        newPattern,
-        $draft.weftColors.slice(from, to),
-        'weft'
-      );
+      draft.update((temp) => {
+        DraftUtil.applyColor(temp, $draft.weftColors.slice(from, to), 'weft');
+      });
     }
-    draft.set(newPattern);
   }
 </script>
 

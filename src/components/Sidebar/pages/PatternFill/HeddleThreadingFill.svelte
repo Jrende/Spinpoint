@@ -45,13 +45,9 @@
   }
 
   export function apply() {
-    let newPattern = draftUtil.applyPattern(
-      $draft,
-      cellData,
-      warpOrWeft,
-      mirroredRepeat
-    );
-    draft.set(newPattern);
+    draft.update((temp) => {
+      draftUtil.applyPattern(temp, cellData, warpOrWeft, mirroredRepeat);
+    });
   }
 
   function onGridMouseMove(event) {

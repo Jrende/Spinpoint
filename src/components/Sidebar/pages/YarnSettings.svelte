@@ -18,7 +18,7 @@
   let colorListener;
 
   $: selectedYarn = $draft.yarn[yarnUnderModification];
-  $: selectedColor = tinycolor.fromRatio(selectedYarn.color);
+  $: selectedColor = tinycolor.fromRatio(selectedYarn?.color);
 
   function focus(elm) {
     elm.focus();

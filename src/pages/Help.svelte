@@ -14,6 +14,8 @@
     <li>Yarn by Sergey Demushkin</li>
     <li>add by Johan Ronsse</li>
     <li>Repeat by Adrien Coquet</li>
+    <li>Save by Mahesh Keshvala</li>
+    <li>Upload by Gicon studio</li>
   </ul>
 </div>
 

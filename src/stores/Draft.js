@@ -52,6 +52,17 @@ export default {
       })
     );
   },
+  set: function (newState) {
+    store.set(
+      produce(
+        draftSnapshot,
+        () => newState,
+        (patches, inversePatches) => {
+          undo.push({ patches, inversePatches });
+        }
+      )
+    );
+  },
   subscribe: function (subscription) {
     return store.subscribe(subscription);
   },

@@ -7,9 +7,7 @@
   export let warpOrWeft;
   export let disabled;
 
-  $: availableColors = $draft.yarn
-    .map((y) => y.color)
-    .map((c) => tinycolor.fromRatio(c));
+  $: availableColors = $draft.yarn.map((y) => tinycolor.fromRatio(y.color));
 
   let colors = [0];
   let grid;
@@ -56,8 +54,7 @@
   function toggleCell(i, j) {
     let index = warpOrWeft === 'warp' ? j : i;
     let c = colors[index];
-    let ret = $draft.yarn[c].color;
-    return ret;
+    return $draft.yarn[c].color;
   }
 
   function onClick(event) {
@@ -68,8 +65,9 @@
   }
 
   export function apply() {
-    let newPattern = draftUtil.applyColor($draft, colors, warpOrWeft);
-    draft.set(newPattern);
+    draft.update((temp) => {
+      draftUtil.applyColor(temp, colors, warpOrWeft);
+    });
   }
 </script>
 
