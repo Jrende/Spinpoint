@@ -8,12 +8,17 @@
     "ecmaVersion": 2019,
     "sourceType": "module"
   },
-  "plugins": ["svelte3"],
+  "plugins": ["svelte3", "import"],
   "extends": ["eslint:recommended"],
   "overrides": [
     {
       "files": ["**/*.svelte"],
       "processor": "svelte3/svelte3"
     }
-  ]
+  ],
+  "settings": {
+    "import/no-unresolved": [
+      ".*"
+    ]
+  }
 }

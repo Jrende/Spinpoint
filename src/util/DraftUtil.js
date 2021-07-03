@@ -3,10 +3,12 @@ class DraftUtil {
 
   updateShaftCount(draft, shaftCount) {
     draft.tieup.length = shaftCount;
+    draft.shaftCount = shaftCount;
   }
 
   updateTreadleCount(draft, treadleCount) {
     draft.tieup.forEach((t) => (t.length = treadleCount));
+    draft.treadleCount = treadleCount;
   }
 
   updateWarpCount(draft, warpCount) {

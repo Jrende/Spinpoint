@@ -10,8 +10,8 @@
   import satValFrag from './satVal.frag';
   import solidFrag from './solid.frag';
   import solidVert from './solid.vert';
-  import VertexArray from '../WeaveDisplay/gfx/VertexArray';
-  import Shader from '../WeaveDisplay/gfx/shader/Shader';
+  import VertexArray from 'pages/Editor/WeaveDisplay/gfx/VertexArray';
+  import Shader from 'pages/Editor/WeaveDisplay/gfx/shader/Shader';
   import Ring from './Ring';
 
   let canvas;

@@ -10,6 +10,7 @@
   $: selectedColorIndex = $ui.selectedColor;
   let selectedColor;
   $: selectedColor = tinycolor.fromRatio($draft.yarn[selectedColorIndex].color);
+  $: selectedColorBorder = selectedColor.isDark() ? 'white' : 'black';
   $: yarns = $draft.yarn;
 
   function setColor(index) {
@@ -44,10 +45,12 @@
     <div class="color-dropdown">
       {#each yarns as yarn, i}
         <button
+          class:selected={selectedColorIndex === i}
           class="item"
           style={`background-color: ${tinycolor
             .fromRatio(yarn.color)
-            .toHexString()}`}
+            .toHexString()};
+          `}
           on:click={() => setColor(i)}
         />
       {/each}
@@ -73,32 +76,45 @@
   }
 
   .color-display {
-    width: 2em;
+    width: 2rem;
     margin: 0;
     height: 100%;
   }
 
   .color-dropdown {
-    list-style: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+
+    z-index: 5;
     background-color: white;
     margin: 0;
     padding: 4px;
     border: 1px solid black;
+
     display: flex;
-    align-items: stretch;
+    align-items: center;
     flex-direction: column;
   }
 
-  .color-dropdown .item:not(:first-child) {
+  .item:not(:first-child) {
     margin-top: 4px;
   }
 
-  .color-dropdown .item {
+  .item {
     display: block;
-    height: 20px;
     margin: 0;
     padding: 0;
     margin-top: 4px;
     border: 1px solid black;
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+
+  .item.selected {
+    margin: 0.25rem;
+    margin-top: calc(0.25rem + 4px);
+    height: 1.25rem;
+    width: 1.25rem;
   }
 </style>

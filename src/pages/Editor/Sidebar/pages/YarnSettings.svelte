@@ -1,8 +1,7 @@
 <script>
   import tinycolor from 'tinycolor2';
-  import { fromJS } from 'immutable';
-  import draft from '../../../stores/Draft';
-  import ui from '../../../stores/UI';
+  import draft from '../../../../stores/Draft';
+  import ui from '../../../../stores/UI';
   import { _ } from 'svelte-i18n';
   import { onMount, onDestroy } from 'svelte';
   import { colorPickerStore } from '../../ColorPickerDialog/ColorPickerStore.js';
@@ -28,7 +27,7 @@
     colorListener = colorPickerStore.onColorChange((color) => {
       if (yarnUnderModification !== -1) {
         draft.update((temp) => {
-          temp.yarn[yarnUnderModification].color = fromJS(color);
+          temp.yarn[yarnUnderModification].color = color;
         });
       }
     });
@@ -40,28 +39,32 @@
 
   function createNewYarn(event) {
     event.preventDefault();
-    draft.update((temp) =>
-      temp.yarn.push(
-        fromJS({ name: 'Yarn', color: { r: 1.0, g: 1.0, b: 1.0 } })
-      )
-    );
+    draft.update((temp) => {
+      temp.yarn.push({ name: 'Yarn', color: { r: 1.0, g: 1.0, b: 1.0 } });
+    });
     yarnUnderModification = $draft.yarn.size - 1;
   }
 
   function selectYarnForModification(event, i) {
     yarnUnderModification = i;
-    ui.update((temp) => (temp.selectedColor = yarnUnderModification));
+    ui.update((temp) => {
+      temp.selectedColor = yarnUnderModification;
+    });
     if (i !== $draft.yarn.size) {
       newYarnColor = $draft.yarn[i].color;
     }
   }
 
   function changeName(newName, yarnId) {
-    draft.update((temp) => (temp.yarn[yarnId].name = newName));
+    draft.update((temp) => {
+      temp.yarn[yarnId].name = newName;
+    });
   }
 
   function deleteColor(index) {
-    draft.update((temp) => temp.yarn.splice(index, 1));
+    draft.update((temp) => {
+      temp.yarn.splice(index, 1);
+    });
     yarnUnderModification = index - 1;
   }
 

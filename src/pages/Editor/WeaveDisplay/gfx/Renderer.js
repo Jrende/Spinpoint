@@ -134,7 +134,10 @@ export class Renderer {
     let prevDraft = this.prevDraft;
     let prevUI = this.prevUI;
 
-    if (this.isDifferent(ui, prevUI, 'cellSize')) {
+    if (
+      this.isDifferent(ui, prevUI, 'cellSize') ||
+      this.isDifferent(draft, prevDraft, 'treadleCount', 'shaftCount')
+    ) {
       this.clear();
     }
 

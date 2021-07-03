@@ -1,6 +1,6 @@
 <script>
-  import ui from '../../stores/UI';
-  import draft from '../../stores/Draft';
+  import ui from 'stores/UI';
+  import draft from 'stores/Draft';
 
   export let width = 0;
   export let height = 0;

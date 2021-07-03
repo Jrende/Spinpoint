@@ -1,28 +1,25 @@
 import { writable } from 'svelte/store';
 import { produce } from 'immer';
 
-let ui = {
-  selectedMenu: 3,
-  selectedColor: 0,
-  cellSize: 60,
-  scrollPos: [0, 0],
-  xStepDistance: 8,
-  yStepDistance: 8,
-  selectTo: 0,
-  selectFrom: 0,
-  isDragging: false,
-  hoverCell: [0, 0],
+let selection = {
+  isSelecting: false,
+  from: [0, 0],
+  to: [10, 10],
+  useThreading: false,
+  useWarpColors: false,
+  useTreadling: false,
+  useWeftColors: false,
 };
 
-const store = writable(ui);
-let prevStore = ui;
+const store = writable(selection);
+let prevStore = selection;
+
 store.subscribe((s) => {
   prevStore = s;
 });
 
-window.dataUI = ui;
 export default {
-  ui: store,
+  selection: store,
   update: function (func) {
     store.set(produce(prevStore, func));
   },

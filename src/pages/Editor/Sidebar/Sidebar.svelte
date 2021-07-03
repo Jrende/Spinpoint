@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { afterUpdate } from 'svelte';
   import { Router, Route, link } from 'svelte-navigator';
   import HelpIcon from 'icons/help.svg';
   import BackIcon from 'icons/back.svg';
@@ -8,8 +8,8 @@
   import PatternBucket from 'icons/pattern-bucket.svg';
   import Repeat from 'icons/repeat.svg';
 
-  import ui from '../../stores/UI';
-  import draft from '../../stores/Draft';
+  import ui from '../../../stores/UI';
+  import draft from '../../../stores/Draft';
   import WeaveSettings from './pages/WeaveSettings.svelte';
   import YarnSettings from './pages/YarnSettings.svelte';
   import RepeatComponent from './pages/Repeat.svelte';
@@ -40,8 +40,12 @@
   ];
   let sidebarWidth;
   let sidebar;
-  onMount(() => {
-    sidebarWidth = sidebar.getBoundingClientRect().width;
+  export let open = false;
+
+  afterUpdate(() => {
+    if (sidebar !== undefined && sidebar !== null) {
+      sidebarWidth = sidebar.getBoundingClientRect().width;
+    }
   });
 
   function selectMenu(index) {
@@ -91,52 +95,55 @@
 
 <Router primary={false}>
   <div class="sidebar-container">
-    <div class="sidebar" bind:this={sidebar}>
-      {#each items as item, i}
-        <button class="icon-button" on:click={() => selectMenu(i)}>
-          <div class={'icon'}>
-            {@html item.icon}
-          </div>
+    {#if open}
+      <div class="sidebar" bind:this={sidebar}>
+        {#each items as item, i}
+          <button class="icon-button" on:click={() => selectMenu(i)}>
+            <div class={'icon'}>
+              {@html item.icon}
+            </div>
+            <span>{item.title}</span>
+          </button>
+        {/each}
+        <button class="icon-button save-load" on:click={exportToFile}>
+          <span>Save file</span>
         </button>
-      {/each}
-      <button class="icon-button save-load" on:click={exportToFile}>
-        <span>S</span>
-      </button>
 
-      <div>
-        <input
-          type="file"
-          name="upload"
-          id="upload"
-          on:input={importFromFile}
-        />
-        <label class="button" for="upload">Upload</label>
-      </div>
-      <div class="help">
-        <Route path="/">
-          <a href="weaver/about" use:link>
-            <div class="icon">
-              {@html HelpIcon}
-            </div>
-          </a>
-        </Route>
-        <Route path="about">
-          <a class="help" href="/" use:link>
-            <div class="icon">
-              {@html BackIcon}
-            </div>
-          </a>
-        </Route>
-      </div>
-    </div>
-
-    {#if selectedMenu !== -1}
-      <div class="settings-sidebar" style={`left: ${sidebarWidth}px`}>
-        <div class="settings">
-          <svelte:component this={items[selectedMenu].component} />
+        <div>
+          <input
+            type="file"
+            name="upload"
+            id="upload"
+            on:input={importFromFile}
+          />
+          <label class="icon-button button" for="upload">Load from file</label>
         </div>
-        <div class="overlay" on:click={() => selectMenu(-1)} />
+        <div class="help">
+          <Route path="/">
+            <a href="weaver/about" use:link>
+              <div class="icon">
+                {@html HelpIcon}
+              </div>
+            </a>
+          </Route>
+          <Route path="about">
+            <a class="help" href="/" use:link>
+              <div class="icon">
+                {@html BackIcon}
+              </div>
+            </a>
+          </Route>
+        </div>
       </div>
+
+      {#if selectedMenu !== -1}
+        <div class="settings-sidebar" style={`left: ${sidebarWidth}px`}>
+          <div class="settings">
+            <svelte:component this={items[selectedMenu].component} />
+          </div>
+          <div class="overlay" on:click={() => selectMenu(-1)} />
+        </div>
+      {/if}
     {/if}
   </div>
 </Router>
@@ -151,26 +158,29 @@
     stroke: var(--color-1);
     width: 50px;
     height: 50px;
+    margin: auto;
+    margin-bottom: 5px;
   }
 
   .icon-button {
     background-color: var(--color-2);
     border-radius: 4px;
     border: 1px black;
+    color: var(--color-1);
   }
 
   .sidebar-container {
     display: flex;
     z-index: 10;
+    grid-column: 1;
   }
 
   .sidebar {
-    width: 50px;
     background-color: #40362a;
     padding: 10px 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
   }
 
   .sidebar > * {

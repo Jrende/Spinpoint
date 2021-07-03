@@ -1,7 +1,7 @@
 <script>
   import { afterUpdate } from 'svelte';
   import { vec2 } from 'gl-matrix';
-  import ColorPicker from '../ColorPicker/ColorPicker.svelte';
+  import ColorPicker from '../../../components/ColorPicker/ColorPicker.svelte';
   import { colorPickerStore } from './ColorPickerStore';
   let elm;
   let realX;

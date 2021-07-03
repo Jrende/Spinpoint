@@ -1,14 +1,15 @@
 <script>
   import { onMount, afterUpdate } from 'svelte';
-  import ui from '../stores/UI';
-  import draft from '../stores/Draft';
-  import WeaveDisplay from '../components/WeaveDisplay/WeaveDisplay.svelte';
-  import RulerBar from '../components/RulerBar/RulerBar.svelte';
-  import YarnSelector from '../components/YarnSelector/YarnSelector.svelte';
-  import InfoBar from '../components/InfoBar/InfoBar.svelte';
+  import Sidebar from './Sidebar/Sidebar';
+  import Toolbar from './Toolbar';
+  import ui from 'stores/UI';
+  import draft from 'stores/Draft';
+  import WeaveDisplay from './WeaveDisplay/WeaveDisplay';
+  import Selection from './Selection/SelectionComponent';
+  import RulerBar from './RulerBar';
+  import InfoBar from './InfoBar';
 
   let infobarContainer;
-  let toolbarContainer;
   let scrollContainer;
   let canvasContainer;
   let canvasWidth;
@@ -31,6 +32,8 @@
   $: width = warpCount * cellSize;
   $: height = pickCount * cellSize;
 
+  let sidebarOpen = true;
+
   function reducePrecision(num) {
     return Math.floor(num / 2) * 2;
   }
@@ -49,7 +52,6 @@
     scrollbarWidth = scrollContainer.offsetWidth - scrollContainer.clientWidth;
     scrollbarHeight =
       scrollContainer.offsetHeight - scrollContainer.clientHeight;
-    toolbarHeight = toolbarContainer.clientHeight;
     infobarHeight = infobarContainer.clientHeight;
 
     let scrollLeftMax =
@@ -148,6 +150,26 @@
   }
 </script>
 
+<!--
+<div class="tool-bar" bind:this={toolbarContainer}>
+  <button class="hamberder" on:click={() => (sidebarOpen = !sidebarOpen)}
+    >{#if !sidebarOpen}≡{:else}x{/if}</button
+  >
+  <YarnSelector />
+  <div class="ok-zoomer">
+    <input
+      type="range"
+      min="5"
+      max="70"
+      on:input={changeCellSize}
+      bind:value={cellSizeInput}
+    />
+  </div>
+</div>
+-->
+
+<Toolbar bind:height={toolbarHeight} bind:scrollContainer bind:sidebarOpen />
+<Sidebar open={sidebarOpen} />
 <div
   on:scroll={updatePosition}
   bind:this={scrollContainer}
@@ -155,22 +177,6 @@
   tabindex="0"
 >
   <div class="scrollpane" style={`left: ${width}px; top: ${height}px;`} />
-  <div
-    class="tool-bar"
-    bind:this={toolbarContainer}
-    style={`right: ${scrollbarWidth}px`}
-  >
-    <YarnSelector />
-    <div class="ok-zoomer">
-      <input
-        type="range"
-        min="5"
-        max="70"
-        on:input={changeCellSize}
-        bind:value={cellSizeInput}
-      />
-    </div>
-  </div>
   <div
     bind:this={canvasContainer}
     class="fixed"
@@ -182,6 +188,7 @@
   >
     <div class="weave-container">
       <WeaveDisplay bind:this={weaveDisplay} />
+      <Selection />
       <RulerBar
         width={canvasWidth}
         stepCount={$draft.warpCount}
@@ -211,7 +218,7 @@
 <style>
   .container {
     overflow: auto;
-    --left-menu-width: 90px;
+    --left-menu-width: 0px;
   }
 
   .infobarContainer-container {
@@ -219,22 +226,6 @@
     bottom: 0;
     left: var(--left-menu-width);
   }
-
-  .tool-bar {
-    position: absolute;
-    top: 0;
-    left: var(--left-menu-width);
-
-    justify-content: space-around;
-    display: flex;
-    min-height: 20px;
-    width: 100%;
-    background-color: white;
-    pointer-events: all;
-    z-index: 5;
-    border-bottom: 1px solid black;
-  }
-
   .fixed {
     display: flex;
     justify-content: stretch;
@@ -248,15 +239,6 @@
     top: 0;
 
     pointer-events: none;
-  }
-
-  .ok-zoomer {
-    right: 20px;
-    z-index: 1000;
-  }
-
-  .ok-zoomer input {
-    padding: 0;
   }
 
   .scrollpane {

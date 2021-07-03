@@ -1,7 +1,7 @@
 <script>
-  import draft from '../../../stores/Draft';
-  import ui from '../../../stores/UI';
-  import DraftUtil from '../../../util/DraftUtil';
+  import draft from '../../../../stores/Draft';
+  import ui from '../../../../stores/UI';
+  import DraftUtil from '../../../../util/DraftUtil';
   import { _ } from 'svelte-i18n';
 
   let shaftCount = $draft.shaftCount;
@@ -11,31 +11,23 @@
 
   function submit(event) {
     event.preventDefault();
-    let newDraft = $draft;
-    let changed = false;
-    if (
-      $draft.shaftCount !== shaftCount ||
-      $draft.treadleCount !== treadleCount
-    ) {
-      changed = true;
-      newDraft = DraftUtil.updateShaftOrTreadleCounts(
-        newDraft,
-        shaftCount,
-        treadleCount
-      );
-    }
-    if ($draft.warpCount !== warpCount) {
-      changed = true;
-      newDraft = DraftUtil.updateWarpCount(newDraft, warpCount);
-    }
-    if ($draft.pickCount !== pickCount) {
-      changed = true;
-      newDraft = DraftUtil.updatePickCount(newDraft, pickCount);
-    }
-    if (changed) {
-      draft.set(newDraft);
-    }
-    ui.update((u) => u.set('selectedMenu', -1));
+    draft.update((temp) => {
+      if ($draft.shaftCount !== shaftCount) {
+        DraftUtil.updateShaftCount(temp, shaftCount);
+      }
+      if ($draft.treadleCount !== treadleCount) {
+        DraftUtil.updateTreadleCount(temp, treadleCount);
+      }
+      if ($draft.warpCount !== warpCount) {
+        DraftUtil.updateWarpCount(temp, warpCount);
+      }
+      if ($draft.pickCount !== pickCount) {
+        DraftUtil.updatePickCount(temp, pickCount);
+      }
+    });
+    ui.update((temp) => {
+      temp.selectedMenu = -1;
+    });
   }
 </script>
 

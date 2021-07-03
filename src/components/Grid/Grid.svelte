@@ -176,16 +176,10 @@
     if (numCells !== 0) {
       if (resizeX && xCount + numCells > 0) {
         xCount += numCells;
-        resizeStartPos = [
-          resizeStartPos[0] + numCells * cellSize,
-          resizeStartPos[1],
-        ];
+        resizeStartPos[0] = resizeStartPos[0] + numCells * cellSize;
       } else if (resizeY && yCount + numCells > 0) {
         yCount += numCells;
-        resizeStartPos = [
-          resizeStartPos[0],
-          resizeStartPos[1] + numCells * cellSize,
-        ];
+        resizeStartPos[1] = resizeStartPos[1] + numCells * cellSize;
       }
     }
   }

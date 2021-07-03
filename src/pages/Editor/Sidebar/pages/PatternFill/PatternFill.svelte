@@ -1,6 +1,9 @@
 <script>
   import { _ } from 'svelte-i18n';
-  import { Accordion, AccordionItem } from '../../../Accordion';
+  import {
+    Accordion,
+    AccordionItem,
+  } from '../../../../../components/Accordion';
   import HeddleThreadingFill from './HeddleThreadingFill.svelte';
   import ColorFill from './ColorFill.svelte';
   import gridIcon from 'icons/grid.svg';

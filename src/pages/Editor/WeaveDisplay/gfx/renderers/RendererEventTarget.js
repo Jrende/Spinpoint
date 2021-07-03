@@ -1,5 +1,5 @@
 import VertexArray from '../VertexArray';
-import { line } from '../../../../util/MathUtil';
+import { line } from '../../../../../util/MathUtil';
 
 export default class RendererEventTarget {
   clickListeners = [];

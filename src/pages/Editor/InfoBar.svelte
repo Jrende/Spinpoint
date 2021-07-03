@@ -1,5 +1,5 @@
 <script>
-  import ui from '../../stores/UI';
+  import ui from 'stores/UI';
   $: from = $ui.selectFrom;
   $: to = $ui.selectTo;
   $: length = to - from + 1;
@@ -18,6 +18,7 @@
 <style>
   .info-bar {
     display: flex;
+    justify-content: end;
     min-height: 20px;
     width: 100%;
     background-color: white;

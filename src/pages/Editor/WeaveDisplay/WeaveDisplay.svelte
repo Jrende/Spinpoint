@@ -1,8 +1,9 @@
 <script>
   import { onMount } from 'svelte';
 
-  import draft from '../../stores/Draft';
-  import ui from '../../stores/UI';
+  import draft from 'stores/Draft';
+  import selection from '../Selection/SelectionStore';
+  import ui from 'stores/UI';
   import { Renderer } from './gfx/Renderer';
 
   let renderer;
@@ -21,6 +22,7 @@
   $: scroll = $ui.scrollPos;
   $: selectedColor = $ui.selectedColor;
   $: cellSize = $ui.cellSize;
+  $: isSelecting = $selection.isSelecting;
 
   $: {
     if (renderer) {
@@ -57,6 +59,19 @@
     return renderer.renderers.find((r) => r.renderer.isWithinGrid(pos));
   }
 
+  function shouldStartDrag(event) {
+    let ret =
+      drag === undefined &&
+      event.buttons & (1 !== 0) &&
+      (event.movementX !== 0 || event.movementY !== 0) &&
+      dragMaybe &&
+      !isSelecting;
+    if (ret === true) {
+      dragMaybe = false;
+    }
+    return ret;
+  }
+
   onMount(() => {
     renderer = new Renderer(canvas);
     syncCanvasDimensions();
@@ -81,12 +96,7 @@
 
       setHover(e);
 
-      if (
-        drag === undefined &&
-        e.buttons & (1 !== 0) &&
-        (e.movementX !== 0 || e.movementY !== 0) &&
-        dragMaybe
-      ) {
+      if (shouldStartDrag(e)) {
         let rendererName = getRenderer(startPos)?.name;
         if (rendererName !== undefined && rendererName !== 'weave') {
           drag = rendererName;
@@ -94,8 +104,6 @@
             draft.isDragging = true;
           });
         }
-
-        dragMaybe = false;
       }
 
       if (drag !== undefined && drag !== 'weave') {
@@ -154,7 +162,7 @@
             updateTieupWithPoints(linePoints);
             break;
         }
-      } else if (cancelled === false) {
+      } else if (!isSelecting && cancelled === false) {
         // Regular click without drag
         let pos = [e.offsetX, e.offsetY];
         let name = getRenderer(pos)?.name;

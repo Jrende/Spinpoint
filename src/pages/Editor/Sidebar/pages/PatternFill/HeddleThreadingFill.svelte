@@ -1,7 +1,8 @@
 <script>
-  import draft from '../../../../stores/Draft';
-  import draftUtil from '../../../../util/DraftUtil';
-  import Grid from '../../../Grid/Grid.svelte';
+  import { onMount } from 'svelte';
+  import draft from '../../../../../stores/Draft';
+  import draftUtil from '../../../../../util/DraftUtil';
+  import Grid from '../../../../../components/Grid/Grid.svelte';
   import { _ } from 'svelte-i18n';
 
   export let warpOrWeft;
@@ -22,31 +23,30 @@
   $: treadleCount = $draft.treadleCount;
   $: shaftCount = $draft.shaftCount;
 
+  onMount(() => {
+    xCount = shaftCount;
+    yCount = treadleCount;
+  });
+
   $: {
     if (oldWarpOfWeft !== warpOrWeft) {
-      if (warpOrWeft === 'warp') {
-        xCount = shaftCount;
-        yCount = shaftCount;
-      } else {
-        xCount = treadleCount;
-        yCount = treadleCount;
-      }
+      [xCount, yCount] = [yCount, xCount];
       oldWarpOfWeft = warpOrWeft;
       normalizeCellData();
     }
   }
-  $: {
-    //TODO: enforce array length here
-  }
 
   function normalizeCellData() {
-    cellData.splice(yCount, cellData.length);
+    //cellData.splice(yCount, cellData.length);
     cellData = cellData.map((v) => (v > xCount - 1 ? undefined : v));
   }
 
   export function apply() {
     draft.update((temp) => {
-      draftUtil.applyPattern(temp, cellData, warpOrWeft, mirroredRepeat);
+      let length = warpOrWeft === 'warp' ? xCount : yCount;
+      let cellDataSlice = [...cellData];
+      cellDataSlice.splice(length, cellData.length);
+      draftUtil.applyPattern(temp, cellDataSlice, warpOrWeft, mirroredRepeat);
     });
   }
 

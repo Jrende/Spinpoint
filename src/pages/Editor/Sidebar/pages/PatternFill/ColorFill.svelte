@@ -1,7 +1,7 @@
 <script>
-  import draft from '../../../../stores/Draft';
-  import draftUtil from '../../../../util/DraftUtil';
-  import Grid from '../../../Grid/Grid.svelte';
+  import draft from '../../../../../stores/Draft';
+  import draftUtil from '../../../../../util/DraftUtil';
+  import Grid from '../../../../../components/Grid/Grid.svelte';
   import tinycolor from 'tinycolor2';
 
   export let warpOrWeft;
