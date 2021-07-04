@@ -9,8 +9,10 @@
   $: useTreadling = $selection.useTreadling;
   $: useWarpColors = $selection.useWarpColors;
   $: useWeftColors = $selection.useWeftColors;
+  $: maxLength = Math.max($draft.warpCount, $draft.pickCount);
   let from = 0;
-  let to = 0;
+  $: to = maxLength;
+  let fillAll = true;
 
   $: {
     selection.update((temp) => {
@@ -127,18 +129,35 @@
     </div>
   </fieldset>
   <fieldset class="to-from-inputs">
-    <legend>Position</legend>
+    <legend>Target</legend>
+    <label for="fill-all">Fill entire draft</label>
+    <input
+      name="fill-all"
+      id="fill-all"
+      type="checkbox"
+      bind:checked={fillAll}
+    />
+
     <label for="from">From</label>
     <input
       name="from"
       id="from"
       type="number"
       min="0"
-      max="100"
+      max={maxLength}
+      disabled={fillAll}
       bind:value={from}
     />
     <label for="to">To</label>
-    <input name="to" id="to" type="number" min="0" max="100" bind:value={to} />
+    <input
+      name="to"
+      id="to"
+      type="number"
+      min="0"
+      max={maxLength}
+      bind:value={to}
+      disabled={fillAll}
+    />
   </fieldset>
   <div>{$selection.from + '->' + $selection.to}</div>
   <button class="submit">Apply repetition</button>

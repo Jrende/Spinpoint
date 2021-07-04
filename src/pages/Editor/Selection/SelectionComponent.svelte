@@ -8,8 +8,8 @@
   $: shaftCount = $draft.shaftCount;
   $: treadleCount = $draft.treadleCount;
 
-  $: threadingPos = [treadleCount + 4, 3];
-  $: treadlingPos = [3, shaftCount + 4];
+  $: threadingPosition = [treadleCount + 4, 3];
+  $: treadlingPosition = [3, shaftCount + 4];
   $: warpColorsPosition = [treadleCount + 4, 1];
   $: weftColorsPosition = [1, shaftCount + 4];
   $: weavePosition = [treadleCount + 4, shaftCount + 4];
@@ -30,153 +30,111 @@
 
   $: scrollPos = [$ui.scrollPos[0] / 2.0, $ui.scrollPos[1] / 2.0];
 
+  $: dragSelection = { to: 0, from: 0 };
   $: selections = [
     {
       name: 'useThreading',
-      dir: 'horiz',
-      width: cellSize * (to[0] - from[0]),
-      height: cellSize * shaftCount,
-      right: (threadingPos[0] + from[0]) * cellSize - scrollPos[0],
-      bottom: threadingPos[1] * cellSize,
+      canvasArea: {
+        left: 0,
+        right: `${threadingPosition[0] * cellSize}px`,
+        bottom: `${threadingPosition[1] * cellSize}px`,
+        height: `${shaftCount * cellSize}px`,
+      },
+      selectionArea: {
+        width: `${cellSize * (to[0] - from[0])}px`,
+        height: `${cellSize * shaftCount}px`,
+        right: `${from[0] * cellSize - scrollPos[0]}px`,
+        bottom: 0,
+      },
+      dragMarker: {
+        width: `${cellSize * (dragSelection.to[0] - dragSelection.from[0])}px`,
+        height: `${cellSize * shaftCount}px`,
+        right: `${dragSelection.from[0] * cellSize - scrollPos[0]}px`,
+        bottom: 0,
+      },
     },
     {
       name: 'useTreadling',
       dir: 'vert',
-      width: cellSize * treadleCount,
-      height: cellSize * (to[1] - from[1]),
-      right: treadlingPos[0] * cellSize,
-      bottom: (treadlingPos[1] + from[1]) * cellSize - scrollPos[1],
+      canvasArea: {
+        top: 0,
+        right: `${treadlingPosition[0] * cellSize}px`,
+        bottom: `${treadlingPosition[1] * cellSize}px`,
+        width: `${treadleCount * cellSize}px`,
+      },
+      selectionArea: {
+        width: `${cellSize * treadleCount}px`,
+        height: `${(to[1] - from[1]) * cellSize}px`,
+        bottom: `${from[1] * cellSize - scrollPos[1]}px`,
+      },
+      dragMarker: {
+        width: `${cellSize * treadleCount}px`,
+        height: `${(dragSelection.to[1] - dragSelection.from[1]) * cellSize}px`,
+        bottom: `${dragSelection.from[1] * cellSize - scrollPos[1]}px`,
+      },
     },
     {
       name: 'useWarpColors',
-      dir: 'horiz',
-      width: cellSize * (to[0] - from[0]),
-      height: cellSize,
-      right: (warpColorsPosition[0] + from[0]) * cellSize - scrollPos[0],
-      bottom: warpColorsPosition[1] * cellSize,
+      canvasArea: {
+        height: `${cellSize}px`,
+        right: `${warpColorsPosition[0] * cellSize}px`,
+        bottom: `${warpColorsPosition[1] * cellSize}px`,
+        left: 0,
+      },
+      selectionArea: {
+        width: `${(to[0] - from[0]) * cellSize}px`,
+        height: `${cellSize}px`,
+        right: `${from[0] * cellSize - scrollPos[0]}px`,
+      },
+      dragMarker: {
+        width: `${cellSize * (dragSelection.to[0] - dragSelection.from[0])}px`,
+        right: `${cellSize * dragSelection.from[0]}px`,
+        height: `${cellSize}px`,
+      },
     },
     {
       name: 'useWeftColors',
-      dir: 'vert',
-      width: cellSize,
-      height: (to[1] - from[1]) * cellSize,
-      right: weftColorsPosition[0] * cellSize,
-      bottom: (weftColorsPosition[1] + from[1]) * cellSize - scrollPos[1],
+      canvasArea: {
+        width: `${cellSize}px`,
+        right: `${weftColorsPosition[0] * cellSize}px`,
+        top: 0,
+        bottom: `${weftColorsPosition[1] * cellSize}px`,
+      },
+      selectionArea: {
+        width: `${cellSize}px`,
+        height: `${(to[1] - from[1]) * cellSize}px`,
+        right: 0,
+        bottom: `${from[1] * cellSize - scrollPos[1]}px`,
+      },
+      dragMarker: {
+        width: `${cellSize}px`,
+        height: `${(dragSelection.to[1] - dragSelection.from[1]) * cellSize}px`,
+        right: 0,
+        bottom: `${dragSelection.from[1] * cellSize}px`,
+      },
     },
     {
       name: 'weave',
-      dir: 'weave',
-      width: cellSize * (to[0] - from[0]),
-      height: cellSize * (to[1] - from[1]),
-      right: (weavePosition[0] + from[0]) * cellSize - scrollPos[0],
-      bottom: (weavePosition[0] + from[1]) * cellSize - scrollPos[1],
+      canvasArea: {
+        left: 0,
+        right: `${weavePosition[0] * cellSize}px`,
+        top: 0,
+        bottom: `${weavePosition[1] * cellSize}px`,
+      },
+      selectionArea: {
+        width: `${cellSize * (to[0] - from[0])}px`,
+        height: `${cellSize * (to[1] - from[1])}px`,
+        right: `${from[0] * cellSize - scrollPos[0]}px`,
+        bottom: `${from[1] * cellSize - scrollPos[1]}px`,
+      },
+      dragMarker: {
+        width: `${(dragSelection.to[0] - dragSelection.from[0]) * cellSize}px`,
+        height: `${(dragSelection.to[1] - dragSelection.from[1]) * cellSize}px`,
+        right: `${dragSelection.from[0] * cellSize}px`,
+        bottom: `${dragSelection.from[1] * cellSize}px`,
+      },
     },
   ];
-
-  let dragStart = [];
-  let dragEndName;
-  let dragDir;
-  let dragName;
-  function onResizeMouseDown(event, dir, toOrFrom, name) {
-    event.stopPropagation();
-
-    dragStart = [event.pageX, event.pageY];
-    dragName = name;
-    dragEndName = toOrFrom;
-    dragDir = dir;
-
-    if (dir === 'vert' || dir === 'horiz') {
-      document.body.addEventListener('pointermove', onResizeMouseMove);
-    } else {
-      document.body.addEventListener('pointermove', onResizeMouseMoveDiagonal);
-    }
-    document.body.addEventListener('pointerup', onBodyMouseUp);
-    if (dir === 'vert') {
-      document.body.style.cursor = 'row-resize';
-    } else if (dir === 'horiz') {
-      document.body.style.cursor = 'col-resize';
-    }
-  }
-
-  function onResizeMouseMoveDiagonal(e) {
-    if (e.buttons === 0) {
-      stopDrag();
-      return;
-    }
-    let endPos = [e.pageX, e.pageY];
-    if (dragDir === 'nw') {
-      updateSelection(dragStart, endPos, 'vert', 'to');
-      updateSelection(dragStart, endPos, 'horiz', 'to');
-    }
-    if (dragDir === 'ne') {
-      updateSelection(dragStart, endPos, 'vert', 'to');
-      updateSelection(dragStart, endPos, 'horiz', 'from');
-    }
-    if (dragDir === 'se') {
-      updateSelection(dragStart, endPos, 'vert', 'from');
-      updateSelection(dragStart, endPos, 'horiz', 'from');
-    }
-    if (dragDir === 'sw') {
-      updateSelection(dragStart, endPos, 'vert', 'from');
-      updateSelection(dragStart, endPos, 'horiz', 'to');
-    }
-  }
-
-  function onResizeMouseMove(e) {
-    if (e.buttons === 0) {
-      stopDrag();
-      return;
-    }
-    let endPos = [e.pageX, e.pageY];
-    updateSelection(dragStart, endPos, dragDir, dragEndName, dragName);
-  }
-  function updateSelection(fromCoord, toCoord, dir, endName, name) {
-    let diff = vec2.sub(vec2.create(), toCoord, fromCoord);
-    let index = dir === 'horiz' ? 0 : 1;
-    let d = diff[index] / cellSize;
-    let numCells;
-    if (d > 0.0) {
-      numCells = Math.floor(d);
-    } else {
-      numCells = -Math.floor(Math.abs(d));
-    }
-    if (numCells !== 0) {
-      // Två fall: antingen drar man from över to, eller to över from
-      // I båda fallen blir from.x || from.y mer än to.x || to.y
-      if (from[index] + numCells > to[index]) {
-        console.log('Switch endName from ' + endName);
-        dragEndName = endName === 'to' ? 'from' : 'to';
-        endName = dragEndName;
-        console.log('to ' + endName);
-      }
-      selection.update((temp) => {
-        temp[endName][index] -= numCells;
-        if (name !== undefined) {
-          temp[name] = true;
-        }
-      });
-      dragStart[index] = dragStart[index] + numCells * cellSize;
-    }
-  }
-
-  function onBodyMouseUp() {
-    stopDrag();
-  }
-
-  function stopDrag() {
-    document.body.removeEventListener('pointermove', onResizeMouseMove);
-    document.body.removeEventListener('pointermove', onResizeMouseMoveDiagonal);
-    document.body.removeEventListener('pointerup', onBodyMouseUp);
-    document.body.style.cursor = '';
-  }
-
-  function toggleSelection(name) {
-    if (name !== 'weave') {
-      selection.update((temp) => {
-        temp[name] = !temp[name];
-      });
-    }
-  }
 
   function swap(a, b, i) {
     if (a[i] > b[i]) {
@@ -187,11 +145,15 @@
   }
 
   function getSelection(fromCoord, toCoord) {
-    let origin = vec2.scale(vec2.create(), weavePosition, cellSize);
+    let origin = [0, 0];
     if (fromCoord[0] > toCoord[0]) {
+      fromCoord = vec2.copy(vec2.create(), fromCoord);
+      toCoord = vec2.copy(vec2.create(), toCoord);
       swap(fromCoord, toCoord, 0);
     }
     if (fromCoord[1] > toCoord[1]) {
+      fromCoord = vec2.copy(vec2.create(), fromCoord);
+      toCoord = vec2.copy(vec2.create(), toCoord);
       swap(fromCoord, toCoord, 1);
     }
     if (vec2.dist(origin, fromCoord) > vec2.dist(origin, toCoord)) {
@@ -213,221 +175,121 @@
     };
   }
 
-  let containerFrom;
-  let containerTo;
-  function containerMouseDown(event) {
+  let isDragging;
+  let containerFrom = [0, 0];
+  let containerTo = [0, 0];
+  let currentSelection;
+  function containerMouseDown(event, name) {
+    isDragging = true;
     let rect = event.target.getBoundingClientRect();
+    currentSelection = name;
     containerFrom = [rect.width - event.offsetX, rect.height - event.offsetY];
     document.body.addEventListener('pointermove', containerMouseMove);
     document.body.addEventListener('pointerup', containerMouseUp);
   }
 
   function containerMouseMove(event) {
-    /*
     let rect = event.target.getBoundingClientRect();
-    containerTo = [rect.width - event.offsetX, rect.height - event.offsetY];
-    */
+    let containerTo = [rect.width - event.offsetX, rect.height - event.offsetY];
+    dragSelection = getSelection(containerFrom, containerTo);
   }
 
   function containerMouseUp(event) {
     let rect = event.target.getBoundingClientRect();
     containerTo = [rect.width - event.offsetX, rect.height - event.offsetY];
+    let mouseOverElement = document.elementFromPoint(event.pageX, event.pageY);
+    let targetName = mouseOverElement.getAttribute('data-name');
     let newSelection = getSelection(containerFrom, containerTo);
     selection.update((temp) => {
       temp.to = newSelection.to;
       temp.from = newSelection.from;
+      if (currentSelection === 'weave') {
+        temp.useThreading = true;
+        temp.useWarpColors = true;
+        temp.useTreadling = true;
+        temp.useWeftColors = true;
+      } else {
+        temp.useThreading = false;
+        temp.useWarpColors = false;
+        temp.useTreadling = false;
+        temp.useWeftColors = false;
+        temp[currentSelection] = true;
+      }
+      if (targetName !== 'weave' && targetName !== currentSelection) {
+        temp[targetName] = true;
+      }
     });
     stopContainerDrag();
   }
 
+  function toggleSelection(name) {
+    if (name !== 'weave') {
+      selection.update((temp) => {
+        temp[name] = !temp[name];
+      });
+    }
+  }
+
   function stopContainerDrag() {
-    containerFrom = undefined;
+    isDragging = false;
     document.body.removeEventListener('pointermove', containerMouseMove);
     document.body.removeEventListener('pointerup', containerMouseUp);
+  }
+
+  function toCssString(obj) {
+    return Object.entries(obj).reduce((a, b) => a + '; ' + b.join(': '), '');
   }
 </script>
 
 {#if isSelecting}
-  <div class="selection" on:mousedown={containerMouseDown}>
-    {#if hasLength}
-      {#each selections as selectionItem}
-        <div
-          class={'selection-overlay ' + selectionItem.dir}
-          class:applied={$selection[selectionItem.name]}
-          on:click={() => toggleSelection(selectionItem.name)}
-          style={`
-          width: ${selectionItem.width}px;
-          height: ${selectionItem.height}px;
-          right: ${selectionItem.right}px;
-          bottom: ${selectionItem.bottom}px;
-        `}
-        >
-          {#if selectionItem.name !== 'weave'}
-            <button
-              class="resize to"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(
-                  e,
-                  selectionItem.dir,
-                  'to',
-                  selectionItem.name
-                )}
-            />
-            <button
-              class="resize from"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(e, selectionItem.dir, 'from')}
-            />
-          {:else}
-            <button
-              class="resize n"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(e, 'vert', 'to', 'weave')}
-            />
-            <button
-              class="resize ne"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(e, 'ne', undefined, 'weave')}
-            />
-            <button
-              class="resize e"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(e, 'horiz', 'from', 'weave')}
-            />
-            <button
-              class="resize se"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(e, 'se', undefined, 'weave')}
-            />
-            <button
-              class="resize s"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(e, 'vert', 'from', 'weave')}
-            />
-            <button
-              class="resize sw"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(e, 'sw', undefined, 'weave')}
-            />
-            <button
-              class="resize w"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(e, 'horiz', 'to', 'weave')}
-            />
-            <button
-              class="resize nw"
-              on:click={(e) => e.stopPropagation()}
-              on:pointerdown={(e) =>
-                onResizeMouseDown(e, 'nw', undefined, 'weave')}
-            />
-          {/if}
-        </div>
-      {/each}
-    {/if}
+  <div class="selections">
+    {#each selections as selectionItem}
+      <div
+        data-name={selectionItem.name}
+        class={'selection ' + selectionItem.name}
+        on:pointerdown={(e) => containerMouseDown(e, selectionItem.name)}
+        style={toCssString(selectionItem.canvasArea)}
+      >
+        {#if isDragging}
+          <div
+            style={toCssString(selectionItem.dragMarker)}
+            class="current-selection-marker"
+          />
+        {/if}
+        {#if hasLength}
+          <div
+            class={'selection-overlay'}
+            class:applied={$selection[selectionItem.name]}
+            on:click={() => toggleSelection(selectionItem.name)}
+            style={toCssString(selectionItem.selectionArea)}
+          />
+        {/if}
+      </div>
+    {/each}
   </div>
 {/if}
 
 <style>
   .selection {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    top: 0;
+    overflow: hidden;
     pointer-events: all;
+  }
+
+  .current-selection-marker {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
   }
 
   .selection-overlay {
+    pointer-events: none;
     position: absolute;
-    box-shadow: 0 0 1px 5px gray;
+    box-shadow: inset 0 0 1px 5px gray;
     display: flex;
     justify-content: space-between;
-    pointer-events: all;
   }
-
-  .selection-overlay.horiz {
-    flex-direction: row;
-  }
-
-  .selection-overlay.vert {
-    flex-direction: column;
-  }
-
   .applied {
-    box-shadow: 0 0 1px 5px green;
-  }
-
-  .resize {
-    position: relative;
-    border: 1px solid black;
-    margin: 0;
-    pointer-events: all;
-  }
-
-  .vert :where(.to, .from):hover {
-    cursor: row-resize;
-  }
-
-  .horiz :where(.to, .from):hover {
-    cursor: col-resize;
-  }
-
-  .weave {
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    grid-template-columns: auto 1fr auto;
-  }
-
-  .weave .n {
-    grid-column: 2;
-    grid-row: 1;
-    cursor: row-resize;
-  }
-
-  .weave .nw {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .weave .w {
-    grid-column: 1;
-    grid-row: 2;
-    cursor: col-resize;
-  }
-
-  .weave .sw {
-    grid-column: 1;
-    grid-row: 3;
-  }
-
-  .weave .s {
-    grid-column: 2;
-    grid-row: 3;
-    cursor: row-resize;
-  }
-
-  .weave .se {
-    grid-column: 3;
-    grid-row: 3;
-  }
-
-  .weave .e {
-    grid-column: 3;
-    grid-row: 2;
-    cursor: col-resize;
-  }
-
-  .weave .ne {
-    grid-column: 3;
-    grid-row: 1;
+    box-shadow: inset 0 0 1px 5px green;
   }
 </style>
